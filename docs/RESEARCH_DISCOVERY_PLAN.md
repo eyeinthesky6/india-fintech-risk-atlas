@@ -50,3 +50,7 @@ These are architectural references only, not endorsements of implementing STIX o
 
 ## Stop conditions
 If original primary source is inaccessible, current status is unclear, actor applicability conflicts, or a material claim lacks evidence: mark researching and stop publication. A passing syntax/build check is not evidence of correctness.
+
+
+## Hosting decision — finalized 2026-11-20
+**Authoritative deployment:** GitHub Pages for `eyeinthesky6/india-fintech-risk-atlas`. **Build:** Astro + Starlight + Pagefind via GitHub Actions. **Content:** GitHub Markdown/YAML and PR review. **Backend/database/domain:** none required. Expected project URL: `https://eyeinthesky6.github.io/india-fintech-risk-atlas/` once enabled. Astro must configure `site: 'https://eyeinthesky6.github.io'` and `base: '/india-fintech-risk-atlas'`; use GitHub Actions Pages deployment, not Jekyll branch processing. Site output is generated; contributors do not edit templates. Cloudflare Pages and VitePress are alternatives only, not the selected deployment. This is a documentation decision, not confirmation that Pages has been enabled or deployed.

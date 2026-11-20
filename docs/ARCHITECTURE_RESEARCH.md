@@ -48,3 +48,7 @@ International product catalog, compliance audit software, execution-ready detect
 - Content license: CC BY 4.0 is a candidate for original prose/data; confirm third-party rights and attribution. Site code retains upstream licenses.
 - Contributor credit: GitHub history plus byline; personal attribution requires contributor consent.
 - Exact faceted UI: prove default plugin support or use product-specific category landing pages first.
+
+
+## Hosting decision — finalized 2026-11-20
+**Authoritative deployment:** GitHub Pages for `eyeinthesky6/india-fintech-risk-atlas`. **Build:** Astro + Starlight + Pagefind via GitHub Actions. **Content:** GitHub Markdown/YAML and PR review. **Backend/database/domain:** none required. Expected project URL: `https://eyeinthesky6.github.io/india-fintech-risk-atlas/` once enabled. Astro must configure `site: 'https://eyeinthesky6.github.io'` and `base: '/india-fintech-risk-atlas'`; use GitHub Actions Pages deployment, not Jekyll branch processing. Site output is generated; contributors do not edit templates. Cloudflare Pages and VitePress are alternatives only, not the selected deployment. This is a documentation decision, not confirmation that Pages has been enabled or deployed.

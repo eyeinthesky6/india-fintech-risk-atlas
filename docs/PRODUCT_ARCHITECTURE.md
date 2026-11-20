@@ -61,3 +61,7 @@ Start 1 product with 15–25 fully checked records and 30–80 sources as a targ
 ## Quality and governance
 Draft -> source-checked -> independently-reviewed -> published -> needs-reverification -> archived.
 No agent can promote its own record to independently-reviewed. Content validation checks structure, IDs, links and metadata; human/editorial verification checks truth and applicability. Source withdrawal triggers affected-claim review.
+
+
+## Hosting decision — finalized 2026-11-20
+**Authoritative deployment:** GitHub Pages for `eyeinthesky6/india-fintech-risk-atlas`. **Build:** Astro + Starlight + Pagefind via GitHub Actions. **Content:** GitHub Markdown/YAML and PR review. **Backend/database/domain:** none required. Expected project URL: `https://eyeinthesky6.github.io/india-fintech-risk-atlas/` once enabled. Astro must configure `site: 'https://eyeinthesky6.github.io'` and `base: '/india-fintech-risk-atlas'`; use GitHub Actions Pages deployment, not Jekyll branch processing. Site output is generated; contributors do not edit templates. Cloudflare Pages and VitePress are alternatives only, not the selected deployment. This is a documentation decision, not confirmation that Pages has been enabled or deployed.

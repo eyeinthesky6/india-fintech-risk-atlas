@@ -1,9 +1,9 @@
 # Final content architecture — decision record
 Date: 2026-11-20
-Status: recommended baseline; no website implementation authorized
+Status: finalized hosting and content architecture; website implementation not yet authorized
 
 ## Executive decision
-Use **GitHub as the content source of truth**, **Astro content collections** as the structured content layer, **Astro Starlight** as the initial site shell, **Pagefind** for search, and **Cloudflare Pages** for static deployment. Do not add a live database, API, custom CMS, SSR backend or authentication. Contributors change records and evidence via PRs; site templates remain owner-controlled.
+Use **GitHub as the content source of truth**, **Astro content collections** as the structured content layer, **Astro Starlight** as the initial site shell, **Pagefind** for search, and **GitHub Pages** for static deployment. Do not add a live database, API, custom CMS, SSR backend or authentication. Contributors change records and evidence via PRs; site templates remain owner-controlled.
 
 **Important distinction:** 2,000 content records do not imply 2,000 handwritten pages. A single template renders every record; static output may still contain one generated HTML page per record for indexing, accessibility and direct linking. This is inexpensive and simple to maintain. Runtime data fetching is optional, not a requirement.
 
@@ -81,3 +81,7 @@ No Supabase/Postgres, headless CMS server, dynamic REST API, custom React SPA, o
 3. Test unmodified Starlight and Pagefind search/filter UX.
 4. Run synthetic scale smoke test.
 5. Only then scaffold the production site and publish the first reviewed UPI cohort.
+
+
+## Hosting decision — finalized 2026-11-20
+**Authoritative deployment:** GitHub Pages for `eyeinthesky6/india-fintech-risk-atlas`. **Build:** Astro + Starlight + Pagefind via GitHub Actions. **Content:** GitHub Markdown/YAML and PR review. **Backend/database/domain:** none required. Expected project URL: `https://eyeinthesky6.github.io/india-fintech-risk-atlas/` once enabled. Astro must configure `site: 'https://eyeinthesky6.github.io'` and `base: '/india-fintech-risk-atlas'`; use GitHub Actions Pages deployment, not Jekyll branch processing. Site output is generated; contributors do not edit templates. Cloudflare Pages and VitePress are alternatives only, not the selected deployment. This is a documentation decision, not confirmation that Pages has been enabled or deployed.

@@ -4,6 +4,9 @@ An open, source-cited reference to fraud patterns, risk checks and operational f
 
 **Purpose:** practitioner education, product design and independent research. **Not:** legal advice, an exhaustive compliance checklist, or production-ready fraud detection rules.
 
+## Finalized hosting
+GitHub Pages hosts the static site built with Astro + Starlight + Pagefind via GitHub Actions. No separate host, backend, database or domain. Planned URL: https://eyeinthesky6.github.io/india-fintech-risk-atlas/ (not live until deployed). See [website blueprint](docs/SITE_BLUEPRINT.md) and [final architecture](docs/FINAL_CONTENT_ARCHITECTURE.md).
+
 ## Start here
 - [Data model](docs/DATA_MODEL.md)
 - [Research and verification protocol](docs/RESEARCH_PROTOCOL.md)

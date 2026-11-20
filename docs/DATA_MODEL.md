@@ -68,3 +68,7 @@ For each nontrivial assertion record claim_id, exact article location, source_id
 
 ## Cross-product reuse
 A fraud pattern may have multiple products. Keep one canonical record when mechanics are identical, with product-specific applicability notes. Do not silently copy RBI applicability between banks, PSOs, merchants and lending entities. Keep source records deduplicated by canonical URL + document version.
+
+
+## Hosting decision — finalized 2026-11-20
+**Authoritative deployment:** GitHub Pages for `eyeinthesky6/india-fintech-risk-atlas`. **Build:** Astro + Starlight + Pagefind via GitHub Actions. **Content:** GitHub Markdown/YAML and PR review. **Backend/database/domain:** none required. Expected project URL: `https://eyeinthesky6.github.io/india-fintech-risk-atlas/` once enabled. Astro must configure `site: 'https://eyeinthesky6.github.io'` and `base: '/india-fintech-risk-atlas'`; use GitHub Actions Pages deployment, not Jekyll branch processing. Site output is generated; contributors do not edit templates. Cloudflare Pages and VitePress are alternatives only, not the selected deployment. This is a documentation decision, not confirmation that Pages has been enabled or deployed.

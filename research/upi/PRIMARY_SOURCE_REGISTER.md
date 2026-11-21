@@ -36,3 +36,42 @@ The following statements were directly checked against current public RBI/NPCI m
 - NPCI [UPI Settlement Process](https://www.npci.org.in/uploads/UPI_Settlement_Process_256f73e1df.pdf): §4 describes exception/dispute transactions and expressly notes TATs may be changed by circular. Do not publish a fixed dispute TAT without a current circular check.
 
 **Verification status:** six source-level observations checked in this pass. This does not certify the 17 articles; each material claim still needs exact locators and independent review.
+
+## Additional independent-source inspection — 2026-11-21
+
+### R1 — Payments banks, fraud monitoring
+Official RBI [Payments Banks Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13624), Chapter I §§3–4 and Chapter III §§52–57.
+- §3: applies to **payments banks**.
+- §52: requires documented configuration for suspicious transaction behavior and customer alerts for failed authentication.
+- §53: monitoring parameters may include velocity, high-risk MCC, new-account activity, geolocation, IP, behavioural signals, suspicious VPAs, declined transactions.
+- §54: fraud analysis.
+- §55: staff capability including distinguishing false positives.
+- §57: reconciliation not later than 24 hours from receipt of settlement files. **Do not present this as a universal UPI reversal deadline.**
+Status: source text checked. Article-level normative claim applicability still needs independent review.
+
+### R2 — Non-bank payment system operators
+Official RBI [5 November 2026 non-bank PSO directions](https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=13751&Mode=0), §§3–5.
+- Scope: authorised non-bank PSOs.
+- Large/medium PSOs: effective on publication; small PSOs: 1 April 2028.
+- Linked unregulated ecosystem entities: adherence through mutual agreement, not a universal direct statutory obligation.
+Status: primary passage checked. Do not apply automatically to TPAPs, merchants or banks.
+
+### R3 — UPI dispute processing
+NPCI [UPI Settlement Process](https://www.npci.org.in/uploads/UPI_Settlement_Process_256f73e1df.pdf), §4.
+- Exception transactions may be unreconciled or disputed.
+- Member dispute process involves remitting bank, NPCI back office and beneficiary bank.
+- Dispute/adjustment TATs may change by operating circular.
+Status: scheme document checked; current circular supersession check still open.
+
+### R4 — UPI mobile app security (additional source)
+NPCI circular NPCI/2025-26/IS/003, 19 May 2025, *Comprehensive Mobile Application Security Framework for UPI 2025*. [Publicly mirrored copy](https://rscb.bank.in/Content/pdf/npcicircular.pdf).
+- Addresses PSPs, ASPs and TPAPs.
+- Describes root/jailbreak detection, root cloaking detection and installation-source validation.
+- Because this is a third-party mirror, confirm against NPCI original and later circulars before labeling current mandatory controls.
+Status: **provisional, primary-origin document mirrored by third party**.
+
+### Research integrity decisions
+1. The earlier draft's vague 'RBI says...' citations are insufficient for publication. Replace them with exact sections and actor scope.
+2. Distinguish detection suggestions from mandated bank/PSO obligations.
+3. Do not reuse a historic settlement TAT as current without circular review.
+4. Current source checks above were performed in the drafting pass, **not by a distinct independent reviewer**.

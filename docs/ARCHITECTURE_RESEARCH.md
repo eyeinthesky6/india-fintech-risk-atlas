@@ -1,3 +1,5 @@
+> **Architecture freeze notice (2026-11-21):** For current decisions, read [ARCHITECTURE_FREEZE.md](ARCHITECTURE_FREEZE.md) and [EVIDENCE_LAYERS_AND_RIGHTS.md](EVIDENCE_LAYERS_AND_RIGHTS.md). This document is retained for rationale or procedure; any regulation-only scope, alternative hosting, or flat per-product record design is superseded. Do not implement conflicting proposals.
+
 # Architecture research — decision before implementation
 Date: 2026-11-20 | Status: research recommendation, not implementation approval
 

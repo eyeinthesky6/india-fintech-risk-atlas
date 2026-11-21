@@ -38,7 +38,7 @@ Record confirmed incidents, false positives, overturned decisions, delayed feedb
 **Practitioner:** named and attributed observations when verified.  
 **Atlas:** this proposed design framework, subject to validation.
 
-See [operator insights](../operator-insights/) and [evidence policy](../../evidence-policy/) for provenance and limitations.
+See [operator insights ](/india-fintech-risk-atlas/upi/operator-insights/) and [evidence policy ](/india-fintech-risk-atlas/evidence-policy/) for provenance and limitations.
 
 ## Release note
 

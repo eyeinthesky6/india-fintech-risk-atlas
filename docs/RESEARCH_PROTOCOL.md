@@ -44,3 +44,7 @@ Completeness means clearly bounded coverage with verified claims—not an assert
 
 ## Hosting decision — finalized 2026-11-20
 **Authoritative deployment:** GitHub Pages for `eyeinthesky6/india-fintech-risk-atlas`. **Build:** Astro + Starlight + Pagefind via GitHub Actions. **Content:** GitHub Markdown/YAML and PR review. **Backend/database/domain:** none required. Expected project URL: `https://eyeinthesky6.github.io/india-fintech-risk-atlas/` once enabled. Astro must configure `site: 'https://eyeinthesky6.github.io'` and `base: '/india-fintech-risk-atlas'`; use GitHub Actions Pages deployment, not Jekyll branch processing. Site output is generated; contributors do not edit templates. Cloudflare Pages and VitePress are alternatives only, not the selected deployment. This is a documentation decision, not confirmation that Pages has been enabled or deployed.
+
+
+## Four-layer evidence amendment (2026-11-21)
+Read `docs/ARCHITECTURE_FREEZE.md`, `docs/OPERATOR_INTELLIGENCE.md` and `docs/EVIDENCE_LAYERS_AND_RIGHTS.md` before researching. Search official, company, practitioner and independent research sources. Record distinct evidence layer and strength for every material assertion. Company-reported practice is not a regulatory mandate. Named practitioner insights require original author/date/URL and an accurate concise paraphrase. Atlas hypotheses must remain visibly hypothetical. No scraping service is authorized. This amendment supersedes regulation-only interpretations in earlier sections.

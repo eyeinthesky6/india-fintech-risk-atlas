@@ -1,27 +1,23 @@
 ---
 title: Transaction velocity and behavioral anomalies
-description: UPI-010 — Detective control; source-review draft
+description: UPI-010 — risk monitoring and false positives
 ---
 
-**ID:** UPI-010 · **Category:** Detective control · **Status:** Research draft — independent review pending
+**ID:** UPI-010 · **Stage:** Source-checked draft, independent review pending · **Actors:** payments banks (RBI requirement); other participants (illustrative only)
 
-## Summary
-Rapid changes in payment activity can be one of several signals in suspicious-transaction monitoring.
+## What this covers
+An unusual concentration of transfers or beneficiary additions can be a signal for investigation, especially when considered with customer history and account context. Velocity alone does not prove fraud.
 
-## Evidence from primary material
-The RBI payments-bank directions §53 explicitly list transaction velocity, unusual new-account activity, geolocation/IP patterns and declined transactions as possible monitoring parameters for payments banks. [1]
+## What the RBI actually says
+The RBI's *Payments Banks – Digital Payment Security Controls Directions, 2026* §52 requires payments banks to document configuration requirements for suspicious transactional behaviour, preventive and detective controls, and failed-authentication alerts. §53 identifies transaction velocity, new-account activity, location, IP and behavioural indicators among applicable parameters that **could** be monitored. §55 addresses staff training, including distinguishing false positives. [1]
 
-## Potential checks and operational considerations
-Candidate analysis can consider customer baseline, transfer frequency, counterparties and timing, without publishing an arbitrary threshold.
+These provisions apply to **payments banks** under Chapter I §3; they are not automatically requirements for every UPI app, merchant or PSP.
 
-## Limitations and false positives
-Small merchants, collections, festival activity and new customer behavior can resemble anomalies.
+## Suggested practitioner considerations (not mandated thresholds)
+Compare transaction frequency, value and counterparties with a suitable customer baseline. Consider data availability, privacy, alert review and customer impact. Avoid publishing universal numerical limits.
 
-## Applicability
-This article does not assert a universal mandatory control. Applicability depends on the participant's regulated role and the exact source provision.
+## Legitimate lookalikes
+Merchants, community collections, salary-related transfers, festivals, new customers and shared-expense activity may produce similar patterns.
 
 ## References
-1. RBI Payments Banks Digital Payment Security Controls Directions 2026, [official source](https://www.rbi.org.in/SCRIPTS/BS_ViewMasDirections.aspx?id=13624). Source scope: Payments banks. **Article-specific citation and currency audit pending.**
-
-## Review record
-Research drafted 2026-11-21. Independent reviewer: pending. Effective-date and supersession verification: pending.
+1. RBI, [Payments Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13624), Chapter I §3 and Chapter III §§52–55, updated 1 October 2026. Primary source checked 21 November 2026. Independent reviewer pending.

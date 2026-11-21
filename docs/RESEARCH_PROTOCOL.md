@@ -44,3 +44,26 @@ Completeness means clearly bounded coverage with verified claims—not an assert
 
 ## Hosting decision — finalized 2026-11-20
 **Authoritative deployment:** GitHub Pages for `eyeinthesky6/india-fintech-risk-atlas`. **Build:** Astro + Starlight + Pagefind via GitHub Actions. **Content:** GitHub Markdown/YAML and PR review. **Backend/database/domain:** none required. Expected project URL: `https://eyeinthesky6.github.io/india-fintech-risk-atlas/` once enabled. Astro must configure `site: 'https://eyeinthesky6.github.io'` and `base: '/india-fintech-risk-atlas'`; use GitHub Actions Pages deployment, not Jekyll branch processing. Site output is generated; contributors do not edit templates. Cloudflare Pages and VitePress are alternatives only, not the selected deployment. This is a documentation decision, not confirmation that Pages has been enabled or deployed.
+
+
+## Evidence integrity gate — added 2026-11-21
+A citation is not a verified claim. Every normative or material claim needs a claim ID and an evidence ledger entry containing: claim text, record ID, exact source URL, publisher, document version/date, section or page, short supporting passage locator, entity applicability, effective period, source retrieval date, researcher identity, independent reviewer identity, review outcome and unresolved contradictions. Store the ledger under `research/evidence/<record-id>.md`. Do not copy lengthy protected passages.
+
+### Mandatory independent checks
+- Researcher extracts source-backed claims and drafts the article.
+- Reviewer independently opens the original source, verifies its text and context, checks scope, dates and supersession, and marks each claim supported / partial / unsupported / contradictory.
+- Deterministic CI checks IDs, missing required fields, reference targets, duplicate canonical IDs, internal links and evidence ledger presence. A passing CI is **not** a truth certification.
+- Regulatory 'must' statements require 100% primary-source review; critical claims cannot be sampled. For lower-risk technical commentary, sample review is allowed only after each cited claim has a recorded source, with sample size and observed error rate disclosed.
+- If any material claim is unsupported, conflicting or unreviewed, the record remains draft and cannot be labeled verified.
+- Editor spot-checks a risk-based sample of reviewed claims directly against original documents; reviewer and researcher must not be the same agent run.
+
+### Audit trail and reproducibility
+Keep source retrieval log, evidence ledger, author/reviewer, commit SHA, review date and decision. Do not ask a model 'did you verify everything?' as evidence. Require verifiable locators and independent source opening. A model's self-reported tool usage is insufficient; where feasible, preserve tool-derived URL and retrieval metadata.
+
+### Review frequency
+Use evidence-based stopping, not arbitrary three-pass consensus. Reverify on RBI/NPCI changes, broken links, substantive corrections, new contradicting evidence or scheduled content review. An independent human subject-matter review is appropriate for ambiguous or high-impact regulatory interpretation.
+
+### Source methodology references
+W3C PROV overview: https://www.w3.org/TR/prov-overview/ — attribution and provenance.
+NIST AI RMF GenAI profile: https://nvlpubs.nist.gov/nistpubs/AI/NIST.AI.600-1.pdf — verification of AI-generated citations and sources.
+Google ClaimReview: https://developers.google.com/search/docs/appearance/structured-data/factcheck — transparency pattern, not a substitute for verification.

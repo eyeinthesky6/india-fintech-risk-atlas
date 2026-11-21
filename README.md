@@ -18,3 +18,11 @@ Every material claim has a source or is labeled an opinion/hypothesis. A rule is
 
 ## Current state
 Initial scaffold. Entries are **draft** until a reviewer verifies them. The repository is not yet a published website.
+
+
+## Frozen v1 direction
+This is a **fraud, AML and risk-engineering compendium**, not a regulatory digest. See [Architecture Freeze](docs/ARCHITECTURE_FREEZE.md), [UPI Release Audit](docs/UPI_RELEASE_AUDIT.md), [Operator Intelligence](docs/OPERATOR_INTELLIGENCE.md) and [Four-Layer Evidence Model](docs/FOUR_LAYER_CONTENT_SCHEMA.md).
+
+**Licenses:** original editorial content CC BY 4.0; original website code MIT; third-party sources retain their rights. [Full terms](LICENSE.md).
+
+**Release state:** the UPI research collection and site are not independently verified or deployed. Do not mark the project complete solely because draft pages exist.

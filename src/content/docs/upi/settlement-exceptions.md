@@ -1,27 +1,21 @@
 ---
 title: Settlement and reconciliation exceptions
-description: UPI-014 — Operational failure; source-review draft
+description: UPI-014 — payment operations and dispute processing
 ---
 
-**ID:** UPI-014 · **Category:** Operational failure · **Status:** Research draft — independent review pending
+**ID:** UPI-014 · **Stage:** Source-checked draft, independent review pending · **Actors:** UPI scheme participants
 
-## Summary
-Exception transactions can arise from unmatched records or disputed transactions between participants.
+## What this covers
+A payment's user-visible status, the payer's account posting, a merchant's order matching and interparticipant settlement are related but distinct records. A discrepancy should be investigated using the transaction reference and relevant participant records.
 
-## Evidence from primary material
-NPCI's settlement process describes reconciliation, dispute management and changing turnaround times communicated through circulars. [1]
+## What the source establishes
+NPCI's *UPI Settlement Process*, §4, describes exception transactions as unreconciled and/or disputed by customers or members. Its dispute lifecycle depicts remitting-bank, NPCI back-office and beneficiary-bank interactions. The document expressly warns that dispute/adjustment turnaround times may be changed through subsequent operating circulars. [1]
 
-## Potential checks and operational considerations
-Separate customer-visible payment status, bank posting, merchant order matching, participant settlement and dispute adjustments.
+## Candidate operational checks
+Keep transaction references consistent, reconcile records, distinguish pending/failed/success statuses, investigate unmatched transactions and maintain a traceable dispute case. These are operational suggestions, not a universal statutory checklist.
 
-## Limitations and false positives
-Do not publish fixed turnaround times without verifying the current circular and transaction category.
-
-## Applicability
-This article does not assert a universal mandatory control. Applicability depends on the participant's regulated role and the exact source provision.
+## Legitimate lookalikes and limitations
+Asynchronous merchant callbacks, delayed notifications and order-reference mismatches can produce temporary discrepancies. Do not equate an unmatched merchant order with money lost or a fraud event.
 
 ## References
-1. NPCI UPI Settlement Process, [official source](https://www.npci.org.in/uploads/UPI_Settlement_Process_256f73e1df.pdf). Source scope: Scheme member settlement and disputes; check current circulars. **Article-specific citation and currency audit pending.**
-
-## Review record
-Research drafted 2026-11-21. Independent reviewer: pending. Effective-date and supersession verification: pending.
+1. NPCI, [UPI Settlement Process](https://www.npci.org.in/uploads/UPI_Settlement_Process_256f73e1df.pdf), §4, accessed 21 November 2026. **Current operating-circular TAT audit pending**; no specific reversal deadline asserted.

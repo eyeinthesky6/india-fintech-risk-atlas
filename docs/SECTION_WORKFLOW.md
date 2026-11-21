@@ -24,3 +24,6 @@ Run `git config core.hooksPath .githooks`. Git does **not** automatically instal
 
 ## Publication policy
 Draft work can merge only to a non-published research area or remain in a draft PR. Content promoted to `reviewed` or `published` requires every checklist item complete, evidence ledger, distinct named reviewer and human merge approval. Do not automatically publish draft research pages.
+
+## Current source scope
+Before research, read `docs/ARCHITECTURE_FREEZE.md`, `docs/OPERATOR_INTELLIGENCE.md`, `docs/EVIDENCE_LAYERS_AND_RIGHTS.md` and `docs/FOUR_LAYER_CONTENT_SCHEMA.md`. Collect official, industry, practitioner and Atlas-interpretation evidence separately. A draft may be incomplete; never self-certify independent verification.

@@ -15,7 +15,7 @@ UPI is an instant-payment system operated by NPCI and used through participating
 | [Collect-request deception](./collect-request-deception/) | Social engineering | Illustrative; review pending |
 | [Payment status and reconciliation](./payment-status-reconciliation/) | Operational failure | Illustrative; review pending |
 
-See [source register](./sources/) and [methodology](/india-fintech-risk-atlas/methodology/). The first five articles are structured research previews, **not** independently verified or comprehensive controls.
+See [source register](./sources/) and [methodology](/india-fintech-risk-atlas/methodology/). These articles are structured research previews, **not** independently verified or comprehensive controls.
 
 
 ## Practical risk engineering
@@ -23,6 +23,6 @@ See [source register](./sources/) and [methodology](/india-fintech-risk-atlas/me
 - [UPI risk-stack design and validation](./risk-stack-playbook/)
 - [Company-reported operational practices](./operator-insights/)
 - [Coverage and independent-review status](./coverage/)
-- [Evidence and attribution policy](../evidence-policy/)
+- [Evidence and attribution policy ](/india-fintech-risk-atlas/evidence-policy/)
 
 **Evidence distinction:** official RBI/NPCI requirements, company-reported practices, practitioner observations and Atlas interpretation are separate. Most records remain research drafts; do not treat them as production-ready controls.

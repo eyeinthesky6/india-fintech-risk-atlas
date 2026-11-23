@@ -30,7 +30,6 @@ actors:
   - Merchant
 evidenceLayers:
   - official
-  - industry
   - atlas
 reviewStage: draft
 blockerNote: "Direct npci.org.in URLs returned HTTP 403 Forbidden on 2026-11-23; independent review pending."

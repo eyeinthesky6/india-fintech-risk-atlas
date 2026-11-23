@@ -19,8 +19,6 @@ actors:
   - Payment aggregator
 evidenceLayers:
   - official
-  - industry
-  - research
   - atlas
 reviewStage: source-checked
 lastSourceCheck: "2026-11-23"
@@ -36,14 +34,14 @@ Operational gaps occur when systems measure raw transaction counts without basel
 - **Non-bank PSOs (`RBI/DPSS/2026-27/475`, Nov 5, 2026):** `§27(c)` requires real-time/near-real-time fraud monitoring for suspicious transactional behavior, and `§28` requires facilitating online alerts across participants based on parameters including **transaction velocity** and **new-account excessive activity** (Large/Medium PSOs effective immediately; Small PSOs effective Apr 1, 2028 per §3). [4]
 - **No universal numeric threshold:** None of these RBI directions prescribes a universal rupee or count threshold; banks and PSOs set documented risk-based parameters (`§52`). [1]
 
-## Layer 3 — Empirical research observations
-- **Temporal flow shape vs. single transfers (`arXiv:2610.21314v1`):** In Ahmad & Deodhar's 2026 study on the Indian **RBIH NFPC** dataset, high-velocity outbound runs interleaved with matching inflows and dormant periods separated mule behavior from normal accounts whose occasional velocity excursions reverted to baseline. [5]
-- **Precision vs. recall trade-off (`arXiv:2410.19845v1`):** In Google's GPay India UPI scam evaluation, high-recall models (>88% recall) exhibited ~30% precision on tested segments, demonstrating that behavioral triggers alone create unsustainable false positives if wired directly to hard account blocks. [6]
-
-## Layer 4 — Candidate controls and data prerequisites
+## Layer 4 — Candidate controls, data prerequisites, and research references
 - **Baseline-normalized burst features:** Compare rolling 15-minute, 1-hour, and 24-hour outbound count, total value, balance depletion ratio, and unique-new-payee count against the customer's 30/90-day baseline and account age.
 - **Contextual conjunctions:** Escalate score priority when an outbound burst coincides with first-time app activation, recent SIM/device binding (`UPI-003`), or an immediate prior inbound transfer from an unfamiliar payer.
 - **Data prerequisites:** transaction timestamps, direction (`debit`/`credit`), status/outcome, amount, balance pre/post, anonymized counterparty VPA/account ID, account tenure, device/session context.
+
+### Research paper leads (ideas for gaps, not ready-to-use rules)
+- **Temporal flow shape vs. single transfers (`arXiv:2610.21314v1`):** In Ahmad & Deodhar's 2026 study on the Indian **RBIH NFPC** dataset, high-velocity outbound runs interleaved with matching inflows and dormant periods separated mule behavior from normal accounts whose occasional velocity excursions reverted to baseline. [5]
+- **Precision vs. recall trade-off (`arXiv:2410.19845v1`):** In Google's GPay India UPI scam evaluation, high-recall models (>88% recall) exhibited ~30% precision on evaluated segments, demonstrating that behavioral triggers alone create unsustainable false positives if wired directly to hard account blocks. [6]
 
 ## False positives, customer impact, and validation
 - **Legitimate lookalikes:** Small merchants paying multiple suppliers at end of day, festive shopping/gifting, shared-trip settlements, salary-day family transfers, and newly onboarded active customers.

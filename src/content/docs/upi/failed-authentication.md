@@ -19,7 +19,6 @@ actors:
   - Remitter bank
 evidenceLayers:
   - official
-  - industry
   - atlas
 reviewStage: source-checked
 lastSourceCheck: "2026-11-23"

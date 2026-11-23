@@ -3,7 +3,7 @@ title: UPI source register
 description: Verified RBI regulatory texts, NPCI circular status, and research references for UPI risk controls.
 ---
 
-These sources anchor the **Layer 1 (Official)** and **Layer 3 (Research)** citations across the UPI section. A citation supports only the specific scope, entity class, effective date, and provision verified in the document—never blanket requirements across unrelated participants.
+These sources anchor **Layer 1 (Official)** citations across the UPI section alongside **Layer 4** academic/research paper leads cited for candidate gap ideas. A citation supports only the specific scope, entity class, effective date, and provision verified in the document—never blanket requirements across unrelated participants.
 
 ## Directly inspected RBI and government primary sources (checked 2026-11-23)
 
@@ -32,7 +32,9 @@ Two third-party mirrors of NPCI circulars were visually inspected and are cited 
 - `NPCI/2025-26/IS/003` (*Comprehensive Mobile Application Security Framework for UPI - 2025*, May 19, 2025) — [bank mirror](https://rscb.bank.in/Content/pdf/npcicircular.pdf).
 - `NPCI/UPI/OC/220/2025-26` (*Discontinuing the service of UPI Collect Request for P2P transactions*, Jul 29, 2025, effective Oct 1, 2025) — [legal update mirror](https://avantiscdnprodstorage.blob.core.windows.net/legalupdatedocs/45492/NPCI-issued-a-notification-regarding-the-discontinuation-of-the-service-of-UPI-Collect-Request-for-Person-to-Person-transactions-August122025.pdf).
 
-## Open-access research references (Layer 3)
+## Academic & research paper references (Layer 4 — ideas only)
+
+Academic papers are tracked under **Layer 4** as candidate reference leads for exploring control gaps—not under Industry or Practitioner practice—because papers usually examine narrow datasets or short-term objectives rather than turnkey production rules:
 
 1. Ahmad, O. & Deodhar, A. (2026), [Money-Mule Detection as a Relational Learning Problem: A Study on the RBIH NFPC Dataset](https://arxiv.org/html/2610.21314v1), `arXiv:2610.21314v1`.
 2. Dahiphale, D. et al. / Google, Inc. (2024), [Enhancing Trust and Safety in Digital Payments: An LLM-Powered Approach](https://arxiv.org/html/2410.19845v1), `arXiv:2410.19845v1`.

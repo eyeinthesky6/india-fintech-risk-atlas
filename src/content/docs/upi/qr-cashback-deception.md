@@ -35,14 +35,16 @@ Fraudsters distribute QR codes or payment links promising cashbacks, refunds, lo
 - **Merchant identity in customer alerts:** Under RBI's *Digital Payment Security Controls Directions, 2026* (`id=13642 §47` Commercial Banks; `id=13624 §47` Payments Banks; `id=13633 §47` SFBs), customer alerts and OTPs for online transactions must identify the **merchant name** (wherever applicable) rather than only the intermediary payment aggregator, aiding payer verification. [3]
 - **Directed warnings & coercion scope:** Under `RBI/2026-27/167` (`Id=13543`, effective Jan 1, 2027 for commercial banks), `§4(15A)` includes approvals granted under deception/duress within *Fraudulent EBT*, and `§4(20C)(iii)` makes clear, directed bank scam warnings operationally consequential. [4]
 
-## Layer 2 & Layer 3 — Industry and research observations
+## Layer 2 — Company-reported industry practices
 - **Signed Intent (`company-reported`):** Razorpay documents **Signed Intent** (digitally signing the payment request payload before mobile deep-link redirection) to prevent tampering with transaction amount or payee details during app handoff. [5]
-- **Text & initiation-mode signals (`arXiv:2410.19845v1`):** In Google's empirical UPI scam-detection study on GPay India data, Dahiphale et al. evaluate analyzing initiation modes (`qr_scan`, `app_intent`, `payment_request`), order memo text, payer/payee history, and user spam reports—reporting >88% recall alongside ~30% precision on evaluated splits, underscoring why ambiguous signals require step-up friction or human review rather than blind auto-blocking. [6]
 
-## Layer 4 — Candidate controls and data prerequisites
+## Layer 4 — Candidate controls, data prerequisites, and research references
 - **Cryptographic intent validation (PAs / merchants / TPAPs):** Prefer Signed Intent / Dynamic QR payloads verified server-side against expected order IDs and amounts; reject or warn on unsigned or tampered deep links.
 - **Payee & direction clarity at scan time (TPAPs):** Display verified payee name, merchant category, and warning prompts when a gallery-imported QR image or external link targets an unverified or high-risk VPA (especially first-time payees).
 - **Data prerequisites:** initiation source (`camera_qr`, `gallery_qr`, `external_intent`, `signed_intent`), payee VPA/MID/MCC, scam/spam report history on payee VPA (`id=13642 §53`), payer-payee graph novelty.
+
+### Research paper leads (ideas for gaps, not ready-to-use rules)
+- **Text & initiation-mode signals (`arXiv:2410.19845v1`):** In Google's empirical UPI scam-detection study on GPay India data, Dahiphale et al. evaluate analyzing initiation modes (`qr_scan`, `app_intent`, `payment_request`), order memo text, payer/payee history, and user spam reports—reporting >88% recall alongside ~30% precision on evaluated splits, underscoring why ambiguous signals require step-up friction or human review rather than blind auto-blocking. [6]
 
 ## False positives, customer impact, and validation
 - **Legitimate lookalikes:** Genuine merchant cashback offers, dynamic point-of-sale QR codes, gallery-saved utility/kirana QR screenshots, and peer reimbursements.

@@ -1,9 +1,9 @@
 ---
 title: Operator practices and evidence
-description: Public company engineering documentation and open-access research on payment operations, fraud and AML controls.
+description: Company-reported payment engineering documentation (Layer 2) and academic research leads for gap exploration (Layer 4).
 ---
 
-This page separates **company-reported engineering practices** (Layer 2) and **open-access empirical research** (Layer 3) from **official regulatory requirements** (Layer 1) and **Atlas interpretation** (Layer 4). Company docs describe how a specific provider integrates or operates; they are neither universal bank practices nor RBI/NPCI mandates.
+This page separates **company-reported engineering practices** (Layer 2) from **official regulatory requirements** (Layer 1), **named practitioner observations** (Layer 3), and **Atlas analysis & research paper leads** (Layer 4). Company docs describe how one provider integrates or operates—they are neither universal bank practices nor RBI/NPCI mandates. Academic papers appear strictly under **Layer 4** as idea leads for addressing operational gaps, never as ready-to-use rules or practitioner proof.
 
 ## 1. Payment event duplication, signatures, and ordering
 
@@ -29,19 +29,21 @@ This page separates **company-reported engineering practices** (Layer 2) and **o
 
 **Atlas interpretation.** Payment aggregators surface structured merchant dispute workflows, while underlying UPI interbank settlement/dispute rules flow through NPCI back-office/UDIR and RBI's ODR/TAT rules (covered in [Dispute routing](/india-fintech-risk-atlas/upi/dispute-routing/) and [Settlement exceptions](/india-fintech-risk-atlas/upi/settlement-exceptions/)).
 
-## 4. Rule backtesting, analyst queues, and ML trade-offs
+## 4. Rule backtesting and analyst calibration (`company-reported`, non-India analogy)
 
 **Industry — Stripe Radar (`company-reported`; non-India reference).** Stripe documents backtesting fraud rules against historical data (comparing fraud caught vs. legitimate sales blocked) and warns about label maturity lags (60–120 days for non-fraudulent baselines vs. recent fraud warnings). [5] *Do not transplant Stripe card rule syntax or thresholds to UPI.*
 
-**Empirical research — RBIH NFPC Money-Mule Benchmark (India, 2026).** Using the RBIH NFPC dataset (~237.8M transactions across 96,091 Indian bank accounts, 2,683 labelled mules), Ahmad & Deodhar compare tabular gradient-boosted trees (`XGBoost`, `LightGBM`, `CatBoost`) against leakage-safe temporal heterogeneous GNNs (`HeteroGraphSAGE`, `RelGNN`). On a tight daily review budget (`k = 100` alerts), tuned GBDTs achieved 96–99% precision, matching or beating GNNs; at deeper queues (`k = 500`), graph models held ~0.676–0.680 precision while trees dropped to ~0.562–0.564. Crucially, the authors highlight **positive-unlabelled feedback bias**: uninvestigated mule rings are treated as negative labels. [6]
-
-**Empirical research — Google Pay India UPI Scam Detection (2024).** Dahiphale et al. evaluate fine-tuned Gemini classifiers and an LLM reviewer-assistant on Indian UPI transactions, observing >88% recall alongside ~30% precision on evaluated segments, and mixed reviewer-reasoning accuracy (57% exact match with human reviewers, 32% novel valid reasons, 6% incorrect, <1% hallucinated). [7] *Operational lesson:* high-recall models with ~30% precision cannot auto-block accounts without severe false-positive customer harm; human-in-the-loop review and secondary risk tiers remain essential.
-
-**Empirical research — Explainable Mule Triage (OCBC Singapore, 2026; non-India AML reference).** Zhang et al. describe pairing 280 customer features, calibrated LightGBM, TreeSHAP attributions, and constrained LLM narratives to lift live AML analyst yield from 61% (rules) to 89%—a workflow pattern illustrating how explainability supports investigator throughput, though dataset, CPC seizure labels, and geography differ from India UPI. [8]
-
-## Practitioner observations
+## 5. Practitioner observations (Layer 3)
 
 No named LinkedIn practitioner observation is promoted to a verified UPI finding in v1. Any future entry requires the author's name, stated public role, publication date, canonical URL, firsthand-vs-secondhand status, and independent verification.
+
+## 6. Academic & research paper leads (Layer 4 — ideas for gap exploration, not ready-to-use rules)
+
+Academic papers are listed strictly under **Layer 4** as reference ideas when designing controls for identified gaps; they focus on narrow datasets or benchmarks and are neither industry practices nor turnkey deployment recipes:
+
+- **RBIH NFPC Money-Mule Benchmark (India, 2026):** Using the public RBIH NFPC dataset (~237.8M rows across 96,091 Indian accounts, 2,683 labelled mules), Ahmad & Deodhar compare tabular GBDTs against temporal heterogeneous GNNs (`HeteroGraphSAGE`, `RelGNN`), showing GBDTs matched GNNs at `k = 100` daily alerts (96–99% precision) while graph models degraded less at `k = 500` (~0.676–0.680 vs ~0.562–0.564), and documenting **positive-unlabelled feedback bias** when uninvestigated mule rings sit in negative labels. [6]
+- **Google Pay India UPI Scam Classification Study (2024):** Dahiphale et al. evaluate fine-tuned Gemini classifiers and an LLM reviewer-assistant on balanced/sampled GPay India splits (>88% recall at ~30% precision; mixed reviewer-reasoning fidelity: 57% exact match, 32% novel valid, 6% incorrect, <1% hallucinated). *Design takeaway:* ~30% precision cannot drive blind automated blocks without human review or low-friction step-ups. [7]
+- **Explainable Mule Triage (OCBC Singapore, 2026; non-India AML reference):** Zhang et al. pair 280 features, LightGBM, TreeSHAP, and constrained LLM narratives to raise live AML analyst yield from 61% to 89%—illustrating narrative-explanation ideas for investigator triage rather than India UPI rules or CPC seizure thresholds. [8]
 
 ## References
 
@@ -54,4 +56,4 @@ No named LinkedIn practitioner observation is promoted to a verified UPI finding
 7. Dahiphale, D. et al. / Google, Inc. (2024), [Enhancing Trust and Safety in Digital Payments: An LLM-Powered Approach](https://arxiv.org/html/2410.19845v1), `arXiv:2410.19845v1` (accessed Nov 23, 2026).
 8. Zhang, Y. et al. / OCBC Singapore (2026), [Detection, Attribution, Narration: An End-to-End Pipeline for Explainable Money Mule Identification](https://arxiv.org/html/2607.17586v1), `arXiv:2607.17586v1` (accessed Nov 23, 2026).
 
-**Review status:** primary technical docs and open-access research retrieved and checked 2026-11-23; independent second-reviewer verification pending.
+**Review status:** company technical docs and Layer 4 academic research leads retrieved and checked 2026-11-23; independent second-reviewer verification pending.

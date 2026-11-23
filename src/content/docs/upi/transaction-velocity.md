@@ -20,7 +20,6 @@ actors:
 evidenceLayers:
   - official
   - industry
-  - research
   - atlas
 reviewStage: source-checked
 lastSourceCheck: "2026-11-23"
@@ -39,13 +38,15 @@ While [Unusual outbound payment velocity (`UPI-001`)](/india-fintech-risk-atlas/
 - **Non-bank PSOs (`RBI/DPSS/2026-27/475`, Nov 5, 2026):** `§27(c)` requires a real-time/near-real-time fraud monitoring solution; `§28` requires facilitating online participant alerts for failed transactions, transaction velocity, and new-account parameters (Large/Medium immediate; Small Apr 1, 2028 per §3). [4]
 - **Data Analytics & Natural Justice (`RBI Fraud Risk Management Directions, 2026`):** Under `id=13641` (Commercial Banks, parallel `id=13623` PBs and `id=13632` SFBs), `§25` directs dedicated Data Analytics / MI units to monitor digital banking transactions alongside credit EWS/RFA, while `§6` mandates natural-justice procedural safeguards (including a minimum 21-day Show Cause Notice and reasoned order) before formally classifying persons/entities as fraud. [5]
 
-## Layer 2 & Layer 3 — Industry methods and empirical evidence
+## Layer 2 — Company-reported industry practices
 - **Rule backtesting & maturity windows (`company-reported`, non-India analogy):** Stripe Radar (`Rules 101`) documents backtesting candidate fraud rules before launch to balance caught fraud against blocked legitimate payments, noting that non-fraud baselines need longer maturity windows (60–120 days) so delayed chargebacks/disputes are not mislabeled as clean. [6] *Use the evaluation method, not Stripe's card thresholds.*
-- **Analyst-queue precision & explainability (`arXiv:2610.21314v1`, `arXiv:2607.17586v1`):** Quantiphi's RBIH NFPC study highlights evaluating models at realistic daily queue budgets (`k=100` vs. `k=500` alerts) rather than arbitrary probability cutoffs, while OCBC Singapore's AML study illustrates pairing calibrated GBDTs with SHAP attributions and structured analyst narratives to lift alert yield from 61% to 89% (international banking comparison). [7][8]
 
-## Layer 4 — Operational feedback loops & data prerequisites
+## Layer 4 — Operational feedback loops, data prerequisites, and research references
 - **Closed-loop label hygiene:** Record investigator dispositions separately (`confirmed_fraud`, `confirmed_legitimate_false_positive`, `inconclusive`, `delayed_ncrp_complaint`) so models do not reinforce biased historical rule triggers.
 - **Data prerequisites:** unified transaction + auth + device events, rule-trigger audit logs, analyst disposition timestamps, delayed NCRP/chargeback updates, segment tags (retail vs. merchant).
+
+### Research paper leads (ideas for gaps, not ready-to-use rules)
+- **Analyst-queue precision & explainability (`arXiv:2610.21314v1`, `arXiv:2607.17586v1`):** Quantiphi's RBIH NFPC study highlights evaluating models at realistic daily queue budgets (`k=100` vs. `k=500` alerts) rather than arbitrary probability cutoffs, while OCBC Singapore's AML study illustrates pairing calibrated GBDTs with SHAP attributions and structured analyst narratives to lift alert yield from 61% to 89% (narrow experimental/international comparisons, not turnkey India controls). [7][8]
 
 ## False positives, customer impact, and validation
 - **Legitimate lookalikes & freeze harm:** High-volume micro-merchants, payroll disbursements, festival transfers, and cooperative collections routinely breach naive static thresholds. Unreviewed freezes or slow exception resolution undermine trust and invite Ombudsman escalation.

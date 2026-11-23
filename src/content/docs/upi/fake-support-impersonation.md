@@ -20,7 +20,6 @@ actors:
   - Payment aggregator
 evidenceLayers:
   - official
-  - industry
   - atlas
 reviewStage: draft
 blockerNote: "Direct npci.org.in pages returned HTTP 403; RBI sources checked; independent review pending."

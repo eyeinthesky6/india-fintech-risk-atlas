@@ -40,7 +40,6 @@ const lifecycleEnum = z.enum([
 const evidenceLayerEnum = z.enum([
   'official',
   'industry',
-  'research',
   'practitioner',
   'atlas',
 ]);

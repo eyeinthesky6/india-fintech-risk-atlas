@@ -1,0 +1,27 @@
+name: External link check
+on:
+  schedule:
+    # Weekly Monday 06:00 UTC; separate from PR merge checks because public portals rate-limit CI runners.
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lychee:
+    name: Verify external citations
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Check external URLs in docs and evidence ledgers
+        uses: lycheeverse/lychee-action@v2
+        with:
+          # Exclude internal site base paths (checked by starlight-links-validator) and npci.org.in (known HTTP 403 WAF blocker).
+          args: >-
+            --no-progress
+            --exclude '^/india-fintech-risk-atlas/'
+            --exclude '^https?://(www\.)?npci\.org\.in'
+            './src/content/docs/**/*.md'
+            './src/content/docs/**/*.mdx'
+            './research/evidence/**/*.md'
+          fail: true
+          jobSummary: true

@@ -6,26 +6,39 @@ on:
 permissions:
   contents: read
 jobs:
-  build:
+  attestations:
+    name: Content attestation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - run: npm ci --no-audit --no-fund
-      - name: Check attestations and record integrity
+      - uses: actions/checkout@v7
+      - name: Check declarations, frontmatter parity, and evidence ledgers
         run: python3 scripts/check-attestations.py --all
+  build:
+    name: Site build & link check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - run: npm ci --no-audit --no-fund
       - run: npm run build
-      - name: Verify build output and internal links
+      - name: Verify build output, Pagefind filters, and HTML internal links
         run: |
           test -f dist/index.html
           test -f dist/pagefind/pagefind.js
           test -f dist/upi/index.html
+          test -f dist/upi/coverage/index.html
           python3 - <<'EOF'
           import pathlib, re, sys, urllib.parse
           dist = pathlib.Path("dist")
           base = "/india-fintech-risk-atlas"
+          filters = sorted((dist / "pagefind" / "filter").glob("*.pf_filter"))
+          if not filters:
+              print("ERROR: Pagefind indexed 0 filters.", file=sys.stderr)
+              sys.exit(1)
+          print(f"Pagefind indexed {len(filters)} filter key(s).")
           errors = []
           for html in sorted(dist.rglob("*.html")):
               txt = html.read_text(encoding="utf-8", errors="ignore")
@@ -56,5 +69,5 @@ jobs:
           if errors:
               print("\n".join(errors), file=sys.stderr)
               sys.exit(1)
-          print("All built internal links resolved cleanly.")
+          print("All built HTML internal links resolved cleanly.")
           EOF

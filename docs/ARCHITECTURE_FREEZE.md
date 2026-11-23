@@ -3,13 +3,13 @@
 **Decision date:** 2026-11-21. **Scope:** UPI v1 and subsequent category research. **Status:** freeze proposal in release branch; not a production launch certification.
 
 ## What the product is
-A free India-focused fraud, AML and risk-engineering reference, not a compliance SaaS, transaction monitor or automated decision maker. A practitioner should find: risk mechanism → operational gap → control candidates → data prerequisites → false positives → validation → original evidence. Regulatory obligations are a distinct source layer, not the entire product.
+A free India-focused **reference platform first**—with candidate solutions to operational gaps coming second preference—for fraud, AML, and risk engineering (not a compliance SaaS, transaction monitor, or automated decision maker). A practitioner should find: risk mechanism → operational gap → verified official/industry/practitioner reference → candidate control ideas & research leads → data prerequisites → false positives → validation → original evidence. Regulatory obligations are a distinct source layer, not the entire product.
 
 ## Four evidence layers (mandatory distinction)
 1. **Official:** exact regulator/scheme document, section, effective period and applicable entity.
 2. **Industry:** named company or vendor reports a practice, with method and limitations; no implied endorsement.
-3. **Practitioner:** attributed firsthand or secondhand observation, dated and linked; not universal proof.
-4. **Atlas:** our editorial synthesis or future AI-assisted hypotheses, never silently promoted to fact.
+3. **Practitioner:** attributed firsthand or secondhand human observation, dated and linked; not universal proof. (Do not classify academic papers here.)
+4. **Atlas (synthesis & research references):** our editorial synthesis, candidate gap solutions, future AI-assisted hypotheses, and academic/research paper leads (`arXiv`, etc.). Academic papers sit here—not under Industry or Practitioner—because papers are typically narrow, short-objective studies useful for ideas rather than reliable ready-to-use content. Never silently promote synthesis or paper ideas to binding fact.
 
 A record may contain several layers. **Do not duplicate canonical patterns per source layer.** Cross-link the same pattern/control with evidence assertions. One source can support many claims, but the article must cite precise passages.
 
@@ -20,7 +20,7 @@ Product, Pattern, Gap, Control, Requirement, Source, Claim, Evaluation, Case, Gl
 GitHub repository as the content store, Astro + Starlight + Pagefind as the static rendering layer, GitHub Pages as the host, GitHub Actions as the build and validation mechanism. **No runtime backend, database, scraper, CMS, vector store or AI endpoint.** One shared article template may render thousands of generated HTML pages; contributors maintain records, not page code. Always link to official external PDFs rather than committing large binary documents into Git (to respect GitHub Pages size limits), and run synthetic build/search stress tests (`500 / 2,000 / 5,000` records) before considering any custom search or backend infrastructure.
 
 ## User-facing navigation and filters
-P0: UPI landing; scheme and lifecycle; fraud patterns; controls; operations; evidence policy; source index; glossary; full-text search. P1: product, record type, actor, lifecycle, evidence layer, reviewed state. Do not implement custom faceted filtering until native search/navigation is tested and insufficient. Search is not a claim of coverage completeness.
+P0: UPI landing; scheme and lifecycle; fraud patterns; controls; operations; evidence policy; source index; glossary; full-text search. P1: product, record type, actor, lifecycle, evidence layer, reviewed state (implemented natively via Pagefind `data-pagefind-filter` attributes without custom filter UI). Search is not a claim of coverage completeness.
 
 ## Legal and safety
 Original editorial content CC BY 4.0; original site code MIT. Third-party materials retain their own rights. Use concise original summaries and links, not mirrored bank articles, LinkedIn posts or proprietary rules. Avoid operational evasion thresholds, private customer data and unsourced production claims.

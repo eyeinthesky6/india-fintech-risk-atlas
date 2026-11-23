@@ -1,15 +1,15 @@
 # India Fintech Risk Atlas — UPI v1 release status & audit
 
-**As of:** 2026-11-23 (`release/upi-v1-freeze`, commit baseline `9dd8f04`).  
-**Publication verdict:** Technically validated release candidate in PR `#6` — **NOT independently second-reviewer certified and NOT yet deployed publicly to GitHub Pages**.
+**Branch & PR:** `release/upi-v1-freeze` (PR `#6`).  
+**Publication verdict:** Technically validated release candidate — **NOT independently second-reviewer certified and NOT yet deployed publicly to GitHub Pages**.
 
 ---
 
 ## Scope inventory
 
-- **17 canonical UPI topic records** (`UPI-OVERVIEW` explainer and `UPI-001` through `UPI-016`) under `src/content/docs/upi/`, migrated to typed YAML frontmatter (`src/content.config.ts`) paired 1:1 with `research/evidence/<ID>.md` and `research/attestations/<ID>.md`.
+- **17 canonical UPI topic records** (`UPI-OVERVIEW` explainer and `UPI-001` through `UPI-016`) under `src/content/docs/upi/`, using typed YAML frontmatter (`src/content.config.ts`) paired 1:1 with `research/evidence/<ID>.md` and `research/attestations/<ID>.md`.
 - **6 product-level engineering & reference pages:** [upi/index.mdx](../src/content/docs/upi/index.mdx) (auto-generated catalogue), [upi/coverage.mdx](../src/content/docs/upi/coverage.mdx) (live verification table), [risk-stack-playbook.md](../src/content/docs/upi/risk-stack-playbook.md), [operator-insights.md](../src/content/docs/upi/operator-insights.md), [sources.md](../src/content/docs/upi/sources.md), and [glossary.md](../src/content/docs/upi/glossary.md).
-- **Internal research ledgers:** `research/upi/PRIMARY_SOURCE_REGISTER.md` (14 RBI/GoI documents + 2 provisional NPCI mirrors + documented NPCI `HTTP 403` status) and `research/upi/OPERATOR_EVIDENCE.md` (5 company docs `OP-001`–`OP-005` + 3 `arXiv` preprints `RES-001`–`RES-003`).
+- **Internal research ledgers:** `research/upi/PRIMARY_SOURCE_REGISTER.md` (14 RBI/GoI documents + 2 provisional NPCI mirrors + documented NPCI `HTTP 403` status) and `research/upi/OPERATOR_EVIDENCE.md` (5 company docs `OP-001`–`OP-005` under Layer 2 + 3 `arXiv` preprints `RES-001`–`RES-003` classified under Layer 4 research leads).
 
 ## Evidence verification & source retrieval (2026-11-23 audit)
 
@@ -19,12 +19,12 @@
 
 ## Technical, schema & CI validation status
 
-- **Upgraded OSS stack (`0e6e948`):** `astro@^7.4.13`, `@astrojs/starlight@^0.43.1`, and `starlight-links-validator@^0.27.0` with reproducible `package-lock.json`; `npm audit --omit=dev` reports **`0 vulnerabilities`**.
-- **Build & link validation:** `npm ci --no-audit --no-fund && npm run build` built 29 pages cleanly, `starlight-links-validator` reported `All internal links are valid.`, built HTML internal link & `/india-fintech-risk-atlas/` base-path audit passed, and Pagefind indexed 6 filter keys (`record_type`, `stage`, `product`, `lifecycle`, `actor`, `evidence_layer`).
-- **Pre-commit & attestation enforcement:** `scripts/check-attestations.py` (enforcing `frontmatter.reviewStage == attestation.Stage`, 12 checkboxes, `PENDING` reviewer guards, and `## References` external URL presence in `research/evidence/<ID>.md`) passed (`--all` and staged hooks), with negative failure tests verified.
-- **GitHub Actions CI:** Consolidated `.github/workflows/validate.yml` (`Content attestation` + `Site build & link check`) and `.github/workflows/pages.yml` on Node 24 native actions (`actions/checkout@v7`, `actions/setup-node@v7`, `actions/upload-pages-artifact@v5`, `actions/deploy-pages@v5`), plus weekly `.github/workflows/external-links.yml` (`lycheeverse/lychee-action@v2` excluding `npci.org.in`). Run `#45150376108` passed with zero deprecation annotations.
-- **Live preview browser QA (`127.0.0.1:4321`):** Desktop (`1280×800`) and mobile (`375×812`) inspection verified `<Aside>` stage banners, wrapped metadata chips, auto-generated `/upi/` & `/upi/coverage/` tables, interactive Pagefind filter toggling on `"mule"`, 0 console errors, 0 failed network requests, and 0 horizontal overflow on mobile.
-- **Earlier Nov-23 defects resolved:** Fixed Starlight root sidebar `link: '/'`, added `public/favicon.svg`, removed duplicate `content/upi/UPI-001.md`, fixed Windows `python3.exe` alias fallback in `.githooks/pre-commit`, added blocked `npci.org.in/what-we-do/upi/product-overview` URL to `research/evidence/UPI-004.md`, and eliminated hardcoded counts via `.mdx` build components.
+- **OSS stack & audit:** `astro@^7.4.13`, `@astrojs/starlight@^0.43.1`, and `starlight-links-validator@^0.27.0` with reproducible `package-lock.json`; `npm audit --omit=dev` reports **`0 vulnerabilities`**.
+- **Build, search & link validation:** `npm ci --no-audit --no-fund && npm run build` builds all 29 pages cleanly, `starlight-links-validator` validates Markdown/MDX links, built HTML internal link & `/india-fintech-risk-atlas/` base-path checks pass, and Pagefind indexes 6 filter keys (`record_type`, `stage`, `product`, `lifecycle`, `actor`, `evidence_layer` across strictly 4 layers).
+- **Pre-commit & attestation enforcement:** `scripts/check-attestations.py` (enforcing `frontmatter.reviewStage == attestation.Stage`, 12 checkboxes, `PENDING` reviewer guards, and `## References` external URL presence in `research/evidence/<ID>.md`) passes (`--all` and staged hooks), with negative failure tests verified.
+- **GitHub Actions CI:** Consolidated `.github/workflows/validate.yml` (`Content attestation` + `Site build & link check`) and `.github/workflows/pages.yml` run on Node 24 native actions (`actions/checkout@v7`, `actions/setup-node@v7`, `actions/upload-pages-artifact@v5`, `actions/deploy-pages@v5`), alongside weekly `.github/workflows/external-links.yml` (`lycheeverse/lychee-action@v2` excluding `npci.org.in`). Exact run links are tracked in PR `#6`.
+- **Live preview browser QA (`127.0.0.1:4321`):** Desktop (`1280×800`) and mobile (`375×812`) inspection verified `<Aside>` stage banners, wrapped metadata chips, auto-generated `/upi/` & `/upi/coverage/` tables, interactive Pagefind filter toggling, 0 console errors, 0 failed network requests, and 0 horizontal overflow on mobile.
+- **Resolved Nov-23 defects:** Fixed Starlight root sidebar `link: '/'`, added `public/favicon.svg`, removed duplicate `content/upi/UPI-001.md`, fixed Windows `python3.exe` alias fallback in `.githooks/pre-commit`, added blocked `npci.org.in/what-we-do/upi/product-overview` URL to `research/evidence/UPI-004.md`, eliminated hardcoded counts via `.mdx` build components, and aligned academic research leads under Layer 4.
 
 ## Ordered release blockers & no-go rules
 

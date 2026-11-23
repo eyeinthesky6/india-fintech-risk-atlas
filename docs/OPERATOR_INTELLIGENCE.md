@@ -1,68 +1,54 @@
-# Operator intelligence: practical fraud, AML and risk-stack knowledge
+# Operator intelligence: practical fraud, AML and risk-stack guide
 
-Status: active v1 editorial guide (incorporated into frozen four-layer scope; see ARCHITECTURE_FREEZE.md and CONTENT_SCHEMA.md)
+Status: active v1 editorial guide (incorporated into frozen four-layer scope; see [ARCHITECTURE_FREEZE.md](ARCHITECTURE_FREEZE.md) and [CONTENT_SCHEMA.md](CONTENT_SCHEMA.md))
 
-## Product mission
-The Atlas is an India-focused, source-cited engineering reference that helps fintechs and banks design, review and improve fraud, AML and risk controls. **Not** a regulation-only directory. Include credible field observations, production failure modes, practical control designs, data prerequisites, validation and trade-offs. Foreign sources are permitted as method/architecture references, but do not automatically imply applicability to Indian payment rails or law.
+## Role in the platform
 
-## Source discovery priorities
-1. RBI, NPCI, FIU-IND, CERT-In, SEBI, IRDAI and official operator documents.
-2. Bank, PSP, payment gateway, NBFC and fintech engineering blogs, postmortems, product/security documentation and published case studies.
-3. Named practitioners' LinkedIn posts, conference talks, podcasts and public technical write-ups. Record author, role **as stated by source**, organization, publication date, canonical post URL and access date. Never imply an employer endorses a personal view.
-4. Fraud/AML vendor technical docs and case studies; distinguish independently verified findings from vendor claims.
-5. Academic and industry research, datasets, benchmarks and reproducible open-source implementations.
+India Fintech Risk Atlas is a **reference platform first**; candidate solutions come second. **Not** a compliance-only directory, the Atlas documents operational defects, field observations, and candidate control designs across fintech fraud and AML workflows with strict source attribution. Foreign company docs or studies are permitted as architectural/method analogies only and never imply Indian legal applicability.
 
-## Candidate discovery queries
-- India UPI fraud detection false positives PSP engineering blog
-- bank AML transaction monitoring investigation operations alert fatigue India
-- fintech mule account network detection graph case study India
-- merchant acquiring fraud operations dispute reconciliation postmortem
-- LinkedIn fraud risk leader UPI payment scam detection India
-- RBI NPCI fraud risk circular device binding payment authentication
-- Google AML AI investigation repeated alerts feature explainability
-- Stripe Radar rules false positives review and backtest
+## How sources map into the four layers
+
+Follow the source discovery process in [RESEARCH_PROTOCOL.md](RESEARCH_PROTOCOL.md) and attribution/copyright rules in [EVIDENCE_LAYERS_AND_RIGHTS.md](EVIDENCE_LAYERS_AND_RIGHTS.md):
+- **Layer 1 (`Official`):** RBI, NPCI, FIU-IND, CERT-In, SEBI, IRDAI statutory and scheme requirements.
+- **Layer 2 (`Industry`):** Bank, PSP, payment aggregator, NBFC, fintech, and vendor technical docs, postmortems, and case studies (`company-reported` or `vendor-reported`). Never credit a bank with an internal control merely because it offers a payment product.
+- **Layer 3 (`Practitioner`):** Named professionals' dated public posts, talks, or write-ups with explicit role and firsthand-vs-relayed status (`author-observed`; no implied employer endorsement).
+- **Layer 4 (`Atlas & research references`):** Atlas operational gaps, candidate controls, hypotheses, and **academic/research paper leads** (`arXiv`, workshop benchmarks). Because academic papers are typically narrow and short-objective-focused (helpful for ideas rather than reliable ready-to-use content), keep them in Layer 4 rather than Layer 2 or Layer 3.
 
 ## Intake and classification
-A source yields one or more *observations*, not automatically a recommended control. Distinguish:
+
+A source yields structured observations—never automatic proof of universal adoption or compliance:
 - **Observed operational defect:** firsthand or documented failure (who observed, when, context, evidence).
 - **Risk hypothesis:** plausible mechanism not independently demonstrated.
-- **Proposed control:** what might reduce risk, with prerequisites and costs.
-- **Implemented practice:** a named operator says it uses the approach; do not assume universal adoption.
-- **Evaluated control:** quantitative or qualitative evaluation with methods, sample context and limitations.
-- **Binding requirement:** precise India-specific legal/scheme source and affected entity.
+- **Proposed control:** candidate mitigation with prerequisites, latency, and operational cost.
+- **Implemented practice:** a named company publicly reports using the approach (`company-reported`).
+- **Evaluated benchmark (Layer 4 research lead):** academic or empirical study evaluated on specific datasets/splits; record sample size, label bias, and narrow scope before extrapolating.
+- **Binding requirement:** verified India-specific legal or scheme provision scoped to exact actor class and effective date.
 
-## Extended data entities
-Observation (OBS-ID): title, author, organization, date, URL, source_type, first_hand_or_relayed, claim_summary, product_ids, pattern_ids, gap_ids, evidence_status, attribution_permission_notes.
-Gap (GAP-ID): failure_mode, lifecycle, existing_control_assumption, bypass_or_breakdown_summary (non-evasion detail), detection_limitations, affected_actors, observed_or_hypothetical, source_ids.
-Control (CTRL-ID): objective, risk/pattern/gap links, input_data, signals, approach (rules / graph / statistical / ML / human), expected outputs, intervention point, false positives, privacy, operational_cost, validation_method, monitoring_metrics, deployment caveats, evidence_strength.
-Evaluation (EVAL-ID): control_id, dataset_context, period, method, baseline, metrics, limitations, who_reported, independently_reproduced.
+## Extended data entities (v2 taxonomy mapping)
 
-## Practical control page template
-1. Problem and operational failure being addressed.
-2. Product(s), participant roles and lifecycle stage.
-3. Mechanism and observations, with clear source attribution.
-4. Control approach (rules/graph/ML/manual), not a production-ready implementation prescription.
-5. Data prerequisites, quality and access rights.
-6. Example detection logic at a non-evasion level; avoid publishing sensitive operational thresholds.
-7. False positives, alert workload and customer friction.
-8. Investigation workflow and escalation/response.
-9. How to validate: offline replay, baseline comparison, precision/recall where labels support it, investigation yield, alert volume, drift and feedback loop.
-10. Evidence quality and what is not known.
-11. India-specific requirements only when relevant.
-12. Inline citations, full references, contributors and last verified.
+When expanding structured operator catalogs post-v1 (without replacing canonical v1 `UPI-*` IDs):
+- **Observation (`OBS-ID`):** title, author, organization, date, URL, source_type, firsthand_or_relayed, claim_summary, product_ids, pattern_ids, gap_ids, evidence_status, attribution_notes.
+- **Gap (`GAP-ID`):** failure_mode, lifecycle, existing_control_assumption, non-evasion bypass summary, detection_limitations, affected_actors, observed_or_hypothetical, source_ids.
+- **Control (`CTRL-ID`):** objective, pattern/gap links, input_data, signals, approach (rules / graph / statistical / ML / human), intervention point, false positives, privacy, operational_cost, validation_method, monitoring_metrics, deployment caveats, evidence_strength.
+- **Evaluation (`EVAL-ID`):** control_id, dataset_context, period, method, baseline, metrics, limitations, who_reported, independently_reproduced.
 
-## Attribution and copyright
-Link to the original author and original work; include author's name, article/post title, organization when relevant, date, URL and a concise original paraphrase. Credit the **specific insight** rather than merely listing a source at the bottom. Do not copy long LinkedIn posts, diagrams or proprietary vendor rules. Request permission for reproduction or images. If a post is unavailable, preserve metadata and mark unverified; do not fabricate content or imply endorsement.
+## Mapping operational details into the canonical article structure
 
-## Evidence and review
-A firsthand account can be useful with one source, but label it **single-source practitioner observation**. A vendor's performance number is **vendor-reported** unless independently reproduced. For an operator claim, independently cross-check where possible against documentation, another firsthand account, empirical data or an implementation case study. Separate existence of a pattern from effectiveness of a proposed mitigation. Reviewer must confirm the source says what we claim, attribution is accurate, and caveats remain visible. Existing per-record attestations apply.
+Do **not** use a separate layout for control articles; map every operational-engineering detail directly into [CONTENT_SCHEMA.md](CONTENT_SCHEMA.md)'s 8-section blueprint:
+- **Risk mechanism and operational gap:** failure mode, participant roles, lifecycle stage, and existing-control assumption.
+- **Layers 1–3:** separated verified obligations, `company-reported` practices, and firsthand practitioner accounts.
+- **Layer 4 — Candidate controls, data prerequisites, and research references:** rules/graph/ML/manual approaches at a non-evasion level (zero live secret thresholds), required telemetry and data-access constraints, investigation/escalation workflow notes, and `### Research paper leads` (ideas for gaps with narrow-study caveats).
+- **False positives, customer impact, and validation:** legitimate lookalikes, friction/unblock costs, offline replay vs. shadow testing, precision@k at real analyst queue capacity, drift/feedback-loop hygiene (`confirmed_fraud` vs. overturned false positives), and evidence gaps.
+- **References and review history:** inline citations and verified ledger entries (`research/evidence/<RECORD-ID>.md`).
 
-## Examples from external practice (architecture references, not Indian obligations)
-- Google Cloud AML AI docs: input schema, supplementary indicators, feature families, risk scores, explainability, model governance and backtesting — https://docs.cloud.google.com/financial-services/anti-money-laundering/docs
-- Google Cloud AML AI investigation guidance: repeated alert suppression, explainability and model-threshold re-evaluation — https://docs.cloud.google.com/financial-services/anti-money-laundering/docs/best-practices-investigation-process
-- Stripe Radar rules guide: rule configuration, testing, false-positive/operational trade-offs — https://stripe.com/guides/radar-rules-101
-- FATF digital transformation and collaborative analytics: cross-institution information gaps and data-protection trade-offs — https://www.fatf-gafi.org/en/publications/digitaltransformation/digital-transformation.html
-- Featurespace case studies: named operator claims, to be labeled vendor-reported and verified individually — https://www.featurespace.com/case-studies
+## Architecture reference links (foreign/vendor examples, not Indian law)
 
-## MVP scope
-For UPI, add an operator-insights register and a curated set of controls with evidence strength. Start with transaction monitoring, mule networks, device/account takeover, merchant risk, false positives, reconciliation, dispute workflows and investigation feedback. Do not defer all operator insights until after regulations are complete. No new backend or custom UI needed: these are additional structured content types and filters.
+- **Google Cloud AML AI docs:** input schema, supplementary indicators, feature families, risk scores, explainability, model governance, and backtesting — https://docs.cloud.google.com/financial-services/anti-money-laundering/docs
+- **Google Cloud AML AI investigation guidance:** repeated alert suppression, explainability, and threshold re-evaluation — https://docs.cloud.google.com/financial-services/anti-money-laundering/docs/best-practices-investigation-process
+- **Stripe Radar rules guide:** rule configuration, backtesting, 60–120 day maturity windows, and false-positive trade-offs — https://stripe.com/guides/radar-rules-101
+- **FATF digital transformation & collaborative analytics:** cross-institution information gaps and privacy trade-offs — https://www.fatf-gafi.org/en/publications/digitaltransformation/digital-transformation.html
+- **Featurespace case studies:** named operator claims, marked `vendor-reported` and verified individually — https://www.featurespace.com/case-studies
+
+## Current UPI v1 status
+
+For UPI v1, operator docs (Razorpay, Cashfree, Stripe) and Layer 4 academic research leads (`RBIH NFPC`, `GPay India`, `OCBC Singapore`) are already cataloged in [src/content/docs/upi/operator-insights.md](../src/content/docs/upi/operator-insights.md) and [research/upi/OPERATOR_EVIDENCE.md](../research/upi/OPERATOR_EVIDENCE.md), with Pagefind filters (`record_type`, `stage`, `product`, `lifecycle`, `actor`, `evidence_layer`) rendered natively without custom search UI or a backend. Continue new discovery via [UPI_OPERATOR_RESEARCH_QUEUE.md](UPI_OPERATOR_RESEARCH_QUEUE.md).

@@ -8,7 +8,7 @@
 - Banks (SBI, ICICI, HDFC, Axis and payments banks): public fraud advisories, customer reporting journeys and published risk controls. Do not infer proprietary monitoring systems.
 - Vendor engineering material (Featurespace, Feedzai, Google Cloud AML AI, Stripe Radar): reusable monitoring, alert quality, investigator feedback, model evaluation and false-positive techniques. Mark vendor-reported and assess India relevance.
 - Practitioner talks and LinkedIn posts: original author, date, role as publicly stated, post URL, firsthand versus relayed, operational observation, counterexample and independent corroboration.
-- Research papers: dataset provenance, geography, sample selection, labels, model comparison, precision/recall, operational cost, reproducibility and deployment caveats.
+- Research papers (classified strictly under **Layer 4** as candidate gap ideas, not Layer 2/3): dataset provenance, geography, sample selection, labels, model comparison, precision/recall, operational cost, reproducibility and narrow-study caveats.
 
 ## Search queries
 - site:razorpay.com/blog UPI payment reconciliation webhook idempotency
@@ -21,7 +21,7 @@
 - merchant payment fraud prevention operational gaps India case study
 
 ## Extraction schema
-source_id | evidence_layer | author | publisher | published_on | canonical_url | exact section | observation | company-reported vs independently evaluated | product/actor scope | false positives | source status | reviewer | reuse rights.
+Use the 15-column **Source extraction sheet** defined in [RESEARCH_PROTOCOL.md](RESEARCH_PROTOCOL.md) so source intake stays aligned with claim ledgers.
 
 ## Stop rules
-Do not scrape LinkedIn or restricted bank portals. Do not reproduce bank/vender diagrams or full articles. Original concise summary plus prominent author/source link is default. No bank is credited with a control merely because it sells a relevant product.
+Do not scrape LinkedIn or restricted bank portals. Do not reproduce bank/vendor diagrams or full articles. Original concise summary plus prominent author/source link is default. No bank is credited with a control merely because it sells a relevant product.

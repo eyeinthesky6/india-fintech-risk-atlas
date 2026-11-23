@@ -5,7 +5,7 @@ Author / public role:
 Publisher / company:
 Publication date:
 Accessed date:
-Type: firsthand practitioner / company engineering / vendor claim / case study / paper / regulator
+Type: firsthand practitioner / company engineering / vendor claim / case study / regulator / research paper (Layer 4 idea lead)
 Specific observation (original paraphrase):
 Products / lifecycle:
 Operational gap:
@@ -17,7 +17,7 @@ India applicability:
 Attribution and reuse rights:
 Corroborating independent sources:
 Contradictions:
-Review status: discovered / extracted / source-checked / independently-reviewed
+Review status: draft / researching / source-checked / reviewed / published
 Reviewer:
 
 Do not promote an anecdote to established practice or a vendor metric to independent proof.

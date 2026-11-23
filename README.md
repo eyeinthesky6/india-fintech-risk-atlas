@@ -1,6 +1,6 @@
 # India Fintech Risk Atlas
 
-An open, source-cited reference to fraud patterns, risk checks, and operational failure modes across Indian financial products.
+An open, source-cited **reference platform first**—with candidate solutions second—covering fraud patterns, risk checks, and operational failure modes across Indian financial products.
 
 **Purpose:** practitioner education, product design, and independent research.  
 **Not:** legal advice, an exhaustive compliance checklist, or production-ready fraud detection rules.
@@ -18,7 +18,7 @@ Static documentation site built with **Astro 7 + Starlight 0.43 + Pagefind** via
 - [UPI documentation entry point](src/content/docs/upi/index.mdx) — auto-generated UPI catalogue and playbooks
 
 ## Editorial rules
-Every material claim traces to an opened primary source or is explicitly labeled as company-reported practice, practitioner observation, research evaluation, or Atlas hypothesis. A legal requirement is mandatory only for the entity scope and effective period verified in the primary document. Avoid sensitive operational evasion thresholds. New contributions require review and attestation checks.
+Every material claim traces to an opened primary source or is explicitly labeled across four layers (`Official`, `Industry`, `Practitioner`, or `Atlas & research paper leads`). A legal requirement is mandatory only for the entity scope and effective period verified in the primary document. Academic papers belong strictly under Layer 4 as candidate ideas for gaps, not ready-to-use rules or industry/practitioner proof. Avoid sensitive operational evasion thresholds. New contributions require review and attestation checks.
 
 ## Current state
 UPI v1 release candidate (`release/upi-v1-freeze`, PR `#6`):

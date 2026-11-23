@@ -11,3 +11,6 @@ The pull-request workflow must install dependencies and run `npm run build`, the
 
 ## Editorial blocker
 Current UPI pages are explicitly research drafts. A working website build does not authorize publishing them as independently verified. Independent claim-level review and NPCI circular currency checks remain outstanding.
+
+## Source retrieval recheck — 2026-11-23
+Direct inspection attempts through the available public retrieval service did not yield substantive RBI/NPCI page text: the RBI directions URL returned a cache miss; NPCI FAQ and fraud-awareness pages returned JavaScript-only shells. Therefore **do not claim that these pages were freshly re-verified in this pass**. A separate reviewer must obtain the original document text through official downloadable documents, accessible published circulars, or an authorized browser and record exact provisions. This is a source-access blocker, not evidence that the underlying sources are incorrect.

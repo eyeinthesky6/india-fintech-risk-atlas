@@ -29,8 +29,7 @@ actors:
 evidenceLayers:
   - official
   - atlas
-reviewStage: draft
-blockerNote: "Direct npci.org.in URLs returned HTTP 403 Forbidden on 2026-11-23; independent review pending."
+reviewStage: source-checked
 lastSourceCheck: "2026-11-23"
 ---
 
@@ -45,7 +44,11 @@ RBI regulations allocate distinct statutory duties across entity classes rather 
 - **Authentication across participants:** *Authentication Mechanisms for Digital Payment Transactions Directions, 2025* (`RBI/2025-26/79`, compliance by Apr 1, 2026) applies across domestic Payment System Providers and Participants (§4), placing issuer-side responsibility under §9. [5]
 - **Payment Aggregators & Acquiring Banks:** *Master Direction on Regulation of Payment Aggregator (PA)* (`RBI/DPSS/2025-26/141`, Sep 15, 2025, updated Nov 11, 2026) assigns merchant KYC/CDD, MCC allotment, ongoing profile monitoring, and escrow governance to PAs (§§13, 16–18), while requiring acquiring banks to enforce merchant-acquiring policy oversight (§14). [6]
 - **Dispute & ODR channels:** *Online Dispute Resolution (ODR) System for Digital Payments* (`RBI/2020-21/21`, Aug 6, 2020) applies to PSOs, PSPs, and requires TPAPs to provide in-app failed-transaction dispute lodging (Annex §5.2). [7]
-- **NPCI scheme pages (blocked):** Direct verification of `npci.org.in` *UPI Product Overview* and *UPI FAQs* was blocked by `HTTP 403 Forbidden` on 2026-11-23; scheme-rule specifics beyond RBI texts await authorized browser verification. [8]
+- **NPCI scheme architecture, participants, and role boundaries:** Browser inspection of NPCI's canonical [UPI Overview](https://www.npci.org.in/product/upi), [About UPI](https://www.npci.org.in/product/upi/about-upi), [Roles and Responsibilities](https://www.npci.org.in/product/upi/roles-responsibilities), and [UPI FAQs](https://www.npci.org.in/faqs/upi) (`upihelp.npci.org.in` assistant; organized across Customers, Banks, TPAPs, Merchants, and PPI on UPI) confirms the scheme's operational division of duties [8][9][10]:
+  - *Participants:* UPI App, Payer PSP, Remitter Bank, Payee PSP, Beneficiary Bank, Users, and Merchants [8].
+  - *NPCI:* Approves Issuer Banks, PSP Banks, TPAPs, and PPIs; frames scheme rules, processing, settlement, clearing cut-offs, and dispute management; performs audits; and provides bank reporting, chargeback, and status-update systems [9].
+  - *PSP Bank:* Connects UPI Apps, customers, and merchants; onboards, authenticates, and links accounts; ensures UPI App security and audits; stores UPI transaction data exclusively in India; and maintains customer grievance redressal [9].
+  - *UPI App:* Participates through a sponsor PSP Bank; complies with PSP, NPCI, regulatory, and data-privacy requirements; facilitates audits; and provides end-user grievance redressal via app, web, email, or IVR [9].
 
 ## Layer 4 — Operational gaps across actor boundaries
 
@@ -68,6 +71,8 @@ RBI regulations allocate distinct statutory duties across entity classes rather 
 5. RBI, [Authentication Mechanisms for Digital Payment Transactions Directions, 2025](https://rbi.org.in/Scripts/NotificationUser.aspx?Id=12898&Mode=0), `RBI/2025-26/79`, Sep 25, 2025 (§§3–4, §9), accessed Nov 23, 2026.
 6. RBI, [Master Direction on Regulation of Payment Aggregator (PA)](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=12896), `RBI/DPSS/2025-26/141`, updated Nov 11, 2026 (§§3, 13–14, 16–18), accessed Nov 23, 2026.
 7. RBI, [Online Dispute Resolution (ODR) System for Digital Payments](https://www.rbi.org.in/Scripts/NotificationUser.aspx?Id=11946&Mode=0), `RBI/2020-21/21`, Aug 6, 2020 (Annex §§1.1, 5.2), accessed Nov 23, 2026.
-8. NPCI, [UPI Product Overview](https://www.npci.org.in/what-we-do/upi/product-overview) & [UPI FAQs](https://www.npci.org.in/what-we-do/upi/faqs) — **HTTP 403 Forbidden** on Nov 23, 2026 (direct verification pending).
+8. NPCI, [UPI Overview](https://www.npci.org.in/product/upi) & [About UPI](https://www.npci.org.in/product/upi/about-upi), browser-checked Nov 23, 2026.
+9. NPCI, [UPI Roles and Responsibilities](https://www.npci.org.in/product/upi/roles-responsibilities) (NPCI, PSP Bank, and UPI App tabs), browser-checked Nov 23, 2026.
+10. NPCI, [UPI FAQs](https://www.npci.org.in/faqs/upi), browser-checked Nov 23, 2026.
 
-**Review status:** RBI entity boundaries source-checked 2026-11-23; `npci.org.in` pages blocked (`HTTP 403`); independent reviewer: `PENDING`.
+**Review status:** RBI entity boundaries and browser-accessible NPCI scheme sources checked 2026-11-23; independent reviewer: `PENDING`.

@@ -20,7 +20,7 @@ Definitions below reflect verified RBI regulatory terminology (where cited) and 
 - **VPA (Virtual Payment Address):** A human-readable identifier (e.g., `name@bank`) mapped by a PSP to an underlying bank account.
 - **MCC (Merchant Category Code):** A classification code assigned to onboarded merchants (`RBI/DPSS/2025-26/141 §13(e)`). High-risk MCC shifts and anomalous activity vs. declared MCC are monitoring parameters in RBI digital payment security controls (`RBI/DoS/2026-27/411 §53`).
 - **UPI Intent vs. Signed Intent:** App-to-app deep-link handoff on a user's mobile device launching a UPI app with pre-filled payment parameters. **Signed Intent** cryptographically signs the payload to prevent client-side tampering of payee or amount (see Razorpay engineering docs).
-- **UPI Collect (P2P vs. P2M):** A pull-style request sent to a payer's VPA requiring PIN approval. Per third-party mirror `NPCI/UPI/OC/220/2025-26` (awaiting direct `npci.org.in` check), **P2P** collect was discontinued effective Oct 1, 2025; **P2M** merchant collect remains valid (subject to mobile checkout VPA restrictions noted by operators in Feb 2026).
+- **UPI Collect (P2P vs. P2M):** A pull-style request sent to a payer's VPA requiring PIN approval. Per browser-verified NPCI circular `NPCI/UPI/OC/220/2025-26`, **P2P** collect was discontinued beyond Oct 1, 2025; **P2M** merchant collect remains distinct (with mobile checkout manual-VPA restrictions noted by operators in Feb 2026).
 
 ## Fraud, AML & liability concepts
 

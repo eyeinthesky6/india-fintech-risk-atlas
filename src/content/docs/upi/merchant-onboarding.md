@@ -34,7 +34,7 @@ Merchant onboarding risk arises when shell entities, banned businesses, or mule 
   - **Settlement account validation & ongoing monitoring (`§13(g)–(i)`):** PAs must validate that funds are credited only to the **merchant's own bank account**, monitor merchant transactions on an ongoing basis against declared business profile, and (for non-bank PAs) register with **FIU-IND**. [1]
   - **Acquiring bank policy oversight (`§14`):** Even when a non-bank PA conducts merchant CDD, the acquiring bank must enforce its merchant-acquiring policy and retain ability to obtain merchant details. [1]
 - **High-risk MCC & merchant-name transparency (`Digital Payment Security Controls, 2026`):** Under `id=13642` (Commercial Banks, parallel `id=13624` PBs and `id=13633` SFBs), `§47` requires customer alerts/OTPs for online transactions to identify the merchant name rather than only the PA, and `§53` lists **high-risk MCC parameters** among transaction-monitoring triggers. [2]
-- *(Note: NPCI scheme-level VPA/merchant onboarding circulars could not be inspected directly because `npci.org.in` returned `HTTP 403 Forbidden` on 2026-11-23.)*
+- *(Note: On 2026-11-23 browser audit, `npci.org.in/product/upi/roles-responsibilities` confirmed PSP Banks connect and onboard merchants, while no public merchant/VPA-onboarding circular appeared on `npci.org.in/circulars/upi`.)*
 
 ## Layer 4 — Candidate controls and data prerequisites
 - **Pre-activation verification:** Cross-check declared business category against website/app/physical CPV, PAN/GST records, and bank-account penny-drop/beneficial-owner match (`§13(g)`) before enabling live UPI P2M acceptance.

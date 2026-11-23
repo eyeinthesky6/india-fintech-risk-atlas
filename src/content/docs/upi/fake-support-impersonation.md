@@ -19,8 +19,7 @@ actors:
 evidenceLayers:
   - official
   - atlas
-reviewStage: draft
-blockerNote: "Direct npci.org.in pages returned HTTP 403; RBI sources checked; independent review pending."
+reviewStage: source-checked
 lastSourceCheck: "2026-11-23"
 ---
 
@@ -30,7 +29,7 @@ Customers experiencing a `PENDING` payment, failed order, or merchant refund del
 The core operational gap is **unclear or hard-to-find official in-app grievance status**, which pushes anxious users onto open web search.
 
 ## Layer 1 — Official regulatory and scheme context
-- **NPCI Fraud Awareness (blocked):** Direct retrieval of `npci.org.in/fraud-awareness` returned **HTTP 403 Forbidden** on 2026-11-23; exact NPCI search/grievance advisory text awaits authorized browser verification. [1]
+- **NPCI Fraud Awareness & complaint routing:** Directly browser-verified on Nov 23, 2026, NPCI's public [Fraud Awareness](https://www.npci.org.in/fraud-awareness) advisory specifically warns against *Search Carried through Internet Search Engines* (bogus customer-support numbers appearing in web searches) and *Users posting their potential Grievances on Social media platforms* (impersonators contacting complainants who post phone numbers, bank names, or transaction details). NPCI's [UPI FAQs](https://www.npci.org.in/faqs/upi) (with its official UPI Help Assistant) and [Complaint Register](https://www.npci.org.in/complaint-register) state that complaints for fraudulent, unidentified, or unauthorised transactions must be raised with the customer's respective bank for redressal. [1][7][8]
 - **In-app grievance & ODR visibility:**
   - *Digital Payment Security Controls Directions, 2026* (`id=13642` Commercial Banks, `id=13624` Payments Banks, `id=13633` SFBs) require banks to incorporate a clear section inside their digital payment application specifying grievance procedures, contact details, and complaint registration (`§59`) and to follow ODR instructions (`§60`). [2]
   - *Online Dispute Resolution (ODR) System for Digital Payments* (`RBI/2020-21/21`, Aug 6, 2020) specifically requires **TPAPs** in mobile payment systems such as UPI to provide an **in-app facility** for lodging failed-transaction disputes and grievances (`Annex §5.2`) with unique reference tracking (`§5.4`). [3]
@@ -49,11 +48,13 @@ The core operational gap is **unclear or hard-to-find official in-app grievance 
 - **Validation:** Track share of failed-payment inquiries initiated in-app vs. via external channels, measure takedown SLA for impersonating domains/handles, and test `§76G` 24x7 reporting links end-to-end.
 
 ## References and review history
-1. NPCI, [Fraud Awareness](https://www.npci.org.in/fraud-awareness) — **HTTP 403 Forbidden** on Nov 23, 2026 (direct verification pending).
+1. NPCI, [Fraud Awareness](https://www.npci.org.in/fraud-awareness) (*Search Carried through Internet Search Engines*; *Users posting their potential Grievances on Social media platforms*), browser-checked Nov 23, 2026.
 2. RBI, [Commercial Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/scripts/BS_ViewMasDirections.aspx?id=13642), `RBI/DoS/2026-27/411` (`§§59–60`), accessed Nov 23, 2026 (parallel `id=13624` PBs, `id=13633` SFBs).
 3. RBI, [Online Dispute Resolution (ODR) System for Digital Payments](https://www.rbi.org.in/Scripts/NotificationUser.aspx?Id=11946&Mode=0), `RBI/2020-21/21`, Aug 6, 2020 (`Annex §§5.2, 5.4`), accessed Nov 23, 2026.
 4. RBI, [Commercial Banks – Responsible Business Conduct Third Amendment Directions, 2026](https://rbi.org.in/Scripts/NotificationUser.aspx?Id=13543&Mode=0), `RBI/2026-27/167`, Jun 24, 2026 (`§76G`), accessed Nov 23, 2026.
 5. RBI, [Master Directions on Cyber Resilience and Digital Payment Security Controls for non-bank PSOs](https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=13751&Mode=0), `RBI/DPSS/2026-27/475`, Nov 5, 2026 (`§§27(d),(h), 30`), accessed Nov 23, 2026.
 6. RBI, [Discussion Paper – Exploring safeguards in digital payments to curb frauds](https://www.rbi.org.in/scriptS/PublicationsView.aspx?id=23810), Apr 9, 2026 (`§xi`; non-binding), accessed Nov 23, 2026.
+7. NPCI, [UPI FAQs](https://www.npci.org.in/faqs/upi), browser-checked Nov 23, 2026.
+8. NPCI, [Complaint Register](https://www.npci.org.in/complaint-register), browser-checked Nov 23, 2026.
 
-**Review status:** RBI sources checked 2026-11-23; `npci.org.in` blocked (`HTTP 403`); independent reviewer: `PENDING`.
+**Review status:** NPCI Fraud Awareness/FAQs/Complaint Register and RBI sources checked 2026-11-23; independent reviewer: `PENDING`.

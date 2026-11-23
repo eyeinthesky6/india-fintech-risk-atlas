@@ -18,7 +18,7 @@ evidenceLayers:
   - official
   - atlas
 reviewStage: draft
-blockerNote: "Provisional third-party mirror used for NPCI/2025-26/IS/003; direct npci.org.in returned HTTP 403; independent review pending."
+blockerNote: "Official npci.org.in/fraud-awareness verified via browser on 2026-11-23; NPCI/2025-26/IS/003 is not listed on public npci.org.in/circulars/upi or /circulars/others (provisional bank mirror used); independent review pending."
 lastSourceCheck: "2026-11-23"
 ---
 
@@ -29,8 +29,8 @@ Fraudsters persuade customers to install unverified APKs (disguised as KYC updat
 - **Remote-access & untrusted install controls (RBI):**
   - *Digital Payment Security Controls Directions, 2026* (`id=13642` Commercial Banks, `id=13624` Payments Banks, `id=13633` SFBs) mandate **identifying remote-access applications (to the extent possible) and prohibiting login access** (`§68(2)(iv)`), secure download/install checks (`§68(2)(ii)`), publishing active app checksums (`§68(5)`), exploring root/jailbreak install blocks (`§68(4)`), and considering anti-malware capabilities (`§68(12)`). [1]
   - *Master Directions on Cyber Resilience and Digital Payment Security Controls for non-bank PSOs* (`RBI/DPSS/2026-27/475`, Nov 5, 2026) requires prohibiting mobile payment access **while remote access is live** (`§31(f)`) and subscribing to anti-phishing / anti-rogue-app takedown services (`§27(h)`). [2]
-- **UPI Mobile App Security Framework (provisional NPCI mirror):** Visually inspected pages 1–8 of `NPCI/2025-26/IS/003` (*Comprehensive Mobile Application Security Framework for UPI - 2025*, May 19, 2025, via third-party bank mirror), addressed to **PSPs, ASPs, and TPAPs**, specify **Mandatory** controls including root/jailbreak and root-cloaking detection (`A.1`), official store installation validation (`A.2`), active screen-mirroring prevention (`B.23`), developer-option / USB-debug / active-USB prevention (`B.12`), SMS auto-read OTP without manual entry (`B.14`), trusted OTP sender-ID whitelisting (`B.15`), and real-time runtime threat alerts (`C.1, D.1`), plus **Recommended** controls for harmful/blacklisted apps (`A.3`), emulators (`A.4`), dynamic instrumentation like Frida (`B.19`), keyloggers (`B.20`), and screen overlays (`B.21`). *Confirm against `npci.org.in` original and any subsequent circulars once accessible.* [3]
-- **NPCI Fraud Awareness (blocked):** Direct inspection of `npci.org.in/fraud-awareness` returned **HTTP 403 Forbidden** on 2026-11-23. [4]
+- **UPI Mobile App Security Framework (provisional NPCI mirror):** Visually inspected pages 1–8 of `NPCI/2025-26/IS/003` (*Comprehensive Mobile Application Security Framework for UPI - 2025*, May 19, 2025, via third-party bank mirror), addressed to **PSPs, ASPs, and TPAPs**, specify **Mandatory** controls including root/jailbreak and root-cloaking detection (`A.1`), official store installation validation (`A.2`), active screen-mirroring prevention (`B.23`), developer-option / USB-debug / active-USB prevention (`B.12`), SMS auto-read OTP without manual entry (`B.14`), trusted OTP sender-ID whitelisting (`B.15`), and real-time runtime threat alerts (`C.1, D.1`), plus **Recommended** controls for harmful/blacklisted apps (`A.3`), emulators (`A.4`), dynamic instrumentation like Frida (`B.19`), keyloggers (`B.20`), and screen overlays (`B.21`). *Browser checks of `npci.org.in/circulars/upi` and `/circulars/others` on Nov 23, 2026 showed `NPCI/2025-26/IS/003` is not publicly listed there, so this entry remains provisionally verified and stays in `draft`.* [3][5]
+- **NPCI Fraud Awareness (*Downloading of unknown apps*):** Directly browser-verified on Nov 23, 2026, NPCI's [Fraud Awareness](https://www.npci.org.in/fraud-awareness) guidance warns consumers against installing screen-sharing applications, untrusted APKs, or SMS-forwarding apps, and advises against conducting payment transactions while on an active phone call. [4]
 
 ## Layer 4 — Candidate controls and data prerequisites
 - **Active-session protection:** Terminate or block UPI payment initiation whenever live screen mirroring, active screen-casting, or remote-access sessions are running (`§68(2)(iv)`, `§31(f)`), displaying plain-language guidance explaining why the block occurred.
@@ -44,7 +44,8 @@ Fraudsters persuade customers to install unverified APKs (disguised as KYC updat
 ## References and review history
 1. RBI, [Commercial Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/scripts/BS_ViewMasDirections.aspx?id=13642), `RBI/DoS/2026-27/411`, updated Oct 1, 2026 (`§68(2)(ii),(iv), §68(4)–(5), §68(12)`), accessed Nov 23, 2026 (parallel `id=13624` PBs, `id=13633` SFBs).
 2. RBI, [Master Directions on Cyber Resilience and Digital Payment Security Controls for non-bank PSOs](https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=13751&Mode=0), `RBI/DPSS/2026-27/475`, Nov 5, 2026 (`§§27(h), 31(f)`), accessed Nov 23, 2026.
-3. NPCI circular `NPCI/2025-26/IS/003` (May 19, 2025), *Comprehensive Mobile Application Security Framework for UPI - 2025* — [provisional third-party mirror](https://rscb.bank.in/Content/pdf/npcicircular.pdf) (visually read pp. 1–8 on Nov 23, 2026; official NPCI verification pending).
-4. NPCI, [Fraud Awareness](https://www.npci.org.in/fraud-awareness) — **HTTP 403 Forbidden** on Nov 23, 2026.
+3. NPCI circular `NPCI/2025-26/IS/003` (May 19, 2025), *Comprehensive Mobile Application Security Framework for UPI - 2025* — [provisional third-party mirror](https://rscb.bank.in/Content/pdf/npcicircular.pdf) (visually read pp. 1–8 on Nov 23, 2026; not publicly listed on `npci.org.in/circulars/upi` or `/circulars/others`).
+4. NPCI, [Fraud Awareness](https://www.npci.org.in/fraud-awareness) (*Downloading of unknown apps*), browser-checked Nov 23, 2026.
+5. NPCI, [UPI Circulars](https://www.npci.org.in/circulars/upi), browser-checked Nov 23, 2026 (`NPCI/2025-26/IS/003` absent from public listing).
 
-**Review status:** RBI sources and third-party NPCI PDF mirror checked 2026-11-23; `npci.org.in` blocked (`HTTP 403`); independent reviewer: `PENDING`.
+**Review status:** RBI sources and `npci.org.in/fraud-awareness` checked 2026-11-23; `NPCI/2025-26/IS/003` not listed on public `npci.org.in/circulars/upi` or `/circulars/others` (provisional bank mirror used; stays `draft`); independent reviewer: `PENDING`.

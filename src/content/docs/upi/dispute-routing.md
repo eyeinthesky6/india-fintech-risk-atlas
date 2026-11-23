@@ -22,8 +22,7 @@ evidenceLayers:
   - official
   - industry
   - atlas
-reviewStage: draft
-blockerNote: "Direct npci.org.in dispute FAQs returned HTTP 403; RBI ODR/TAT/PA & Razorpay sources checked; independent review pending."
+reviewStage: source-checked
 lastSourceCheck: "2026-11-23"
 ---
 
@@ -35,7 +34,10 @@ When a UPI payment goes wrong, customers and merchants face three fundamentally 
 - **Bank digital app grievance visibility (`id=13642`, `id=13624`, `id=13633`):** `§§59–60` mandate an explicit in-app grievance lodging section with response timelines and ODR alignment, while `§66` (and `RBI/DPSS/2026-27/475 §30` for non-bank PSOs) requires an authenticated **"mark/identify transaction as fraudulent"** mechanism for immediate notification. [2]
 - **PA dispute governance (`RBI/DPSS/2025-26/141 §8`):** Payment Aggregators must maintain a dispute resolution policy covering refund timelines, clearly delineate failed-transaction and refund duties with acquiring banks and merchants (`§8(b)`), and publish an escalation matrix and grievance officer (`§8(d)`). [3]
 - **Fraud complaint channels (`RBI/2026-27/167`):** For commercial banks (EBTs >= Jan 1, 2027), `§76G` mandates 24x7 fraud reporting, SMS-reply objection numbers, direct website/app links, advising NCRP / 1930 reporting, and `§76I` mandates immediate complaint registration and acknowledgement. [4]
-- **NPCI FAQs & Settlement doc (blocked):** Direct inspection of `npci.org.in/what-we-do/upi/faqs` and `UPI_Settlement_Process_256f73e1df.pdf` returned **`HTTP 403 Forbidden`** on 2026-11-23; scheme-specific UDIR dispute codes and timelines await authorized NPCI verification. [5]
+- **NPCI scheme dispute progression, FAQs & URCS chargeback TATs (`OC No. 235/2026-27`):** Directly browser-verified on `npci.org.in` (Nov 23, 2026):
+  - NPCI's [UPI FAQs](https://www.npci.org.in/faqs/upi) (structured across Customers, Banks, TPAPs, Merchants, and PPI on UPI, alongside the `upihelp.npci.org.in` assistant) and [Complaint Register](https://www.npci.org.in/complaint-register) specify that complaints for fraudulent, unidentified, or unauthorised transactions must be raised with the user's respective bank. [7]
+  - NPCI's [UPI Settlement Process](https://www.npci.org.in/uploads/UPI_Settlement_Process_256f73e1df.pdf) (`§4 Dispute Resolution Mechanism`, undated 4-page public PDF; p. 4 ODR summary) outlines amicable dispute resolution, statutory record retention, and the 5-stage back-office workflow (`Chargeback` -> `Accept / Re-present` -> `Pre-Arbitration` -> `Arbitration` reviewed by the NPCI Review Panel [NRP] and Panel for Resolution of Disputes [PRD]), specifying automatic closure on a deemed-acceptance basis if not accepted or rejected within TAT. [5]
+  - Circular `NPCI/UPI/OC No. 235/2026-27` (issued Jul 16, 2026, effective Aug 1, 2026) cuts the beneficiary bank URCS back-office response TAT for **Fraud and Wrong Credit chargebacks** from **35 to 15 calendar days** (applying to chargebacks raised before or after Aug 1, 2026), with auto-closure as *Deemed Accepted* if not accepted or rejected within 15 days. [8]
 
 ## Layer 2 — Company-reported industry practices
 - **Razorpay Disputes (`company-reported`):** Razorpay documents tracking merchant disputes across phases (*Fraud*, *Retrieval*, *Chargeback*, *Pre-Arbitration*, *Arbitration*) and statuses (`Open`, `Under Review`, `Won`, `Lost`, `Closed`) via dashboard and webhooks, allowing merchants to accept/refund or submit supporting delivery/invoice evidence (`About Disputes`, last modified Oct 8, 2026). [6]
@@ -53,7 +55,9 @@ When a UPI payment goes wrong, customers and merchants face three fundamentally 
 2. RBI, [Commercial Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/scripts/BS_ViewMasDirections.aspx?id=13642), `RBI/DoS/2026-27/411` (`§§59–60, 66`), accessed Nov 23, 2026 (parallel `id=13624` PBs, `id=13633` SFBs, `Id=13751 §30` PSOs).
 3. RBI, [Master Direction on Regulation of Payment Aggregator (PA)](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=12896), `RBI/DPSS/2025-26/141`, updated Nov 11, 2026 (`§8`), accessed Nov 23, 2026.
 4. RBI, [Commercial Banks – Responsible Business Conduct Third Amendment Directions, 2026](https://rbi.org.in/Scripts/NotificationUser.aspx?Id=13543&Mode=0), `RBI/2026-27/167` (`§§76G, 76I`), accessed Nov 23, 2026.
-5. NPCI, [UPI FAQs](https://www.npci.org.in/what-we-do/upi/faqs) & [UPI Settlement Process](https://www.npci.org.in/uploads/UPI_Settlement_Process_256f73e1df.pdf) — **HTTP 403 Forbidden** on Nov 23, 2026.
+5. NPCI, [UPI Settlement Process](https://www.npci.org.in/uploads/UPI_Settlement_Process_256f73e1df.pdf) (§4 Dispute Resolution Mechanism; p. 4 ODR summary; undated 4 pp. public PDF), browser-checked Nov 23, 2026.
 6. Razorpay Docs, [About Disputes](https://razorpay.com/docs/payments/disputes), Oct 8, 2026, accessed Nov 23, 2026 (company-reported).
+7. NPCI, [UPI FAQs](https://www.npci.org.in/faqs/upi) & [Complaint Register](https://www.npci.org.in/complaint-register), browser-checked Nov 23, 2026.
+8. NPCI, [`NPCI/UPI/OC No. 235/2026-27`: Revision of Turnaround Time (TAT) for Responding to Fraud and Wrong Credit Chargebacks in URCS Back Office System](https://www.npci.org.in/uploads/UPI_OC_No_235_FY_2026_27_Revision_of_Turnaround_Time_TAT_for_Responding_to_Fraud_and_Wrong_Credit_Chargebacks_in_URCS_Back_Office_System_aa420e4bcc.pdf), Jul 16, 2026 (effective Aug 1, 2026), browser-checked Nov 23, 2026.
 
-**Review status:** RBI and Razorpay sources checked 2026-11-23; `npci.org.in` blocked (`HTTP 403`); independent reviewer: `PENDING`.
+**Review status:** RBI, browser-verified NPCI Settlement/FAQs/Complaint Register/`OC 235`, and Razorpay sources checked 2026-11-23; independent reviewer: `PENDING`.

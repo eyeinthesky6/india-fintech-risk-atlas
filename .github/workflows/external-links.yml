@@ -23,3 +23,12 @@ jobs:
             './research/evidence/**/*.md'
           fail: true
           jobSummary: true
+  freshness-audit:
+    name: Citation freshness & browser queue
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Audit record freshness, deprecated URLs, and manual browser queue
+        run: |
+          set -o pipefail
+          python3 scripts/verify-citations.py --offline --all | tee -a "$GITHUB_STEP_SUMMARY"

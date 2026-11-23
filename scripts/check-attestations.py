@@ -11,6 +11,10 @@ TAXONOMY = json.loads((ROOT / 'src' / 'taxonomy.json').read_text(encoding='utf-8
 CONTENT_PREFIXES = ('src/content/docs/',)
 VALID_STAGES = set(TAXONOMY['reviewStages'])
 RECORD_ID_RE = re.compile(TAXONOMY['recordIdPattern'])
+DATE_RE = re.compile(r'^\d{4}-\d{2}-\d{2}$')
+DEPRECATED_REF_URL_RES = [
+    re.compile(r'https?://(?:www\.)?npci\.org\.in/what-we-do/upi/', re.I),
+]
 EXEMPT = {
     'src/content/docs/index.mdx',
     'src/content/docs/methodology.md',
@@ -166,6 +170,10 @@ def main():
             if any(boxes[i].lower() == 'x' for i in (7, 8, 9, 11)):
                 failures.append(f'{att_rel}: reviewer/publication declarations checked while Independent reviewer is PENDING')
 
+        last_check = fm.get('lastSourceCheck', '').strip()
+        if last_check and not DATE_RE.match(last_check):
+            failures.append(f'{path}: invalid lastSourceCheck format ({last_check}; expected YYYY-MM-DD)')
+
         stage_m = re.search(r'^Stage:\s*(.+)$', body, re.M)
         stage = stage_m.group(1).strip().lower() if stage_m else ''
         if stage not in VALID_STAGES:
@@ -173,11 +181,15 @@ def main():
         else:
             if fm_stage in VALID_STAGES and fm_stage != stage:
                 failures.append(f'{path}: frontmatter reviewStage ({fm_stage}) does not match {att_rel} Stage ({stage})')
+            if stage in {'source-checked', 'reviewed', 'published'} and not last_check:
+                failures.append(f'{path}: missing lastSourceCheck required for {stage} stage')
 
             has_refs, ref_urls = extract_reference_urls(txt)
             if stage in {'source-checked', 'reviewed', 'published'} and not has_refs:
                 failures.append(f'{path}: missing ## References section required for {stage} stage')
             for url in ref_urls:
+                if any(p.search(url) for p in DEPRECATED_REF_URL_RES):
+                    failures.append(f'{path}: deprecated/retired reference URL: {url}')
                 if url not in ev_body:
                     failures.append(f'{path}: external reference URL not recorded in {ev_rel}: {url}')
 

@@ -1,77 +1,38 @@
-# UPI primary-source register — first research pass
+# UPI primary-source register
 
-**Research date:** 2026-11-21. **Status:** source discovery and initial passage checks; not exhaustive circular-by-circular audit. This file is the working evidence register, not a blanket certification of each article.
+**Last audited:** 2026-11-23 (source-checked against directly retrieved documents; independent second-reviewer verification pending).
 
-| ID | Publisher and document | Applicability | Useful sections |
+## 1. Directly retrieved primary RBI & government documents (verified 2026-11-23)
+
+| ID | Publisher & document | Reference & date | Applicability & effective status | Verified provisions used in Atlas |
+|---|---|---|---|---|
+| `RBI-2026-CBANK` | [RBI Commercial Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/scripts/BS_ViewMasDirections.aspx?id=13642) | `RBI/DoS/2026-27/411` (`DoS.CO.CSITEG.5/31.01.015/2026-27`), Jul 31, 2026 (updated Oct 1, 2026) | Commercial banks excluding SFBs, PBs, LABs (`Ch. I §3`); effective immediately (`§2`) | Auth/MITM/failed-login lockout (`§§42–51`); EFRM monitoring parameters, fraud analysis, staff training including false positives (`§§52–56`); 24h settlement reconciliation (`§57`); awareness, ODR, flag-as-fraud (`§§58–66`); mobile app device binding, remote-access prohibition, checksum (`§68`) |
+| `RBI-2026-PBANK` | [RBI Payments Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13624) | `RBI/DoS/2026-27/429` (`DoS.CO.CSITEG.23/31.01.015/2026-27`), Jul 31, 2026 (updated Oct 1, 2026) | Payments Banks (`Ch. I §3`); effective immediately (`§2`) | Parallel controls for Payments Banks (`§§42–57`, `§§58–66`, `§68`) |
+| `RBI-2026-SFB` | [RBI Small Finance Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13633) | Updated Oct 1, 2026 | Small Finance Banks (`Ch. I §3`) | Parallel controls for Small Finance Banks (`§§52–57`, `§68`) |
+| `RBI-2026-NBPSO` | [Master Directions on Cyber Resilience and Digital Payment Security Controls for non-bank PSOs](https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=13751&Mode=0) | `RBI/DPSS/2026-27/475` (`CO.DPSS.CSD.No.S825/01-01-078/2026-2027`), Nov 5, 2026 | Authorised non-bank PSOs (`§4`); Large/Medium PSOs immediate; Small PSOs Apr 1, 2028 (`§3`); unregulated ecosystem linkages via agreement (`§5`) | 6h RBI incident report (`§22(d)`); real-time/near-real-time fraud monitoring, 24x7x365 LEA/customer resolution desk, anti-rogue-app (`§27(c)-(d),(h)`); velocity/failed-txn alerts (`§28`); customer mark-fraud (`§30`); mobile SIM/device binding, live remote-access block, 12h cooling period on mobile/email change (`§31(c),(f),(g)`) |
+| `RBI-2025-AUTH` | [RBI Authentication mechanisms for digital payment transactions Directions, 2025](https://rbi.org.in/Scripts/NotificationUser.aspx?Id=12898&Mode=0) | `RBI/2025-26/79` (`CO.DPSS.POLC.No. S 668/02-14-015/2025-2026`), Sep 25, 2025 | All domestic Payment System Providers and Participants (`§4`); compliance by Apr 1, 2026 (`§3`) | Min 2 distinct factors (`§6(a)`); at least 1 dynamic factor for non-CP (`§6(b)`); risk-based checks (`§8`); issuer responsibility (`§9`); Annexure-1 exemptions (e-mandates, NFC Tap-and-Pay UPI, etc.) |
+| `RBI-2026-CBANK-RBC` | [RBI Commercial Banks – Responsible Business Conduct Third Amendment Directions, 2026](https://rbi.org.in/Scripts/NotificationUser.aspx?Id=13543&Mode=0) | `RBI/2026-27/167` (`DOR.MCS.REC.No.130/01-01-032/2026-27`), Jun 24, 2026 | Commercial Banks excluding SFBs, PBs, RRBs, LABs; applies to EBTs on or after **Jan 1, 2027** (`§3(2)`) | Substitutes Section DA (`§§76A–76V`): defines Fraudulent EBT including coercion/duress (`4(15A)`), customer negligence including ignoring specific scam warnings (`4(20C)`), > ₹500 SMS alert (`§76D`), 24x7/SMS-reply reporting & NCRP/1930 (`§76G`), bank burden of proof (`§76K`), 5-calendar-day zero liability for third-party breach (`§76M`), small-value compensation up to ₹50,000 gross loss (`§§76T–76U`) |
+| `RBI-2025-PBANK-RBC` | [RBI Payments Banks – Responsible Business Conduct Directions, 2025](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13089) | Updated Oct 1, 2026 | Payments Banks | Retains 3-working-day zero liability / 4–7 working-day limited liability / 10-working-day shadow reversal / 90-day resolution (`§§21–33`) |
+| `RBI-2017-LIAB` | [RBI Customer Protection – Limiting Liability of Customers in Unauthorised Electronic Banking Transactions](https://www.rbi.org.in/Scripts/BS_ViewMasCirculardetails.aspx?id=11040) | `RBI/2017-18/15` (`DBR.No.Leg.BC.78/09.07.005/2017-18`), Jul 6, 2017 | SCBs (incl. RRBs), SFBs, PBs (historical baseline; superseded for commercial banks post-Jan 1, 2027 by `Id=13543` and consolidated for PBs in `id=13089`) | 3-working-day zero liability, 4–7 working-day limited liability, 10-working-day shadow reversal (`§9`), bank burden of proof (`§12`) |
+| `RBI-2026-CBANK-FRM` | [RBI Commercial Banks – Fraud Risk Management Directions, 2026](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13641) | Jul 2026 (parallel `id=13623` PBs, `id=13632` SFBs) | Commercial Banks excluding SFBs, PBs, LABs (`Ch. I §3`) | Board FRM policy, natural-justice 21-day SCN before fraud classification (`§6`), EWS/RFA (`§12`), Data Analytics/MI monitoring of digital transactions (`§25`), FMR digital payment fraud category (`§46(10)`) |
+| `RBI-2025-PA` | [RBI Master Direction on Regulation of Payment Aggregator (PA)](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=12896) | `RBI/DPSS/2025-26/141` (`CO.DPSS.POLC.No.S-633/02-14-008/2025-26`), Sep 15, 2025 (updated Nov 11, 2026) | Bank & non-bank PAs, AD banks, SCBs acquiring merchants via PAs (`§3`) | Dispute management (`§8`), security/fraud controls referencing non-bank PSO MD (`§9`), merchant CDD/CKYCR/PAN/CPV/background check/MCC/bank-account settlement check/ongoing profile monitoring/FIU-IND (`§13`), acquiring bank oversight (`§14`), escrow (`§§16–18`) |
+| `RBI-2019-TAT` | [RBI Harmonisation of Turn Around Time (TAT) and customer compensation for failed transactions](https://www.rbi.org.in/Scripts/NotificationUser.aspx?Id=11693&Mode=0) | `RBI/2019-20/67` (`DPSS.CO.PD No.629/02.01.014/2019-20`), Sep 20, 2019 | All domestic authorised payment systems (banks and non-banks) | UPI Sl. 4: debited & beneficiary not credited → auto-reversal by beneficiary bank latest `T+1` (`₹100/day` beyond `T+1`); debited & merchant confirmation not received → auto-reversal within `T+5` (`₹100/day` beyond `T+5`) |
+| `RBI-2020-ODR` | [RBI Online Dispute Resolution (ODR) System for Digital Payments](https://www.rbi.org.in/Scripts/NotificationUser.aspx?Id=11946&Mode=0) | `RBI/2020-21/21` (`DPSS.CO.PD No.116/02.12.004/2020-21`), Aug 6, 2020 | Authorised PSOs (banks/non-banks) and PSPs (`Annex §1.1`); includes TPAP in-app grievance requirement (`Annex §5.2`) | Rule-based system-driven ODR for failed transactions, unique tracking reference (`§5.4`), escalation to RBI Ombudsman if unresolved up to 1 month |
+| `RBI-2026-DISC` | [RBI Discussion Paper – Exploring safeguards in digital payments to curb frauds](https://www.rbi.org.in/scriptS/PublicationsView.aspx?id=23810) | Apr 9, 2026 | **Non-binding consultation paper** (comments closed May 8, 2026) | Documents shift from ATO toward APP scams; notes DoT MNRL/DIP, I4C NCRP SOP, RBIH `MuleHunter.AI`; floats 4 options: 1h lag for APP > ₹10,000, trusted-person verification > ₹50,000, KYC-commensurate credits, kill switch |
+| `PIB-2026-MULE` | [PIB Press Release — I4C (MHA) and RBIH MoU on MuleHunter.AI](https://www.pib.gov.in/PressReleasePage.aspx?PRID=2260277&reg=3&lang=2) | Government of India / PIB | Official operational collaboration announcement | Confirms I4C–RBIH MoU for sharing mule-account intelligence between NCRP Suspect Registry and `MuleHunter.AI` |
+
+## 2. NPCI circular mirrors & direct `npci.org.in` access blocker (checked 2026-11-23)
+
+| ID | Document | Retrieval & verification status | Specific caution |
 |---|---|---|---|
-| RBI-2026-CBANK | [RBI Commercial Banks Digital Payment Security Controls Directions 2026](https://www.rbi.org.in/Scripts/NotificationUser.aspx/www.mastercirculars.rbi.org.in/upload/notification/pdfs/NotificationPreVersion.aspx?id=13642) | Commercial banks as defined in Chapter I; not all fintechs | Fraud risk, reconciliation, authentication and grievance chapters |
-| RBI-2026-PBANK | [RBI Payments Banks Digital Payment Security Controls Directions 2026](https://www.rbi.org.in/SCRIPTS/BS_ViewMasDirections.aspx?id=13624) | Payments banks | Fraud monitoring parameters §§52–56 and reconciliation §57; recheck current version |
-| RBI-2025-AUTH | [RBI Authentication mechanisms for digital payment transactions Directions 2025](https://rbi.org.in/Scripts/NotificationUser.aspx?Id=12898&Mode=0) | Payment system providers and participants; specified exemptions | Effective 1 April 2026 subject to exceptions |
-| RBI-2026-CUST | [RBI Customer Protection in Fraudulent Electronic Banking Transactions Directions](https://rbi.org.in/Scripts/NotificationUser.aspx?Id=13543&Mode=0) | Banks defined in the directions | Customer protection, fraud detection and complaint channels §§76A–76B |
-| NPCI-FAQ | [NPCI UPI FAQs](https://www.npci.org.in/what-we-do/upi/faqs) | Scheme information; verify changing product features | Registration, authentication, merchant onboarding, complaints, status |
-| NPCI-AWARE | [NPCI Fraud Awareness](https://www.npci.org.in/fraud-awareness) | Public safety education, not legal requirements | QR, cashback, fake links, impersonation, unknown apps |
-| NPCI-SETTLE | [NPCI UPI Settlement Process](https://www.npci.org.in/uploads/UPI_Settlement_Process_256f73e1df.pdf) | Scheme member settlement and disputes; check current circulars | Dispute lifecycle, reconciliation, TAT subject to updates |
-| RBI-2026-DISC | [RBI Discussion Paper Exploring Safeguards in Digital Payments to Curb Frauds](https://www.rbi.org.in/scriptS/PublicationsView.aspx?id=23810) | Discussion paper, not binding directions | Fraud safeguards and policy options |
-| RBI-2017-LIAB | [RBI Limiting Liability of Customers in Unauthorised Electronic Banking Transactions](https://www.rbi.org.in/Scripts/BS_ViewMasCirculardetails.aspx?id=11040) | Historical direction; check 2026 replacement and applicability | Historical reference only, not current default |
+| `NPCI-2025-IS-003` | NPCI `NPCI/2025-26/IS/003`, *Comprehensive Mobile Application Security Framework for UPI - 2025* (May 19, 2025) — [third-party bank mirror](https://rscb.bank.in/Content/pdf/npcicircular.pdf) | **Provisional (third-party mirror read visually, pages 1–8).** Addressed to PSPs, ASPs, TPAPs; mandatory root/cloaking detection, install-source validation, screen-mirroring prevention, USB/dev-mode block, auto-read OTP + sender-ID whitelist, SMS device-binding checks, real-time alerts | Confirm against official `npci.org.in` circular and any later 2025–2026 amendments once `npci.org.in` is accessible |
+| `NPCI-2025-OC220` | NPCI `NPCI/UPI/OC/220/2025-26`, *Discontinuing the service of UPI Collect Request for Person to Person (P2P) transactions* (Jul 29, 2025) — [third-party legal update mirror](https://avantiscdnprodstorage.blob.core.windows.net/legalupdatedocs/45492/NPCI-issued-a-notification-regarding-the-discontinuation-of-the-service-of-UPI-Collect-Request-for-Person-to-Person-transactions-August122025.pdf) | **Provisional (third-party mirror read visually, page 1).** Directs member banks, PSPs, and UPI apps to ensure no P2P Collect transaction is initiated, routed, or processed beyond **Oct 1, 2025** | Confirm against official `npci.org.in` circular; does not discontinue P2M Collect requests |
+| `NPCI-FAQ` | [NPCI UPI FAQs](https://www.npci.org.in/what-we-do/upi/faqs) | **Blocked (`HTTP 403 Forbidden`) on 2026-11-23** | Cannot confirm current page text programmatically; records relying primarily on `npci.org.in` remain `draft` |
+| `NPCI-AWARE` | [NPCI Fraud Awareness](https://www.npci.org.in/fraud-awareness) | **Blocked (`HTTP 403 Forbidden`) on 2026-11-23** | Public safety education only; cannot re-verify directly |
+| `NPCI-OVERVIEW` | [NPCI UPI Product Overview](https://www.npci.org.in/what-we-do/upi/product-overview) | **Blocked (`HTTP 403 Forbidden`) on 2026-11-23** | Cannot re-verify directly |
+| `NPCI-SETTLE` | [NPCI UPI Settlement Process](https://www.npci.org.in/uploads/UPI_Settlement_Process_256f73e1df.pdf) | **Blocked (`HTTP 403 Forbidden`) on 2026-11-23** | Earlier Nov 21 pass noted §4 dispute flow & warned TATs change by circular; current direct access blocked |
+| `NPCI-CIRC-IDX` | [NPCI UPI Circulars](https://www.npci.org.in/circulars/upi) | **Blocked (`HTTP 403 Forbidden`) on 2026-11-23** | Full circular-by-circular supersession audit requires authorized browser access |
 
 ## Verification rules
-- A source supports only claims actually contained in its cited provision; titles alone are not evidence.
-- Distinguish **binding**, **official guidance**, **illustrative practice**, and **discussion paper**.
-- For NPCI settlement and scheme details, verify amendments against current circulars before stating exact turnaround times.
-- Never transplant bank requirements onto a TPAP, merchant, PSP, PSO or NBFC without an applicability check.
-- When citing a historical circular, determine whether later consolidated directions supersede it.
-
-## Evidence gaps
-Current NPCI UPI operating circulars and dispute-specific turnaround tables need a separate currency check. Detailed participant obligations and recent product variants require individual document inspection. No universal fraud-detection thresholds are asserted.
-
-## Primary-source cross-check — 2026-11-21
-
-The following statements were directly checked against current public RBI/NPCI material in this research pass (not yet an independent second reviewer):
-
-- RBI [Payments Banks Digital Payment Security Controls Directions, updated 1 Oct 2026](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13624): Chapter I §3 limits applicability to **payments banks**; Chapter III includes fraud risk management and reconciliation. Specific monitoring parameters must be rechecked against the operative paragraph before describing them as mandatory.
-- RBI [Commercial Banks Digital Payment Security Controls Directions, updated 1 Oct 2026](https://www.rbi.org.in/scripts/BS_ViewMasDirections.aspx?id=13642): Chapter I §3 applies to defined **commercial banks** and expressly excludes small finance banks, payments banks and local area banks from that definition.
-- RBI [non-bank PSO Cyber Resilience and Digital Payment Security Controls Master Directions, 5 Nov 2026](https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=13751&Mode=0): §§3–5 distinguish timing and scope. Large/medium authorised non-bank PSOs: effective on website publication; **small non-bank PSOs: effective 1 Apr 2028**. It is incorrect to claim the same immediate effective date for all non-bank PSOs.
-- NPCI [Fraud Awareness](https://www.npci.org.in/fraud-awareness): lists fake cashback links, QR codes, internet search, social-media grievances and unknown apps. This supports educational descriptions, **not** a universal mandated control.
-- NPCI [UPI FAQs](https://www.npci.org.in/what-we-do/upi/faqs): identifies UPI as an NPCI-developed instant payment system and explains UPI PIN use. Verify feature-specific statements against current circulars.
-- NPCI [UPI Settlement Process](https://www.npci.org.in/uploads/UPI_Settlement_Process_256f73e1df.pdf): §4 describes exception/dispute transactions and expressly notes TATs may be changed by circular. Do not publish a fixed dispute TAT without a current circular check.
-
-**Verification status:** six source-level observations checked in this pass. This does not certify the 17 articles; each material claim still needs exact locators and independent review.
-
-## Additional independent-source inspection — 2026-11-21
-
-### R1 — Payments banks, fraud monitoring
-Official RBI [Payments Banks Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13624), Chapter I §§3–4 and Chapter III §§52–57.
-- §3: applies to **payments banks**.
-- §52: requires documented configuration for suspicious transaction behavior and customer alerts for failed authentication.
-- §53: monitoring parameters may include velocity, high-risk MCC, new-account activity, geolocation, IP, behavioural signals, suspicious VPAs, declined transactions.
-- §54: fraud analysis.
-- §55: staff capability including distinguishing false positives.
-- §57: reconciliation not later than 24 hours from receipt of settlement files. **Do not present this as a universal UPI reversal deadline.**
-Status: source text checked. Article-level normative claim applicability still needs independent review.
-
-### R2 — Non-bank payment system operators
-Official RBI [5 November 2026 non-bank PSO directions](https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=13751&Mode=0), §§3–5.
-- Scope: authorised non-bank PSOs.
-- Large/medium PSOs: effective on publication; small PSOs: 1 April 2028.
-- Linked unregulated ecosystem entities: adherence through mutual agreement, not a universal direct statutory obligation.
-Status: primary passage checked. Do not apply automatically to TPAPs, merchants or banks.
-
-### R3 — UPI dispute processing
-NPCI [UPI Settlement Process](https://www.npci.org.in/uploads/UPI_Settlement_Process_256f73e1df.pdf), §4.
-- Exception transactions may be unreconciled or disputed.
-- Member dispute process involves remitting bank, NPCI back office and beneficiary bank.
-- Dispute/adjustment TATs may change by operating circular.
-Status: scheme document checked; current circular supersession check still open.
-
-### R4 — UPI mobile app security (additional source)
-NPCI circular NPCI/2025-26/IS/003, 19 May 2025, *Comprehensive Mobile Application Security Framework for UPI 2025*. [Publicly mirrored copy](https://rscb.bank.in/Content/pdf/npcicircular.pdf).
-- Addresses PSPs, ASPs and TPAPs.
-- Describes root/jailbreak detection, root cloaking detection and installation-source validation.
-- Because this is a third-party mirror, confirm against NPCI original and later circulars before labeling current mandatory controls.
-Status: **provisional, primary-origin document mirrored by third party**.
-
-### Research integrity decisions
-1. The earlier draft's vague 'RBI says...' citations are insufficient for publication. Replace them with exact sections and actor scope.
-2. Distinguish detection suggestions from mandated bank/PSO obligations.
-3. Do not reuse a historic settlement TAT as current without circular review.
-4. Current source checks above were performed in the drafting pass, **not by a distinct independent reviewer**.
+- A source supports only assertions present in its opened text; never promote a search snippet, third-party mirror, or superseded 2017 circular as unamended binding law without marking its exact scope and status.
+- No bypass of `npci.org.in` access restrictions was attempted. Unretrieved `npci.org.in` originals remain explicitly marked `blocked (npci.org.in HTTP 403)` in per-record evidence ledgers.

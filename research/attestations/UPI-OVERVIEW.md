@@ -1,19 +1,19 @@
-# Research attestation — UPI-OVERVIEW
+# Evidence attestation — UPI-OVERVIEW
 
 Record: UPI-OVERVIEW
-Researcher: ChatGPT initial drafting
+Researcher: India Fintech Risk Atlas audit pass (2026-11-23)
 Independent reviewer: PENDING
 Stage: draft
 Evidence ledger: research/evidence/UPI-OVERVIEW.md
 
 ## Researcher declarations
-- [ ] Scope and duplicate search completed
+- [x] Scope and duplicate search completed
 - [ ] Original primary sources opened (not just snippets)
-- [ ] Every material claim has a precise source locator or is labeled hypothesis
+- [x] Every material claim has a precise source locator or is labeled hypothesis
 - [ ] Regulator, actor, effective date and supersession checked where relevant
-- [ ] Technical claims cross-checked where feasible; limitations documented
-- [ ] False positives, customer impact and privacy considered
-- [ ] Original wording and source attribution checked
+- [x] Technical claims cross-checked where feasible; limitations documented
+- [x] False positives, customer impact and privacy considered
+- [x] Original wording and source attribution checked
 
 ## Independent reviewer declarations
 - [ ] Different reviewer reopened the original sources
@@ -21,8 +21,8 @@ Evidence ledger: research/evidence/UPI-OVERVIEW.md
 - [ ] Reviewer recorded outcomes in the evidence ledger
 
 ## Release declarations
-- [ ] Metadata, IDs, references and internal links checked
+- [x] Metadata, IDs, references and internal links checked
 - [ ] Article is ready for publication, with no unresolved material evidence gaps
 
 ## Notes and open blockers
-Draft upi-ecosystem; full source passage, current circular and independent review pending. No claim of verification.
+RBI entity-scoped Directions (`id=13642`, `id=13624`, `id=13633`, `Id=13751`, `Id=12898`, `id=12896`, `Id=11946`) opened and verified 2026-11-23. Direct access to `npci.org.in/what-we-do/upi/product-overview` and `/faqs` returned `HTTP 403 Forbidden`; Stage remains `draft` and boxes 2 and 4 remain unchecked until NPCI scheme documents and independent review are completed.

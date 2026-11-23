@@ -73,6 +73,7 @@ export default defineConfig({
             items: [
               { label: 'Policy discussion', slug: 'upi/risk-discussion' },
               { label: 'UPI sources', slug: 'upi/sources' },
+              { label: 'Glossary', slug: 'upi/glossary' },
             ],
           },
         ],

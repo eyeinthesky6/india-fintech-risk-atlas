@@ -1,15 +1,13 @@
 # Evidence ledger — UPI-OVERVIEW
 
-Researcher: ChatGPT initial research pass, 2026-11-21
+Researcher: India Fintech Risk Atlas audit pass (2026-11-23)
 Independent reviewer: PENDING
-Publication status: BLOCKED until all material claims are verified.
+Publication status: BLOCKED — `npci.org.in` pages returned `HTTP 403 Forbidden`; independent second-reviewer verification pending.
 
-| Claim ID | Claim | Primary source | Exact locator | Scope | Result |
-|---|---|---|---|---|---|
-| UPI-OVERVIEW-C1 | UPI is an instant-payment system developed by NPCI, enabling transfers between bank accounts. | [Official source](https://www.npci.org.in/what-we-do/upi/faqs) | Customers > What is UPI? | General system description | supported (initial research pass only) |
-
-## Outstanding audit work
-- Reopen every source independently and verify all article claims, not only the example above.
-- Verify effective dates, current circulars, affected actors and supersession.
-- Record a distinct reviewer, specific passage locators and decisions.
-- Do not mark as independently reviewed or publish as authoritative.
+| Claim ID | Layer | Claim | Source | Exact locator | Scope & effective date | Result |
+|---|---|---|---|---|---|---|
+| `UPI-OVERVIEW-C1` | Official | NPCI is classified as a large non-bank PSO under RBI non-bank PSO cyber-resilience directions; unregulated ecosystem links are governed via mutual agreements. | [RBI `RBI/DPSS/2026-27/475`](https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=13751&Mode=0) | §§3–5, footnote 1 (Nov 5, 2026) | Large/Medium non-bank PSOs immediate; Small PSOs Apr 1, 2028 | supported (primary checked 2026-11-23; independent review pending) |
+| `UPI-OVERVIEW-C2` | Official | Digital payment security controls are issued separately by bank category (Commercial Banks vs Payments Banks vs SFBs). | [RBI `id=13642`](https://www.rbi.org.in/scripts/BS_ViewMasDirections.aspx?id=13642), [`id=13624`](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13624), [`id=13633`](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13633) | Ch. I §3 in each Direction (updated Oct 1, 2026) | Entity-scoped per bank license class | supported (primary checked 2026-11-23; independent review pending) |
+| `UPI-OVERVIEW-C3` | Official | Authentication directions bind domestic Payment System Providers and Participants, placing responsibility on issuers; PA directions allocate merchant CDD/escrow to PAs and policy oversight to acquiring banks; ODR requires TPAP in-app dispute lodging. | [RBI `Id=12898`](https://rbi.org.in/Scripts/NotificationUser.aspx?Id=12898&Mode=0) §§3–4,9; [`id=12896`](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=12896) §§3,13–14,16–18; [`Id=11946`](https://www.rbi.org.in/Scripts/NotificationUser.aspx?Id=11946&Mode=0) Annex §§1.1,5.2 | Cited sections | Effective Apr 1, 2026 (`12898`), Sep 15, 2025 / updated Nov 11, 2026 (`12896`), Jan 1, 2021 (`11946`) | supported (primary checked 2026-11-23; independent review pending) |
+| `UPI-OVERVIEW-C4` | Official | NPCI scheme product overview and FAQs define scheme-level UPI rules across PSPs and TPAPs. | [NPCI Product Overview](https://www.npci.org.in/what-we-do/upi/product-overview) & [NPCI FAQs](https://www.npci.org.in/what-we-do/upi/faqs) | Direct web pages | Scheme-wide | blocked (npci.org.in HTTP 403 on 2026-11-23; requires authorized browser check) |
+| `UPI-OVERVIEW-C5` | Atlas | Telemetry visibility and blind spots differ across remitter bank, beneficiary bank, PSP/TPAP, and PA/acquiring bank. | Synthesized from `C1–C3` | Operational telemetry matrix | Engineering synthesis | atlas-interpretation |

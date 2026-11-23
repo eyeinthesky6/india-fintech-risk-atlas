@@ -14,6 +14,7 @@ Static documentation site built with **Astro 7 + Starlight 0.43 + Pagefind** via
 - [Research & verification protocol](docs/RESEARCH_PROTOCOL.md) — discovery, evidence ledgers, gates, and agent prompts
 - [Evidence layers & rights](docs/EVIDENCE_LAYERS_AND_RIGHTS.md) — attribution, licensing, and source quality labels
 - [Operator intelligence guide](docs/OPERATOR_INTELLIGENCE.md) — field observations, failure gaps, and validation methods
+- [Content update & verification skill](.agents/skills/atlas-content-update/SKILL.md) — contributor/agent workflow including manual in-browser computer-use fallback when HTTP fails
 - [Release status & audit](docs/RELEASE_STATUS.md) — UPI v1 readiness, blockers, and CI status
 - [UPI documentation entry point](src/content/docs/upi/index.mdx) — auto-generated UPI catalogue and playbooks
 
@@ -32,6 +33,7 @@ Run once per fresh clone so local commits trigger the same attestation gate as C
 git config core.hooksPath .githooks
 npm ci --no-audit --no-fund
 python scripts/check-attestations.py --all
+python scripts/verify-citations.py --offline --all
 npm run build
 npx astro preview --host 127.0.0.1 --port 4321
 ```

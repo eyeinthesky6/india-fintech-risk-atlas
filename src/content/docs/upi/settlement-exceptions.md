@@ -1,9 +1,29 @@
 ---
 title: Settlement and reconciliation exceptions
 description: UPI-014 — interbank settlement-file reconciliation, failed-transaction TATs, and scheme exception handling.
+recordId: UPI-014
+products:
+  - UPI
+recordType: operational-failure
+recordTypeLabel: Operational failure & control
+theme: reconciliation-disputes-protection
+themeLabel: Reconciliation, disputes & protection
+lifecycle:
+  - settlement
+  - reconciliation
+  - dispute
+actors:
+  - Remitter bank
+  - Beneficiary bank
+  - PSP bank
+  - NPCI
+evidenceLayers:
+  - official
+  - atlas
+reviewStage: draft
+blockerNote: "Direct npci.org.in UPI Settlement doc returned HTTP 403; RBI TAT & ODR rules checked; independent review pending."
+lastSourceCheck: "2026-11-23"
 ---
-
-**ID:** UPI-014 · **Type:** Operational failure & control · **Lifecycle:** Settlement, reconciliation, dispute · **Status:** Research draft (`npci.org.in` HTTP 403 on NPCI Settlement doc; RBI rules checked; independent review pending)
 
 ## Risk mechanism and operational gap
 Even when a merchant checkout integration handles webhooks cleanly ([Payment status and order reconciliation](/india-fintech-risk-atlas/upi/payment-status-reconciliation/)), discrepancies occur at the **interbank clearing and settlement layer**: payer accounts may be debited while beneficiary credits fail or timeout (`UDIR` / switch timeouts), settlement files may contain unmatched RRN/UTR entries, or reversals may lag statutory deadlines.

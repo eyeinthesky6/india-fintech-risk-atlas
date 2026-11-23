@@ -1,9 +1,27 @@
 ---
 title: Authentication and payment authorization
 description: UPI-009 — multi-factor authentication, dynamic factors, exemptions, and issuer responsibility.
+recordId: UPI-009
+products:
+  - UPI
+recordType: preventive-control
+recordTypeLabel: Preventive control
+theme: identity-auth
+themeLabel: Identity, access & authentication
+lifecycle:
+  - authentication
+  - authorization
+actors:
+  - Payer
+  - TPAP
+  - PSP bank
+  - Remitter bank
+evidenceLayers:
+  - official
+  - atlas
+reviewStage: source-checked
+lastSourceCheck: "2026-11-23"
 ---
-
-**ID:** UPI-009 · **Type:** Preventive control · **Lifecycle:** Authentication, authorization · **Status:** Source-checked draft (independent review pending)
 
 ## Risk mechanism and operational gap
 Authentication confirms that an instruction originates from the authorized user/device rather than a replay or stolen static credential. Operational gaps arise when systems accept static/reusable factors, fail to protect sessions against man-in-the-middle (MITM) interception, mask merchant identity inside OTP/alert messages, or misapply regulatory exemptions.

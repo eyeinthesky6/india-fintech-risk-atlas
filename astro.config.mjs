@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import starlightLinksValidator from 'starlight-links-validator';
 
 export default defineConfig({
   site: 'https://eyeinthesky6.github.io',
@@ -7,6 +8,10 @@ export default defineConfig({
   integrations: [starlight({
     title: 'India Fintech Risk Atlas',
     description: 'An open, source-cited reference for Indian fintech fraud and risk patterns.',
+    plugins: [starlightLinksValidator()],
+    components: {
+      MarkdownContent: './src/components/AtlasMarkdownContent.astro',
+    },
     social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/eyeinthesky6/india-fintech-risk-atlas' }],
     editLink: { baseUrl: 'https://github.com/eyeinthesky6/india-fintech-risk-atlas/edit/main/' },
     sidebar: [

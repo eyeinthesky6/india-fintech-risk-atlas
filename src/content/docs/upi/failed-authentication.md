@@ -1,9 +1,29 @@
 ---
 title: Repeated failed authentication attempts
 description: UPI-011 — detecting credential stuffing, wrong-PIN probing, lockouts, and customer alerts.
+recordId: UPI-011
+products:
+  - UPI
+recordType: detective-control
+recordTypeLabel: Detective & preventive control
+theme: identity-auth
+themeLabel: Identity, access & authentication
+lifecycle:
+  - authentication
+  - authorization
+  - monitoring
+actors:
+  - Payer
+  - TPAP
+  - PSP bank
+  - Remitter bank
+evidenceLayers:
+  - official
+  - industry
+  - atlas
+reviewStage: source-checked
+lastSourceCheck: "2026-11-23"
 ---
-
-**ID:** UPI-011 · **Type:** Detective & preventive control · **Lifecycle:** Authentication, authorization, monitoring · **Status:** Source-checked draft (independent review pending)
 
 ## Risk mechanism and operational gap
 Repeated failed logins or incorrect UPI PIN / OTP attempts can signal brute-force guessing, stolen device testing, automated credential stuffing, or a victim hesitating/mistyping under scammer coercion. Conversely, benign connectivity drops or user typos also generate declines—so undifferentiated lockouts degrade customer trust unless paired with accurate failure-reason telemetry and safe recovery flows.

@@ -6,18 +6,19 @@ import subprocess
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-CONTENT_PREFIXES = ('content/', 'data/', 'src/content/docs/')
+CONTENT_PREFIXES = ('src/content/docs/',)
+VALID_STAGES = {'draft', 'researching', 'source-checked', 'reviewed', 'published'}
 EXEMPT = {
     'src/content/docs/index.mdx',
     'src/content/docs/methodology.md',
     'src/content/docs/contribute.md',
     'src/content/docs/evidence-policy.md',
     'src/content/docs/licensing.md',
-    'src/content/docs/upi/index.md',
+    'src/content/docs/upi/index.mdx',
     'src/content/docs/upi/sources.md',
     'src/content/docs/upi/operator-insights.md',
     'src/content/docs/upi/risk-stack-playbook.md',
-    'src/content/docs/upi/coverage.md',
+    'src/content/docs/upi/coverage.mdx',
     'src/content/docs/upi/glossary.md',
 }
 
@@ -49,13 +50,40 @@ def target_files():
         sys.exit(2)
 
 
-def record_id(path):
-    txt = (ROOT / path).read_text(encoding='utf-8')
-    match = re.search(r'^id:\s*([A-Za-z0-9_-]+)\s*$', txt, re.M)
-    if match:
-        return match.group(1)
-    match = re.search(r'\*\*ID:\*\*\s*([A-Za-z0-9_-]+)', txt)
-    return match.group(1) if match else None
+def parse_frontmatter(txt):
+    normalized = txt.replace('\r\n', '\n')
+    if not normalized.startswith('---\n'):
+        return {}
+    end = normalized.find('\n---\n', 4)
+    if end == -1:
+        if normalized.endswith('\n---'):
+            end = len(normalized) - 4
+        else:
+            return {}
+    block = normalized[4:end]
+    scalars = {}
+    for line in block.splitlines():
+        m = re.match(r'^([A-Za-z][A-Za-z0-9_]*):\s*(.+?)\s*$', line)
+        if not m:
+            continue
+        key, val = m.group(1), m.group(2)
+        if len(val) >= 2 and ((val[0] == val[-1] == '"') or (val[0] == val[-1] == "'")):
+            val = val[1:-1]
+        scalars[key] = val
+    return scalars
+
+
+def extract_reference_urls(txt):
+    normalized = txt.replace('\r\n', '\n')
+    m = re.search(r'^##\s+References\b[^\n]*\n(.*?)(?=^##\s+|\Z)', normalized, re.M | re.S | re.I)
+    if not m:
+        return False, []
+    urls = sorted({u.rstrip('.,;\'"`') for u in re.findall(r'https?://[^\s\)\]>"]+', m.group(1))})
+    return True, urls
+
+
+def record_id_from_frontmatter(fm):
+    return fm.get('recordId') or fm.get('id')
 
 
 def check_duplicate_ids():
@@ -64,7 +92,8 @@ def check_duplicate_ids():
     for path in all_content_files():
         if path in EXEMPT:
             continue
-        rid = record_id(path)
+        fm = parse_frontmatter((ROOT / path).read_text(encoding='utf-8'))
+        rid = record_id_from_frontmatter(fm)
         if not rid:
             continue
         if rid in seen:
@@ -85,10 +114,17 @@ def main():
             continue
         if not (ROOT / path).exists():
             continue
-        rid = record_id(path)
+
+        txt = (ROOT / path).read_text(encoding='utf-8')
+        fm = parse_frontmatter(txt)
+        rid = record_id_from_frontmatter(fm)
         if not rid:
-            failures.append(f'{path}: missing record ID (frontmatter id: or **ID:**)')
+            failures.append(f'{path}: missing frontmatter recordId')
             continue
+
+        fm_stage = fm.get('reviewStage', '').strip().lower()
+        if fm_stage not in VALID_STAGES:
+            failures.append(f'{path}: invalid/missing frontmatter reviewStage ({fm_stage or "MISSING"})')
 
         att = ROOT / 'research' / 'attestations' / f'{rid}.md'
         if not att.exists():
@@ -126,24 +162,35 @@ def main():
 
         stage_m = re.search(r'^Stage:\s*(.+)$', body, re.M)
         stage = stage_m.group(1).strip().lower() if stage_m else ''
-        if stage not in {'draft', 'researching', 'source-checked', 'reviewed', 'published'}:
+        if stage not in VALID_STAGES:
             failures.append(f'{att_rel}: invalid/missing Stage')
-        elif stage == 'source-checked':
-            if is_pending(researcher):
-                failures.append(f'{att_rel}: source-checked stage requires named Researcher')
-            if re.search(r'\|\s*(PENDING|unverified|blocked\b[^|]*)\s*\|', ev_body, re.I):
-                failures.append(f'{ev_rel}: source-checked record cannot contain PENDING/unverified/blocked claims')
-        elif stage in {'reviewed', 'published'}:
-            if len(boxes) != 12 or any(x == ' ' for x in boxes):
-                failures.append(f'{att_rel}: reviewed/published needs all 12 declarations')
-            if is_pending(reviewer) or is_pending(researcher) or reviewer == researcher:
-                failures.append(f'{att_rel}: distinct named researcher/reviewer required')
-            ev_rev_m = re.search(r'^Independent reviewer:\s*(.*)$', ev_body, re.M)
-            ev_rev = ev_rev_m.group(1).strip() if ev_rev_m else ''
-            if is_pending(ev_rev) or ev_rev == researcher:
-                failures.append(f'{ev_rel}: distinct named Independent reviewer required in evidence ledger')
-            if re.search(r'\|\s*(PENDING|unverified|blocked\b[^|]*)\s*\|', ev_body, re.I):
-                failures.append(f'{ev_rel}: reviewed/published record cannot contain PENDING/unverified/blocked claims')
+        else:
+            if fm_stage in VALID_STAGES and fm_stage != stage:
+                failures.append(f'{path}: frontmatter reviewStage ({fm_stage}) does not match {att_rel} Stage ({stage})')
+
+            has_refs, ref_urls = extract_reference_urls(txt)
+            if stage in {'source-checked', 'reviewed', 'published'} and not has_refs:
+                failures.append(f'{path}: missing ## References section required for {stage} stage')
+            for url in ref_urls:
+                if url not in ev_body:
+                    failures.append(f'{path}: external reference URL not recorded in {ev_rel}: {url}')
+
+            if stage == 'source-checked':
+                if is_pending(researcher):
+                    failures.append(f'{att_rel}: source-checked stage requires named Researcher')
+                if re.search(r'\|\s*(PENDING|unverified|blocked\b[^|]*)\s*\|', ev_body, re.I):
+                    failures.append(f'{ev_rel}: source-checked record cannot contain PENDING/unverified/blocked claims')
+            elif stage in {'reviewed', 'published'}:
+                if len(boxes) != 12 or any(x == ' ' for x in boxes):
+                    failures.append(f'{att_rel}: reviewed/published needs all 12 declarations')
+                if is_pending(reviewer) or is_pending(researcher) or reviewer == researcher:
+                    failures.append(f'{att_rel}: distinct named researcher/reviewer required')
+                ev_rev_m = re.search(r'^Independent reviewer:\s*(.*)$', ev_body, re.M)
+                ev_rev = ev_rev_m.group(1).strip() if ev_rev_m else ''
+                if is_pending(ev_rev) or ev_rev == researcher:
+                    failures.append(f'{ev_rel}: distinct named Independent reviewer required in evidence ledger')
+                if re.search(r'\|\s*(PENDING|unverified|blocked\b[^|]*)\s*\|', ev_body, re.I):
+                    failures.append(f'{ev_rel}: reviewed/published record cannot contain PENDING/unverified/blocked claims')
 
     if failures:
         print('Attestation check FAILED:\n' + '\n'.join('- ' + f for f in failures))

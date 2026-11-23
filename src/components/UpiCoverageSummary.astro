@@ -1,0 +1,80 @@
+---
+import { getBasePath, getUpiRecords, splitUpiRecordsByStage } from '../lib/upi-records';
+
+const base = getBasePath();
+const records = await getUpiRecords();
+const { total, sourceChecked, drafts, reviewed } = splitUpiRecordsByStage(records);
+---
+
+<p>
+  Live build summary across <strong>{total} canonical UPI records</strong>:
+</p>
+
+<div class="atlas-table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Verification bucket</th>
+        <th>Count</th>
+        <th>Records</th>
+        <th>Status notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Source-checked drafts</strong></td>
+        <td>{sourceChecked.length}</td>
+        <td>
+          {sourceChecked.length === 0 ? 'None' : sourceChecked.map((entry, idx) => (
+            <>
+              {idx > 0 && ', '}
+              <a href={`${base}/${entry.id}/`}><code>{entry.data.recordId}</code></a>
+            </>
+          ))}
+        </td>
+        <td>
+          All cited primary RBI, PIB, Razorpay, Cashfree, Stripe, and <code>arXiv</code> sources directly opened and checked; <strong>independent second-reviewer sign-off pending</strong>.
+        </td>
+      </tr>
+      <tr>
+        <td><strong>Drafts blocked on <code>npci.org.in</code></strong></td>
+        <td>{drafts.length}</td>
+        <td>
+          {drafts.length === 0 ? 'None' : drafts.map((entry, idx) => (
+            <>
+              {idx > 0 && ', '}
+              <a href={`${base}/${entry.id}/`}><code>{entry.data.recordId}</code></a>
+            </>
+          ))}
+        </td>
+        <td>
+          RBI/industry sources checked plus two visually read third-party NPCI circular mirrors (<code>NPCI/2025-26/IS/003</code>, <code>NPCI/UPI/OC/220/2025-26</code>); direct <code>npci.org.in</code> URLs returned <code>HTTP 403 Forbidden</code>.
+        </td>
+      </tr>
+      <tr>
+        <td><strong>Independently reviewed / published</strong></td>
+        <td>{reviewed.length}</td>
+        <td>
+          {reviewed.length === 0 ? 'None' : reviewed.map((entry, idx) => (
+            <>
+              {idx > 0 && ', '}
+              <a href={`${base}/${entry.id}/`}><code>{entry.data.recordId}</code></a>
+            </>
+          ))}
+        </td>
+        <td>
+          {reviewed.length === 0
+            ? 'Separate reviewer has not yet re-opened and signed off claims.'
+            : 'Completed independent second-reviewer verification.'}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .atlas-table-wrap {
+    overflow-x: auto;
+    max-width: 100%;
+  }
+</style>

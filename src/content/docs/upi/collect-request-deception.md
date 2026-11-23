@@ -1,9 +1,30 @@
 ---
 title: Collect-request deception
 description: UPI-004 — social engineering around payment direction, P2P collect discontinuation, and P2M pull controls.
+recordId: UPI-004
+products:
+  - UPI
+recordType: fraud-pattern
+recordTypeLabel: Fraud pattern
+theme: social-engineering
+themeLabel: Social engineering & scams
+lifecycle:
+  - initiation
+  - authorization
+actors:
+  - Payer
+  - TPAP
+  - PSP bank
+  - Remitter bank
+  - Merchant
+evidenceLayers:
+  - official
+  - industry
+  - atlas
+reviewStage: draft
+blockerNote: "Provisional third-party mirror used for NPCI/UPI/OC/220/2025-26; direct npci.org.in returned HTTP 403; independent review pending."
+lastSourceCheck: "2026-11-23"
 ---
-
-**ID:** UPI-004 · **Type:** Fraud pattern · **Lifecycle:** Initiation, authorization · **Status:** Research draft (provisional NPCI mirror / `npci.org.in` 403; independent review pending)
 
 ## Risk mechanism and operational gap
 In collect-request deception, a fraudster initiates or mimics a payment request while telling the victim that approving the notification and entering their UPI PIN will *credit* money to their account (for example, an online marketplace buyer, prize, or refund). Because authorization steps visually resemble other UPI flows, hasty or coerced users mistake a debit approval for an incoming credit.

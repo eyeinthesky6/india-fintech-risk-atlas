@@ -1,9 +1,28 @@
 ---
 title: Unauthorized and fraudulent transaction customer protection
 description: UPI-015 — customer liability allocation, burden of proof, 2026–2027 commercial-bank amendments vs. payments-bank baseline.
+recordId: UPI-015
+products:
+  - UPI
+recordType: recovery-process
+recordTypeLabel: Customer protection & regulatory obligation
+theme: reconciliation-disputes-protection
+themeLabel: Reconciliation, disputes & protection
+lifecycle:
+  - servicing
+  - dispute
+  - recovery
+actors:
+  - Payer
+  - Remitter bank
+  - Beneficiary bank
+  - PSP bank
+evidenceLayers:
+  - official
+  - atlas
+reviewStage: source-checked
+lastSourceCheck: "2026-11-23"
 ---
-
-**ID:** UPI-015 · **Type:** Customer protection & regulatory obligation · **Lifecycle:** Servicing, dispute, recovery · **Status:** Source-checked draft (independent review pending)
 
 ## Risk mechanism and operational gap
 Customer liability and recovery rules in UPI fraud differ sharply from ordinary failed-transaction reversals (`RBI/2019-20/67`). Operational and legal gaps arise when institutions blur **authorized-but-deceived** APP scams with **unauthorized** debits, ignore entity-class differences between Commercial Banks and Payments Banks/SFBs, fail to log alert/reporting timestamps, or deny claims without documented proof.

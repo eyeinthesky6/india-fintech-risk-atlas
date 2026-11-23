@@ -1,9 +1,31 @@
 ---
 title: Fake support and grievance impersonation
 description: UPI-007 — search-result, social-media, and bogus call-centre impersonation around refunds and failed payments.
+recordId: UPI-007
+products:
+  - UPI
+recordType: fraud-pattern
+recordTypeLabel: Fraud pattern
+theme: social-engineering
+themeLabel: Social engineering & scams
+lifecycle:
+  - servicing
+  - dispute
+  - recovery
+actors:
+  - Payer
+  - TPAP
+  - PSP bank
+  - Remitter bank
+  - Payment aggregator
+evidenceLayers:
+  - official
+  - industry
+  - atlas
+reviewStage: draft
+blockerNote: "Direct npci.org.in pages returned HTTP 403; RBI sources checked; independent review pending."
+lastSourceCheck: "2026-11-23"
 ---
-
-**ID:** UPI-007 · **Type:** Fraud pattern · **Lifecycle:** Servicing, dispute, recovery · **Status:** Research draft (`npci.org.in` HTTP 403 blocker; independent review pending)
 
 ## Risk mechanism and operational gap
 Customers experiencing a `PENDING` payment, failed order, or merchant refund delay frequently search online or post on social media for support numbers. Fraudsters exploit sponsored/poisoned search results, fake social-media support handles, and spoofed call centres ("bogus call centres" noted in RBI's April 2026 Discussion Paper) to impersonate bank, TPAP, or merchant support—then extracting OTPs/PINs, pushing remote-access tools, or tricking victims into executing "refund verification" debits.

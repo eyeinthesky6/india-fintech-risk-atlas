@@ -1,9 +1,30 @@
 ---
 title: Unusual outbound payment velocity
 description: UPI-001 — account-level outbound burst and rapid balance-depletion signals.
+recordId: UPI-001
+products:
+  - UPI
+recordType: detective-control
+recordTypeLabel: Detective signal
+theme: monitoring-mules-merchants
+themeLabel: Monitoring, mules & merchants
+lifecycle:
+  - initiation
+  - authorization
+  - monitoring
+actors:
+  - Remitter bank
+  - PSP bank
+  - TPAP
+  - Payment aggregator
+evidenceLayers:
+  - official
+  - industry
+  - research
+  - atlas
+reviewStage: source-checked
+lastSourceCheck: "2026-11-23"
 ---
-
-**ID:** UPI-001 · **Type:** Detective signal · **Lifecycle:** Initiation, authorization, monitoring · **Status:** Source-checked draft (independent review pending)
 
 ## Risk mechanism and operational gap
 An unusual surge in outgoing UPI transfers—such as multiple back-to-back payments to new or unrelated beneficiaries, rapid splitting immediately after a credit, or abrupt balance drainage—can indicate account takeover, social-engineered coercion, or automated mule liquidation. Outbound velocity is a **risk indicator, not standalone proof of fraud**.

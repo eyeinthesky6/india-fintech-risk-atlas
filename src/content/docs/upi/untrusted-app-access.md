@@ -1,9 +1,28 @@
 ---
 title: Untrusted app and remote-access risk
 description: UPI-008 — sideloaded APKs, screen mirroring, remote-access coercion, and mobile RASP controls.
+recordId: UPI-008
+products:
+  - UPI
+recordType: preventive-control
+recordTypeLabel: Preventive & detective control
+theme: identity-auth
+themeLabel: Identity, access & authentication
+lifecycle:
+  - initiation
+  - authentication
+actors:
+  - Payer
+  - TPAP
+  - PSP bank
+  - Remitter bank
+evidenceLayers:
+  - official
+  - atlas
+reviewStage: draft
+blockerNote: "Provisional third-party mirror used for NPCI/2025-26/IS/003; direct npci.org.in returned HTTP 403; independent review pending."
+lastSourceCheck: "2026-11-23"
 ---
-
-**ID:** UPI-008 · **Type:** Preventive & detective control · **Lifecycle:** Initiation, authentication · **Status:** Research draft (`npci.org.in` 403 / provisional NPCI mirror; independent review pending)
 
 ## Risk mechanism and operational gap
 Fraudsters persuade customers to install unverified APKs (disguised as KYC updates, rewards, or support utilities) or to run legitimate remote-access / screen-sharing applications while performing a UPI transaction. Once active, attackers capture OTPs, observe UPI PIN entry or screen contents, overlay deceptive UI elements (tapjacking), or use device hooking/debugging frameworks to tamper with app execution.

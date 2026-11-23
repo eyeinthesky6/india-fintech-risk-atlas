@@ -1,9 +1,30 @@
 ---
 title: Account takeover and device-binding risk
 description: UPI-003 — unauthorized account/device compromise, SIM/device binding, and post-change cooling periods.
+recordId: UPI-003
+products:
+  - UPI
+recordType: fraud-pattern
+recordTypeLabel: Fraud pattern
+theme: identity-auth
+themeLabel: Identity, access & authentication
+lifecycle:
+  - onboarding
+  - authentication
+  - authorization
+actors:
+  - Payer
+  - TPAP
+  - PSP bank
+  - Remitter bank
+evidenceLayers:
+  - official
+  - industry
+  - research
+  - atlas
+reviewStage: source-checked
+lastSourceCheck: "2026-11-23"
 ---
-
-**ID:** UPI-003 · **Type:** Fraud pattern · **Lifecycle:** Onboarding, authentication, authorization · **Status:** Source-checked draft (independent review pending)
 
 ## Risk mechanism and operational gap
 Account takeover (ATO) occurs when an attacker gains control of a customer's SIM/mobile number, UPI app registration, or credentials—through SIM swap, reassigned/revoked mobile numbers, malware, or social-engineered binding—to execute unauthorized transfers.

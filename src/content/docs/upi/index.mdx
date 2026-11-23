@@ -1,0 +1,25 @@
+---
+title: UPI — fraud and risk atlas
+description: Product overview, candidate controls and operational failure patterns across India's UPI ecosystem.
+---
+
+import UpiCatalogue from '../../../components/UpiCatalogue.astro';
+
+UPI is India's instant interbank payment system operated by NPCI and used across remitter banks, beneficiary/acquiring banks, PSP banks, third-party app providers (TPAPs), payment aggregators (PAs), and merchants. Responsibilities, telemetry, and legal obligations differ sharply across each participant role.
+
+## Practical risk engineering
+
+- [UPI risk-stack design and validation](/india-fintech-risk-atlas/upi/risk-stack-playbook/) — end-to-end lifecycle controls, investigation triage, customer-impact safeguards, and feedback loops
+- [Operator practices and evidence](/india-fintech-risk-atlas/upi/operator-insights/) — Razorpay, Cashfree, Stripe (method analogy), and empirical `arXiv` studies (`RBIH NFPC`, `GPay`, `OCBC`)
+- [UPI source register](/india-fintech-risk-atlas/upi/sources/) — verified RBI directions, NPCI circular status, and research citations
+- [UPI glossary](/india-fintech-risk-atlas/upi/glossary/) — participant roles, regulatory terms, and operational distinctions
+- [Coverage and review status](/india-fintech-risk-atlas/upi/coverage/) — explicit source-access status and release blockers
+- [Evidence and attribution policy](/india-fintech-risk-atlas/evidence-policy/) — four-layer evidence model
+
+## Topic catalogue
+
+Records marked `Source-checked draft` have all cited primary RBI/industry/research URLs directly opened and verified on 2026-11-23 (`Independent reviewer: PENDING`); records marked `Draft` rely partly on `npci.org.in` pages blocked by `HTTP 403 Forbidden` or third-party circular mirrors awaiting direct NPCI confirmation. Use the search bar (`Ctrl+K`) to search and filter by `stage`, `product`, `record_type`, `lifecycle`, `actor`, or `evidence_layer`.
+
+<UpiCatalogue />
+
+**Release notice:** Do not treat draft or source-checked entries as independently reviewed compliance advice or universal rules. See [Methodology](/india-fintech-risk-atlas/methodology/).

@@ -1,9 +1,29 @@
 ---
 title: Potential mule-account funnel
 description: UPI-002 — pass-through layering networks, RBIH MuleHunter.AI / I4C coordination, and relational detection limits.
+recordId: UPI-002
+products:
+  - UPI
+recordType: fraud-pattern
+recordTypeLabel: Fraud & AML pattern
+theme: monitoring-mules-merchants
+themeLabel: Monitoring, mules & merchants
+lifecycle:
+  - onboarding
+  - monitoring
+  - investigation
+actors:
+  - Beneficiary bank
+  - Remitter bank
+  - PSP bank
+  - Payment aggregator
+evidenceLayers:
+  - official
+  - research
+  - atlas
+reviewStage: source-checked
+lastSourceCheck: "2026-11-23"
 ---
-
-**ID:** UPI-002 · **Type:** Fraud & AML pattern · **Lifecycle:** Onboarding, monitoring, investigation · **Status:** Source-checked draft (independent review pending)
 
 ## Risk mechanism and operational gap
 Money mules receive proceeds of fraud or cybercrime from multiple unrelated victims and rapidly layer them onward across accounts, wallets, or cash-outs. Individually, each UPI transfer may resemble ordinary retail activity; the signal lies in **inflow-to-outflow coupling, dormant-to-burst account behavior, and shared relational infrastructure** across seemingly separate accounts.

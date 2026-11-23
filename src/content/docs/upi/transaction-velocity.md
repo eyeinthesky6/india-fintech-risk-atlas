@@ -1,9 +1,30 @@
 ---
 title: Transaction velocity and EFRM monitoring
 description: UPI-010 — regulatory Enterprise Fraud Risk Management (EFRM) architecture, alert parameterization, staff calibration, and feedback loops.
+recordId: UPI-010
+products:
+  - UPI
+recordType: detective-control
+recordTypeLabel: Detective & operational governance control
+theme: monitoring-mules-merchants
+themeLabel: Monitoring, mules & merchants
+lifecycle:
+  - monitoring
+  - investigation
+  - servicing
+actors:
+  - Remitter bank
+  - Beneficiary bank
+  - PSP bank
+  - Payment aggregator
+evidenceLayers:
+  - official
+  - industry
+  - research
+  - atlas
+reviewStage: source-checked
+lastSourceCheck: "2026-11-23"
 ---
-
-**ID:** UPI-010 · **Type:** Detective & operational governance control · **Lifecycle:** Monitoring, investigation, servicing · **Status:** Source-checked draft (independent review pending)
 
 ## Risk mechanism and operational gap
 While [Unusual outbound payment velocity (`UPI-001`)](/india-fintech-risk-atlas/upi/unusual-outbound-velocity/) covers individual outbound burst features, real-world UPI fraud detection succeeds or fails at the **monitoring-program level**: choosing which parameters to combine, calibrating alert queues to investigator capacity, avoiding circular label bias, and training fraud-operations analysts to separate real attacks from benign bursts.

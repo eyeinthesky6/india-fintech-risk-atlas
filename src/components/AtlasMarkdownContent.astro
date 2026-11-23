@@ -1,0 +1,153 @@
+---
+import Default from '@astrojs/starlight/components/MarkdownContent.astro';
+import { Aside } from '@astrojs/starlight/components';
+import { getBasePath } from '../lib/upi-records';
+
+const { entry } = Astro.locals.starlightRoute;
+const data = entry.data;
+const base = getBasePath();
+const stage = data.reviewStage ?? 'draft';
+
+const STAGE_LABELS: Record<string, string> = {
+  draft: 'Draft',
+  researching: 'Researching',
+  'source-checked': 'Source-checked draft',
+  reviewed: 'Independently reviewed',
+  published: 'Published',
+};
+
+const LAYER_LABELS: Record<string, string> = {
+  official: 'Official (RBI/NPCI)',
+  industry: 'Industry',
+  research: 'Research',
+  practitioner: 'Practitioner',
+  atlas: 'Atlas synthesis',
+};
+---
+
+<Default>
+  {data.recordId && (
+    <>
+      {stage === 'published' || stage === 'reviewed' ? (
+        <Aside type="tip" title="Independently reviewed record">
+          Primary sources and material claims in <code>{data.recordId}</code> have been independently verified by a separate reviewer.
+        </Aside>
+      ) : stage === 'source-checked' ? (
+        <Aside type="note" title="Source-checked draft — independent review pending">
+          Cited primary RBI, industry, and empirical research sources were verified on{' '}
+          <strong>{data.lastSourceCheck ?? '2026-11-23'}</strong>. Independent second-reviewer sign-off remains{' '}
+          <code>PENDING</code>. See <a href={`${base}/upi/coverage/`}>coverage &amp; release status</a>.
+        </Aside>
+      ) : (
+        <Aside type="caution" title="Research draft — not independently reviewed">
+          {data.blockerNote ?? 'Primary source verification or independent review is incomplete.'}{' '}
+          See <a href={`${base}/upi/coverage/`}>coverage &amp; release blockers</a>.
+        </Aside>
+      )}
+
+      <div class="atlas-meta not-content" aria-label="Record metadata">
+        <div class="atlas-meta__row">
+          <span class="atlas-meta__label">Record</span>
+          <span class="atlas-chip atlas-chip--id">{data.recordId}</span>
+          {data.recordType && (
+            <>
+              <span class="atlas-meta__label">Type</span>
+              <span class="atlas-chip" data-pagefind-filter={`record_type:${data.recordType}`}>
+                {data.recordTypeLabel ?? data.recordType}
+              </span>
+            </>
+          )}
+          <span class="atlas-meta__label">Stage</span>
+          <span class="atlas-chip" data-pagefind-filter={`stage:${stage}`}>
+            {STAGE_LABELS[stage] ?? stage}
+          </span>
+          {data.products?.map((product) => (
+            <span class="atlas-chip" data-pagefind-filter={`product:${product}`}>
+              {product}
+            </span>
+          ))}
+        </div>
+
+        {data.lifecycle && data.lifecycle.length > 0 && (
+          <div class="atlas-meta__row">
+            <span class="atlas-meta__label">Lifecycle</span>
+            {data.lifecycle.map((item) => (
+              <span class="atlas-chip" data-pagefind-filter={`lifecycle:${item}`}>
+                {item}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {data.actors && data.actors.length > 0 && (
+          <div class="atlas-meta__row">
+            <span class="atlas-meta__label">Actors</span>
+            {data.actors.map((actor) => (
+              <span class="atlas-chip" data-pagefind-filter={`actor:${actor}`}>
+                {actor}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {data.evidenceLayers && data.evidenceLayers.length > 0 && (
+          <div class="atlas-meta__row">
+            <span class="atlas-meta__label">Evidence layers</span>
+            {data.evidenceLayers.map((layer) => (
+              <span class="atlas-chip" data-pagefind-filter={`evidence_layer:${layer}`}>
+                {LAYER_LABELS[layer] ?? layer}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
+  )}
+  <slot />
+</Default>
+
+<style>
+  .atlas-meta {
+    margin-block: 1rem 1.5rem;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    background: var(--sl-color-bg-nav);
+    font-size: var(--sl-text-xs);
+    line-height: 1.5;
+  }
+
+  .atlas-meta__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.45rem;
+    margin-top: 0.45rem;
+  }
+
+  .atlas-meta__row:first-child {
+    margin-top: 0;
+  }
+
+  .atlas-meta__label {
+    font-weight: 600;
+    color: var(--sl-color-gray-2);
+    margin-inline-end: 0.1rem;
+  }
+
+  .atlas-chip {
+    display: inline-block;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    padding: 0.1rem 0.5rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 999px;
+    background: var(--sl-color-bg);
+    color: var(--sl-color-text);
+  }
+
+  .atlas-chip--id {
+    font-family: var(--sl-font-mono);
+    font-weight: 600;
+  }
+</style>

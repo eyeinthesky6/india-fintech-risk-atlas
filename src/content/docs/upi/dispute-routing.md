@@ -1,9 +1,33 @@
 ---
 title: UPI dispute and complaint routing
 description: UPI-013 — RBI Online Dispute Resolution (ODR), PA chargeback/dispute flows, and separating failed vs. fraudulent incidents.
+recordId: UPI-013
+products:
+  - UPI
+recordType: recovery-process
+recordTypeLabel: Recovery process
+theme: reconciliation-disputes-protection
+themeLabel: Reconciliation, disputes & protection
+lifecycle:
+  - dispute
+  - recovery
+  - servicing
+actors:
+  - Payer
+  - TPAP
+  - PSP bank
+  - Remitter bank
+  - Beneficiary bank
+  - Payment aggregator
+  - NPCI
+evidenceLayers:
+  - official
+  - industry
+  - atlas
+reviewStage: draft
+blockerNote: "Direct npci.org.in dispute FAQs returned HTTP 403; RBI ODR/TAT/PA & Razorpay sources checked; independent review pending."
+lastSourceCheck: "2026-11-23"
 ---
-
-**ID:** UPI-013 · **Type:** Recovery process · **Lifecycle:** Dispute, recovery, servicing · **Status:** Research draft (`npci.org.in` HTTP 403 blocker; RBI & Razorpay checked; independent review pending)
 
 ## Risk mechanism and operational gap
 When a UPI payment goes wrong, customers and merchants face three fundamentally different incident classes: (1) **failed/pending technical transactions** (account debited, value not received), (2) **merchant fulfilment or goods/service disputes**, and (3) **unauthorized or socially engineered fraudulent transactions**. Operational failures occur when support systems funnel all three into one generic ticket queue—missing `T+1`/`T+5` ODR auto-reversal tracks or delaying urgent NCRP/1930 fraud containment.

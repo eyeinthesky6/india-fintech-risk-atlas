@@ -1,9 +1,28 @@
 ---
 title: Merchant onboarding and classification
 description: UPI-012 — Payment Aggregator KYC/CDD, MCC classification, acquiring bank oversight, and transaction laundering risks.
+recordId: UPI-012
+products:
+  - UPI
+recordType: preventive-control
+recordTypeLabel: Preventive & detective control
+theme: monitoring-mules-merchants
+themeLabel: Monitoring, mules & merchants
+lifecycle:
+  - onboarding
+  - processing
+  - monitoring
+actors:
+  - Payment aggregator
+  - Beneficiary bank
+  - PSP bank
+  - Merchant
+evidenceLayers:
+  - official
+  - atlas
+reviewStage: source-checked
+lastSourceCheck: "2026-11-23"
 ---
-
-**ID:** UPI-012 · **Type:** Preventive & detective control · **Lifecycle:** Onboarding, processing, monitoring · **Status:** Source-checked draft (independent review pending)
 
 ## Risk mechanism and operational gap
 Merchant onboarding risk arises when shell entities, banned businesses, or mule networks obtain merchant VPAs or payment aggregation accounts—via weak identity verification, misleading business descriptions (MCC miscoding), unregistered sub-merchants ("transaction laundering" on marketplaces), or settlement diversion to unrelated third-party bank accounts.

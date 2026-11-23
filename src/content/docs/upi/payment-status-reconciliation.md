@@ -1,9 +1,29 @@
 ---
 title: Payment status and order reconciliation
 description: UPI-005 — merchant/PA payment status, webhook authenticity, idempotency, and order-fulfilment reconciliation.
+recordId: UPI-005
+products:
+  - UPI
+recordType: operational-failure
+recordTypeLabel: Operational failure & control
+theme: reconciliation-disputes-protection
+themeLabel: Reconciliation, disputes & protection
+lifecycle:
+  - processing
+  - reconciliation
+actors:
+  - Payment aggregator
+  - Merchant
+  - PSP bank
+  - Remitter bank
+  - Beneficiary bank
+evidenceLayers:
+  - official
+  - industry
+  - atlas
+reviewStage: source-checked
+lastSourceCheck: "2026-11-23"
 ---
-
-**ID:** UPI-005 · **Type:** Operational failure & control · **Lifecycle:** Processing, reconciliation · **Status:** Source-checked draft (independent review pending)
 
 ## Risk mechanism and operational gap
 In merchant UPI integrations, customer UI status, browser redirect callbacks (`callback_url`), asynchronous Payment Aggregator (PA) webhooks, and bank settlement files represent distinct states. Operational failures occur when a merchant triggers order fulfilment on an unverified browser redirect, treats repeated webhook deliveries as multiple payments, leaves orders stuck in `PENDING` after a lost callback, or issues duplicate refunds. *(For interbank settlement-file reconciliation and `T+1`/`T+5` scheme auto-reversal TATs, see [Settlement and reconciliation exceptions](/india-fintech-risk-atlas/upi/settlement-exceptions/).)*

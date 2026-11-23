@@ -1,9 +1,41 @@
 ---
 title: UPI ecosystem and participant roles
 description: UPI-OVERVIEW — system architecture, participant boundaries, and asymmetric risk telemetry.
+recordId: UPI-OVERVIEW
+products:
+  - UPI
+recordType: explainer
+recordTypeLabel: System explainer
+theme: overview
+themeLabel: Overview & ecosystem
+lifecycle:
+  - onboarding
+  - initiation
+  - authentication
+  - authorization
+  - processing
+  - monitoring
+  - settlement
+  - reconciliation
+  - dispute
+  - recovery
+  - servicing
+actors:
+  - NPCI
+  - Remitter bank
+  - Beneficiary bank
+  - PSP bank
+  - TPAP
+  - Payment aggregator
+  - Merchant
+evidenceLayers:
+  - official
+  - industry
+  - atlas
+reviewStage: draft
+blockerNote: "Direct npci.org.in URLs returned HTTP 403 Forbidden on 2026-11-23; independent review pending."
+lastSourceCheck: "2026-11-23"
 ---
-
-**ID:** UPI-OVERVIEW · **Type:** System explainer · **Lifecycle:** All stages · **Status:** Research draft (`npci.org.in` HTTP 403 blocker; independent review pending)
 
 ## At a glance
 Unified Payments Interface (UPI) is an interoperable instant payment rail operated by NPCI across multiple regulated and contractual entities. Risk monitoring, authentication, merchant due diligence, reconciliation, and dispute handling do not sit in one place: each participant sees a different slice of transaction, device, and customer telemetry.

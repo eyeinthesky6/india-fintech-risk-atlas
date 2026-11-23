@@ -1,9 +1,30 @@
 ---
 title: QR and fake cashback deception
 description: UPI-006 — social engineering via deceptive QR codes, cashback claims, and tampered payment links.
+recordId: UPI-006
+products:
+  - UPI
+recordType: fraud-pattern
+recordTypeLabel: Fraud pattern
+theme: social-engineering
+themeLabel: Social engineering & scams
+lifecycle:
+  - initiation
+  - authorization
+actors:
+  - Payer
+  - TPAP
+  - PSP bank
+  - Remitter bank
+  - Merchant
+evidenceLayers:
+  - official
+  - industry
+  - atlas
+reviewStage: draft
+blockerNote: "Direct npci.org.in pages returned HTTP 403; RBI & industry sources checked; independent review pending."
+lastSourceCheck: "2026-11-23"
 ---
-
-**ID:** UPI-006 · **Type:** Fraud pattern · **Lifecycle:** Initiation, authorization · **Status:** Research draft (`npci.org.in` HTTP 403 blocker; independent review pending)
 
 ## Risk mechanism and operational gap
 Fraudsters distribute QR codes or payment links promising cashbacks, refunds, lottery winnings, or marketplace advances. Scanning the QR or opening the link pre-fills an **outgoing payment** to an attacker-controlled VPA or merchant; victims who believe entering a UPI PIN "claims" funds inadvertently authorize a debit. A technical variant tampers with unsigned UPI deep-link parameters (`pa`, `pn`, `am`) to substitute a fraudster's VPA or alter the amount.

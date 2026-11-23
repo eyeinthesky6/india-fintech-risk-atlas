@@ -23,7 +23,7 @@ Every material claim traces to an opened primary source or is explicitly labeled
 ## Current state
 UPI v1 release candidate (`release/upi-v1-freeze`, PR `#6`):
 - **Website & search:** Astro 7 / Starlight 0.43 static build validated across 29 pages with zero broken internal links (`starlight-links-validator`) and Pagefind indexing across 6 metadata filters (`record_type`, `stage`, `product`, `lifecycle`, `actor`, `evidence_layer`).
-- **Evidence coverage:** 10 UPI entries are `source-checked` against directly opened RBI/GoI/industry/`arXiv` originals; 7 entries remain `draft` pending direct `npci.org.in` access (`HTTP 403` blocker). All 17 entries remain **unpublished drafts with `Independent reviewer: PENDING`**, and the repository is not yet deployed to GitHub Pages.
+- **Evidence coverage:** 16 UPI entries (`UPI-OVERVIEW`, `UPI-001`–`UPI-007`, `UPI-009`–`UPI-016`) are `source-checked` against directly opened RBI/GoI/browser-verified NPCI/industry/`arXiv` originals; 1 entry (`UPI-008`) remains `draft` because `NPCI/2025-26/IS/003` is not listed on public `npci.org.in` circular indexes. All 17 entries remain **unpublished drafts with `Independent reviewer: PENDING`**, and the repository is not yet deployed to GitHub Pages.
 
 ## Local development & verification
 Run once per fresh clone so local commits trigger the same attestation gate as CI (`.githooks/pre-commit` automatically selects `python3` or `python` >= 3.8 on Windows/POSIX):

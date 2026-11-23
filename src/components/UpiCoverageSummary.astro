@@ -33,11 +33,11 @@ const { total, sourceChecked, drafts, reviewed } = splitUpiRecordsByStage(record
           ))}
         </td>
         <td>
-          All cited primary RBI, PIB, Razorpay, Cashfree, Stripe, and <code>arXiv</code> sources directly opened and checked; <strong>independent second-reviewer sign-off pending</strong>.
+          All cited primary RBI, browser-verified NPCI, PIB, Razorpay, Cashfree, Stripe, and <code>arXiv</code> sources directly opened and checked; <strong>independent second-reviewer sign-off pending</strong>.
         </td>
       </tr>
       <tr>
-        <td><strong>Drafts blocked on <code>npci.org.in</code></strong></td>
+        <td><strong>Drafts with non-public source blockers</strong></td>
         <td>{drafts.length}</td>
         <td>
           {drafts.length === 0 ? 'None' : drafts.map((entry, idx) => (
@@ -48,7 +48,7 @@ const { total, sourceChecked, drafts, reviewed } = splitUpiRecordsByStage(record
           ))}
         </td>
         <td>
-          RBI/industry sources checked plus two visually read third-party NPCI circular mirrors (<code>NPCI/2025-26/IS/003</code>, <code>NPCI/UPI/OC/220/2025-26</code>); direct <code>npci.org.in</code> URLs returned <code>HTTP 403 Forbidden</code>.
+          RBI directions and <code>npci.org.in/fraud-awareness</code> directly checked; <code>NPCI/2025-26/IS/003</code> is absent from public <code>npci.org.in</code> circular indexes (provisional bank mirror used).
         </td>
       </tr>
       <tr>

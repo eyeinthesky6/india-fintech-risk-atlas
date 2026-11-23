@@ -1,5 +1,5 @@
 # Internal site base paths (validated at build time by starlight-links-validator)
 ^/india-fintech-risk-atlas/
 
-# NPCI returns HTTP 403 Forbidden to automated fetches; requires authorized browser check
+# NPCI WAF blocks automated CLI/CI HTTP clients like lychee with HTTP 403; canonical npci.org.in URLs are verified via browser sessions (deprecated /what-we-do/upi/ SPA 404s removed)
 ^https?://(www\.)?npci\.org\.in

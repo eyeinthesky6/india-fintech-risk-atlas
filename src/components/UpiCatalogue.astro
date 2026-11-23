@@ -17,7 +17,10 @@ const summary = splitUpiRecordsByStage(records);
 <p>
   <strong>{summary.total} indexed UPI records</strong>:{' '}
   <strong>{summary.sourceChecked.length}</strong> source-checked drafts,{' '}
-  <strong>{summary.drafts.length}</strong> research drafts blocked on primary access, and{' '}
+  <strong>{summary.drafts.length}</strong>{' '}
+  {summary.drafts.length === 1
+    ? 'draft with non-public source blocker'
+    : 'drafts with non-public source blockers'}, and{' '}
   <strong>{summary.reviewed.length}</strong> independently reviewed/published.
 </p>
 

@@ -10,7 +10,7 @@ Static documentation site built with **Astro 7 + Starlight 0.43 + Pagefind** via
 
 ## Start here
 - [Architecture freeze](docs/ARCHITECTURE_FREEZE.md) — governing v1 technical and product decisions
-- [Content schema & data model](docs/CONTENT_SCHEMA.md) — typed frontmatter, vocabularies, and 4-layer claim model
+- [Content schema & data model](docs/CONTENT_SCHEMA.md) — shared taxonomy ([src/taxonomy.json](src/taxonomy.json)), frontmatter, and 4-layer ledger rules
 - [Research & verification protocol](docs/RESEARCH_PROTOCOL.md) — discovery, evidence ledgers, gates, and agent prompts
 - [Evidence layers & rights](docs/EVIDENCE_LAYERS_AND_RIGHTS.md) — attribution, licensing, and source quality labels
 - [Operator intelligence guide](docs/OPERATOR_INTELLIGENCE.md) — field observations, failure gaps, and validation methods

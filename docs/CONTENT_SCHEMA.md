@@ -24,30 +24,28 @@
 | `Case` | Publicly documented incident or clearly marked illustrative scenario | Inline examples & case citations |
 | `Glossary` | Canonical definitions and operational distinctions | `src/content/docs/upi/glossary.md` |
 
-## Implemented v1 record frontmatter (`src/content.config.ts`)
+## Implemented v1 record frontmatter (`src/content.config.ts` & `src/taxonomy.json`)
 
-Every canonical article under `src/content/docs/<product>/` defines typed YAML frontmatter enforced at build time by `docsSchema` (`astro/zod`) and cross-checked against `research/attestations/<RECORD-ID>.md` by `scripts/check-attestations.py`:
+Canonical IDs and display labels live in one shared file—**[src/taxonomy.json](../src/taxonomy.json)**—read directly by `src/content.config.ts` (Zod validation), Starlight UI components (`AtlasMarkdownContent.astro`, `UpiCatalogue.astro`), Pagefind filter chips, and `scripts/check-attestations.py`. Do **not** duplicate value lists or manual `**ID:** ...` metadata headers in Markdown articles:
 
 ```yaml
 ---
 title: Unusual outbound payment velocity
 description: UPI-001 — account-level outbound burst and rapid balance-depletion signals.
-recordId: UPI-001                  # v1 regex: ^[A-Z]+-(?:OVERVIEW|\d{3})$
+recordId: UPI-001                  # Regex enforced from src/taxonomy.json (^[A-Z]+-(?:OVERVIEW|\d{3})$)
 products:
-  - UPI                            # v1 enum: ['UPI']
+  - upi                            # Canonical IDs from src/taxonomy.json
 recordType: detective-control
-recordTypeLabel: Detective signal
 theme: monitoring-mules-merchants
-themeLabel: Monitoring, mules & merchants
 lifecycle:
   - initiation
   - authorization
   - monitoring
 actors:
-  - Remitter bank
-  - PSP bank
-  - TPAP
-  - Payment aggregator
+  - remitter-bank
+  - psp-bank
+  - tpap
+  - payment-aggregator
 evidenceLayers:
   - official
   - atlas                          # Only 4 layers allowed: official | industry | practitioner | atlas
@@ -57,20 +55,14 @@ lastSourceCheck: "2026-11-23"
 ---
 ```
 
-Starlight overrides (`src/components/AtlasMarkdownContent.astro`) render stage banners and Pagefind filter chips directly from this frontmatter—do **not** duplicate manual `**ID:** ...` metadata headers or hand-counted status tables inside pages.
+Starlight overrides (`src/components/AtlasMarkdownContent.astro`) look up display labels from `src/taxonomy.json` at build time and render stage banners and Pagefind filter chips automatically.
 
 ## Controlled vocabularies
 
-### Enforced in v1 (`src/content.config.ts` & `scripts/check-attestations.py`)
+### Enforced in v1 (single source of truth: [src/taxonomy.json](../src/taxonomy.json))
 
-- **`products`:** `UPI`
-- **`recordType`:** `explainer`, `fraud-pattern`, `preventive-control`, `detective-control`, `operational-failure`, `recovery-process`, `policy-consultation`
-- **`theme`:** `overview`, `social-engineering`, `identity-auth`, `monitoring-mules-merchants`, `reconciliation-disputes-protection`, `policy`
-- **`lifecycle`:** `onboarding`, `initiation`, `authentication`, `authorization`, `processing`, `monitoring`, `settlement`, `reconciliation`, `investigation`, `dispute`, `recovery`, `servicing`
-- **`actors` (v1 UPI participant labels):** `Payer`, `Merchant`, `TPAP`, `PSP bank`, `Remitter bank`, `Beneficiary bank`, `Payment aggregator`, `NPCI`. *(Keep normative legal scope separated per entity class—commercial bank vs. payments bank vs. SFB vs. non-bank PSO.)*
-- **`evidenceLayers` (strictly 4):** `official`, `industry`, `practitioner`, `atlas` *(academic/research papers are represented under `atlas` as research paper leads, not a separate layer)*
-- **`reviewStage`:** `draft`, `researching`, `source-checked`, `reviewed`, `published`
-- **`recordId`:** `^[A-Z]+-(?:OVERVIEW|\d{3})$` (e.g., `UPI-OVERVIEW`, `UPI-001`–`UPI-016`)
+- **`products`, `recordType`, `theme`, `lifecycle`, `actors`, `evidenceLayers`, `reviewStage`, and `recordIdPattern`:** See [src/taxonomy.json](../src/taxonomy.json) for the authoritative list of allowed keys and display labels.
+- **Editorial scope discipline:** Keep legal/regulatory citations separated per entity class (commercial bank vs. payments bank vs. small finance bank vs. non-bank PSO vs. payment aggregator). Academic/research papers are tagged under `atlas` as research paper leads, not `industry` or `practitioner`.
 
 ### Planned for v2 roadmap (not enforced in v1 build)
 

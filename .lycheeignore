@@ -1,0 +1,5 @@
+# Internal site base paths (validated at build time by starlight-links-validator)
+^/india-fintech-risk-atlas/
+
+# NPCI returns HTTP 403 Forbidden to automated fetches; requires authorized browser check
+^https?://(www\.)?npci\.org\.in

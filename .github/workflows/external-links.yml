@@ -15,11 +15,9 @@ jobs:
       - name: Check external URLs in docs and evidence ledgers
         uses: lycheeverse/lychee-action@v2
         with:
-          # Exclude internal site base paths (checked by starlight-links-validator) and npci.org.in (known HTTP 403 WAF blocker).
           args: >-
             --no-progress
-            --exclude '^/india-fintech-risk-atlas/'
-            --exclude '^https?://(www\.)?npci\.org\.in'
+            --exclude-file .lycheeignore
             './src/content/docs/**/*.md'
             './src/content/docs/**/*.mdx'
             './research/evidence/**/*.md'

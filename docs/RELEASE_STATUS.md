@@ -36,6 +36,11 @@
 
 **No-go rules:** Never tick independent reviewer boxes without an actual separate review; never label `draft` or `source-checked` records as `reviewed`/`published`; never merge PR `#6` as a verified compliance guide before blockers 1–2 are resolved; never claim a live Pages URL without observing deployment.
 
+## Post-launch roadmap (v2 — once live)
+
+1. **Read-only MCP server & AI-readable exports (once live):** Emit static `llms.txt` and build-time JSON record/evidence exports from `src/content/docs/` and `src/taxonomy.json`, and publish an official **read-only Model Context Protocol (MCP) server** over those static GitHub Pages artifacts (zero runtime database) exposing `search_risk_records`, `get_record`, `get_evidence_ledger`, and `list_sources` with explicit `reviewStage`, 4-layer attribution, and `lastSourceCheck` dates.
+2. **Agent-led issue/PR maintenance workflow:** Add structured GitHub Issue Forms (`.github/ISSUE_TEMPLATE/*.yml`) so ChatGPT/web-AI and non-coding contributors can file circular updates or pattern proposals cleanly; add a repo-root `AGENTS.md` pointer; wire maintainer-label-gated coding-agent PR drafting (e.g., official `anthropics/claude-code-action`, `openai/codex-action`, or GitHub Copilot Coding Agent following `.agents/skills/atlas-content-update/SKILL.md`); and add scheduled issue opening for stale/broken checks while keeping `Independent reviewer` sign-off and merges human-gated.
+
 ## Definition of complete
 
 Complete means every agreed UPI topic family is covered by source-checked, independently reviewed entries with explicit entity scope, effective dates, limitations, and disclosed gaps—not that every possible fraud scheme is exhausted. For local clone, build, and preview commands, see [README.md](../README.md).

@@ -143,4 +143,4 @@ Omit empty layers rather than padding; never imply that missing public operator 
 ## Search facets (Pagefind, zero server)
 
 - **Implemented P0/P1 facets:** `product`, `record_type`, `stage` (`reviewStage`), `lifecycle`, `actor`, `evidence_layer` (4 layers) — emitted from frontmatter via `data-pagefind-filter` attributes in `src/components/AtlasMarkdownContent.astro`.
-- **Planned v2 P2 additions:** evidence strength filter, last-verified range, downloadable static JSON/CSV catalogue generated at build time (only if reader feedback warrants).
+- **Planned v2 P2 additions:** evidence strength filter, last-verified range, static `llms.txt` + build-time JSON/CSV catalogue, and a post-launch **read-only MCP server** exposing canonical records, evidence ledgers, entity scopes, and `reviewStage` metadata to external AI agents once live.

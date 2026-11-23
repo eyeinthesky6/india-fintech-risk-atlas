@@ -34,6 +34,7 @@ One record or closely related section per agent work unit. Researcher collects s
 - Earlier UPI-only per-product duplication is superseded by canonical cross-product records; migration deferred until tested.
 - Earlier '17 entries complete' language means **17 draft pages exist**, not verified complete research.
 - Any proposed AI layer is future research, **not** part of the frozen v1.
+- **Post-launch MCP server & agent consumption (v2, once live):** After the static site deploys to GitHub Pages, add static machine-readable exports (`llms.txt` and build-time JSON catalogue) plus an official **read-only Model Context Protocol (MCP) server** backed by those static artifacts (zero runtime database) so external AI agents (ChatGPT, Claude, Codex, Antigravity, IDE assistants) can query verified records, exact citations, entity scopes, and `reviewStage` trust status cleanly.
 - A private repository cannot be assumed eligible for free GitHub Pages; check repository plan/visibility before public deployment.
 - Superseded pre-freeze design memos and pre-consolidation drafts are preserved in `docs/archive/`; active schema, workflow, and status rules live in `docs/CONTENT_SCHEMA.md`, `docs/RESEARCH_PROTOCOL.md`, and `docs/RELEASE_STATUS.md`. **This freeze record governs new work.**
 

@@ -1,33 +1,26 @@
 # UPI v1 release audit — explicit evidence and implementation status
 
-**As of:** 2026-11-21. **Decision:** NOT READY TO CLAIM VERIFIED OR PUBLICLY LAUNCHED.
+**As of:** 2026-11-23. **Decision:** NOT READY TO CLAIM INDEPENDENTLY VERIFIED OR PUBLICLY LAUNCHED.
 
 ## Scope inventory
-- 17 drafted UPI pages (five initial and twelve expansion topics), covering scheme roles, customer scams, authentication, behavioral monitoring, merchant onboarding, reconciliation, dispute handling and customer protection.
-- RBI/NPCI source register and per-record evidence/attestation scaffolds.
-- Additional four-layer evidence classification, practitioner/industry intake templates, licensing and architecture freeze.
+- **17 UPI topic entries** (`UPI-OVERVIEW` and `UPI-001` through `UPI-016`), all upgraded to the frozen four-layer schema with claim-by-claim `research/evidence/<ID>.md` ledgers and `research/attestations/<ID>.md` declarations.
+- **Product-level reference pages:** `src/content/docs/upi/index.md`, `risk-stack-playbook.md`, `operator-insights.md`, `sources.md`, `glossary.md`, and `coverage.md`.
+- **Internal registers:** `research/upi/PRIMARY_SOURCE_REGISTER.md` (14 verified RBI/GoI docs + 2 provisional NPCI mirrors + documented NPCI 403 status) and `research/upi/OPERATOR_EVIDENCE.md` (5 company docs + 3 `arXiv` preprints).
+- **Duplicate `UPI-001` resolved:** Removed legacy `content/upi/UPI-001.md` and fixed `README.md` / `EVIDENCE_LAYERS_AND_RIGHTS.md` freeze contradictions.
 
-## Gaps that block factual publication
-1. Most draft pages do not yet have atomic claim-to-passage evidence for **every** material assertion. An evidence ledger containing 'PENDING' is not verification.
-2. The source register does not establish that all relevant NPCI circulars are current, unamended and applicable.
-3. No separate reviewer has signed off every material claim, especially normative claims and operational advice.
-4. Company/practitioner examples need named source links and accurate claims before presentation as observed production practice. Do not invent bank implementation details.
-5. RBI directions differ by entity type and effective date. All mandatory wording must be scoped to the correct participant.
-6. The current website scaffold's Astro build, Pagefind index, navigation and GitHub Pages deployment have not been independently verified.
-7. Repository visibility and Pages configuration are not yet confirmed. No live site should be asserted.
+## Evidence verification status (2026-11-23)
+- **10 `source-checked` drafts (independent review pending):** `UPI-001`, `UPI-002`, `UPI-003`, `UPI-005`, `UPI-009`, `UPI-010`, `UPI-011`, `UPI-012`, `UPI-015`, `UPI-016`. Every cited RBI, PIB, company, or `arXiv` source in these records was directly opened and verified against exact sections/effective dates (`Independent reviewer: PENDING`).
+- **7 `draft` records (`npci.org.in` HTTP 403 blocker):** `UPI-OVERVIEW`, `UPI-004`, `UPI-006`, `UPI-007`, `UPI-008`, `UPI-013`, `UPI-014`. RBI/company/research claims inside these pages were directly verified, while `npci.org.in` pages returned `HTTP 403 Forbidden` (with two third-party NPCI circular mirrors read provisionally for `UPI-004` and `UPI-008`).
+- **0 `reviewed` / `published` records:** No separate independent second reviewer has signed off on any record yet.
 
-## Evidence quality examples
-- NPCI [Fraud Awareness](https://www.npci.org.in/fraud-awareness) explicitly covers fake cashback links, QR codes, search-result deception, social-media grievances and unknown apps. This supports consumer education, not mandatory participant monitoring rules.
-- NPCI [UPI FAQs](https://www.npci.org.in/what-we-do/upi/faqs) explains UPI PIN, registration and participant/customer behavior; verify scheme changes before presenting current operational requirements.
-- RBI payments-bank security directions: verify exact sections and entity scope for fraud monitoring, reconciliation and alerts.
-- NPCI settlement process: do not publish fixed dispute TATs without checking current operating circulars.
+## Technical validation status (2026-11-23)
+- `npm ci --no-audit --no-fund && npm run build`: **Passed** (`29` pages, `Pagefind` indexed `28` pages / `2,996` words).
+- Built HTML link & base-path audit (`/india-fintech-risk-atlas/`): **Passed** (`0` broken links).
+- `python scripts/check-attestations.py --all` and `.githooks/pre-commit`: **Passed** (with negative failure checks verified).
+- Live `astro preview` desktop (`1280×800`), Pagefind search, and mobile (`375×812`) checks: **Passed** (`0` console errors, `0` failed requests, `0` horizontal overflow).
 
-## Technical validation to run
-- Install pinned dependencies and commit lockfile; run `npm ci && npm run build`.
-- Confirm `dist/index.html`, UPI routes and Pagefind assets exist.
-- Check all internal links under `/india-fintech-risk-atlas/`.
-- Run content attestation validator in CI, check workflow permissions and Pages deploy.
-- Smoke-test search and mobile layout in a browser.
-
-## Publish decision
-Only promote individually reviewed pages. It is acceptable to publish a clearly labeled research preview **if** the editorial owner knowingly approves it, but do not label drafts 'verified'. Complete coverage is a scope decision; a 17-page count alone does not demonstrate completeness.
+## Remaining gaps that block verified public release
+1. **Independent second-reviewer verification:** Required across all 17 records (`Independent reviewer: PENDING`).
+2. **Direct `npci.org.in` verification:** Authorized browser inspection needed for NPCI UPI FAQs, Fraud Awareness, Product Overview, Settlement Process, and Circulars index (including UDIR timelines and official confirmation of `NPCI/2025-26/IS/003` and `NPCI/UPI/OC/220/2025-26`).
+3. **Named Indian practitioner observations:** None included in v1 (deferred until original dated public posts are directly verified).
+4. **Repository visibility, GitHub Pages activation & branch protection:** Repository remains private; Pages deployment and branch protection requiring `Validate site` + `Content attestation` remain unconfigured.

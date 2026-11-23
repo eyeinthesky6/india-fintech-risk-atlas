@@ -16,7 +16,7 @@ Every record should visibly separate **Official requirement / Industry implement
 - Do not mirror full LinkedIn posts, articles, bank manuals, vendor rule sets, screenshots, proprietary charts, datasets or PDFs without an appropriate license/permission.
 - Do not scrape gated or login-only content, bypass access restrictions, ignore robots or terms, or collect personal data beyond what is necessary for accurate attribution.
 - Public source does not equal public domain. Do not claim ownership of third-party materials.
-- Original Atlas writing may be licensed under CC BY 4.0 (decision pending); source code can use MIT. Open source does not automatically mean no copyright: a license grants permissions.
+- Original Atlas writing is licensed under [CC BY 4.0](../LICENSE.md); original source code uses the [MIT License](../LICENSE-CODE). Open source does not automatically mean no copyright: a license grants permissions while preserving third-party rights.
 - If a source author requests correction or removal, investigate and document the decision promptly.
 - This is an editorial risk policy, not legal advice; obtain legal review before high-volume automated harvesting or extensive reproduction.
 

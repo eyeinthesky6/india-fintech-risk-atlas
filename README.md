@@ -5,19 +5,19 @@ An open, source-cited reference to fraud patterns, risk checks and operational f
 **Purpose:** practitioner education, product design and independent research. **Not:** legal advice, an exhaustive compliance checklist, or production-ready fraud detection rules.
 
 ## Finalized hosting
-GitHub Pages hosts the static site built with Astro + Starlight + Pagefind via GitHub Actions. No separate host, backend, database or domain. Planned URL: https://eyeinthesky6.github.io/india-fintech-risk-atlas/ (not live until deployed). See [website blueprint](docs/SITE_BLUEPRINT.md) and [final architecture](docs/FINAL_CONTENT_ARCHITECTURE.md).
+GitHub Pages hosts the static site built with Astro + Starlight + Pagefind via GitHub Actions. No separate host, backend, database or domain. Planned URL: https://eyeinthesky6.github.io/india-fintech-risk-atlas/ (not live until deployed). See [architecture freeze](docs/ARCHITECTURE_FREEZE.md) and [site blueprint](docs/SITE_BLUEPRINT.md).
 
 ## Start here
-- [Data model](docs/DATA_MODEL.md)
+- [Architecture freeze](docs/ARCHITECTURE_FREEZE.md)
 - [Research and verification protocol](docs/RESEARCH_PROTOCOL.md)
-- [Site and publication blueprint](docs/SITE_BLUEPRINT.md)
-- [UPI starter record](content/upi/UPI-001.md)
+- [UPI documentation entry point](src/content/docs/upi/index.md)
+- [Data model](docs/DATA_MODEL.md)
 
 ## Editorial rules
 Every material claim has a source or is labeled an opinion/hypothesis. A rule is only mandatory when a current primary source supports its applicability to the named entity. Avoid sensitive operational thresholds and evasion instructions. New contributions require review.
 
 ## Current state
-Initial scaffold. Entries are **draft** until a reviewer verifies them. The repository is not yet a published website.
+UPI v1 release candidate (`release/upi-v1-freeze`): Astro/Starlight/Pagefind static build is validated, 10 UPI entries are source-checked against directly opened RBI/industry/research originals, and 7 entries remain `draft` pending direct `npci.org.in` circular access (`HTTP 403` blocker). All 17 entries remain **unpublished drafts awaiting independent second-reviewer verification**, and the repository is not yet deployed to GitHub Pages.
 
 
 ## Frozen v1 direction

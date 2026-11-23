@@ -1,34 +1,22 @@
 # UPI v1 — release blockers and owner handoff
 
-Updated 2026-11-21. **This is a release candidate in a draft PR, not a published verified compendium.**
+Updated 2026-11-23. **This is a technically validated release candidate in PR #6, not an independently reviewed or publicly deployed release.**
 
-## Completed in the consolidation branch
-- GitHub Pages/Astro/Starlight static website scaffold, UPI navigation and full-text search integration.
-- 17 UPI topic drafts, plus risk-stack playbook, company-practice examples, licensing and evidence policy.
-- Source register, evidence ledgers, research attestations, four-layer attribution model.
-- CC BY 4.0 original editorial material / MIT original code.
-- Local hook and CI attestation mechanism integrated; architecture freeze and outdated assumptions marked.
-- Corrected known subpath links for GitHub Pages.
+## Completed on `release/upi-v1-freeze`
+- Synced `release/upi-v1-freeze` with `main` (eliminating PR #6 merge conflicts while preserving both `Four-layer evidence amendment` and `Evidence integrity gate` in `docs/RESEARCH_PROTOCOL.md`).
+- Fixed Starlight sidebar configuration (`link: '/'`), added missing `public/favicon.svg`, removed duplicate `content/upi/UPI-001.md`, and added P0 `src/content/docs/upi/glossary.md`.
+- Generated and committed `package-lock.json`; verified clean `npm ci && npm run build`, Pagefind search, `/india-fintech-risk-atlas/` base paths, `0` broken links, and mobile (`375×812`) responsiveness on live `astro preview`.
+- Hardened `.githooks/pre-commit` (Windows/POSIX Python fallback), `scripts/check-attestations.py` (`--all`, duplicate ID checks, ledger enforcement), and `.github/workflows/validate.yml` & `pages.yml` (`npm ci` + `--all` + built link check).
+- Audited all 17 UPI entries, evidence ledgers, and attestations against directly retrieved RBI/GoI/industry/`arXiv` documents (10 `source-checked`, 7 `draft` due to `npci.org.in` HTTP 403; `Independent reviewer: PENDING` preserved honestly across all 17).
 
-## Blockers, ordered
-1. **Build gate:** CI build has not produced a confirmed success. The package versions are not locked; create/commit `package-lock.json` from a successful install and switch CI from `npm install` to `npm ci`. Test GitHub Pages base path, Pagefind assets, sidebar links and mobile layout.
-2. **Research gate:** current NPCI UPI operating circulars, dispute timing and amended requirements must be verified against official originals. Do not publish unverified deadlines.
-3. **Claim audit:** every material normative statement needs a specific source passage and actor/effective-date applicability. Draft attestations with unchecked boxes remain truthful but not release approval.
-4. **Independent reviewer:** a different reviewer must reopen each primary source, mark supported/unsupported/contradictory, and sign the evidence ledger. One agent's two passes do not establish independence.
-5. **Operator evidence:** named practitioner examples need original posts, dates and accurate attribution; existing company-reported examples must be checked against their precise documentation. Avoid assuming proprietary controls.
-6. **Publishing gate:** repository is private as last checked. Make public only after rights/source review; enable Pages source GitHub Actions; confirm actual live URL and mobile/search behavior.
-7. **Enforcement gate:** configure repository branch protection to require content attestation and site build checks; local hooks alone are bypassable.
+## Remaining blockers, ordered
+1. **Independent reviewer sign-off:** A distinct reviewer must re-open each primary source, mark claim-level outcomes in `research/evidence/<ID>.md`, and sign `research/attestations/<ID>.md`. (An AI drafting/audit pass cannot certify itself as independent reviewer.)
+2. **Direct `npci.org.in` circular audit:** Obtain direct access to `npci.org.in` in an authorized browser to confirm current UPI FAQs, Fraud Awareness, Settlement Process (`UPI_Settlement_Process_256f73e1df.pdf`), UDIR timelines, and official copies of `NPCI/2025-26/IS/003` and `NPCI/UPI/OC/220/2025-26` (provisional mirrors used where blocked by `HTTP 403`).
+3. **Publishing & repo governance:** Confirm repository plan/visibility before making public, enable GitHub Pages (`Source: GitHub Actions`), test live URL after merge, and enable branch protection requiring `Validate site` and `Content attestation` on `main`.
+4. **Overlapping PR hygiene:** Close/do not merge PRs #1, #2, #4, #5 separately after PR #6.
 
 ## No-go rules
-Do not tick incomplete attestations, label unverified material 'reviewed', merge PR #6 as a verified launch, or claim a live site without observing the successful deployment. Do not merge older PRs #1/#2/#4/#5 independently after this consolidation, to avoid reintroducing conflicts.
-
-## Definition of done
-- Build and smoke tests pass.
-- Every published material claim has evidence and a distinct reviewer.
-- UPI scope and exclusions are explicit.
-- Search, navigation, citations and responsive UI work on the live Pages URL.
-- Licensing and attribution review passes.
-- Release owner signs off the publication state.
+Do not tick independent reviewer boxes without an actual separate review, label `draft` / `source-checked` material as `reviewed` or `published`, merge PR #6 as a verified public launch before blockers 1–3 are addressed (unless the owner knowingly decides to publish a clearly labeled research preview), or claim a live Pages URL without observing deployment.
 
 ## Freeze
-No new backend, scraper, AI runtime, custom search application or schema migration. Fix blockers only.
+Keep the frozen architecture (`GitHub Markdown/YAML → Astro/Starlight → Pagefind → GitHub Pages`). No backend, database, scraper, or runtime AI.

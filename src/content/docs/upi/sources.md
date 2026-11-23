@@ -38,4 +38,4 @@ Two third-party mirrors of NPCI circulars were visually inspected and are cited 
 2. Dahiphale, D. et al. / Google, Inc. (2024), [Enhancing Trust and Safety in Digital Payments: An LLM-Powered Approach](https://arxiv.org/html/2410.19845v1), `arXiv:2410.19845v1`.
 3. Zhang, Y. et al. / OCBC Singapore (2026), [Detection, Attribution, Narration: An End-to-End Pipeline for Explainable Money Mule Identification](https://arxiv.org/html/2607.17586v1), `arXiv:2607.17586v1` (international AML comparison).
 
-See [full internal source register](https://github.com/eyeinthesky6/india-fintech-risk-atlas/blob/release/upi-v1-freeze/research/upi/PRIMARY_SOURCE_REGISTER.md).
+See [full internal source register](https://github.com/eyeinthesky6/india-fintech-risk-atlas/blob/main/research/upi/PRIMARY_SOURCE_REGISTER.md).

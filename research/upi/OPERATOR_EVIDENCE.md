@@ -1,5 +1,6 @@
 # Operator and research evidence ledger — UPI v1
 
+> **Internal audit ledger:** Published public narrative & synthesis live at [src/content/docs/upi/operator-insights.md](../../src/content/docs/upi/operator-insights.md).  
 **Last audited:** 2026-11-23 (source-checked against directly opened public documentation and open-access research papers; independent second-reviewer verification pending).
 
 ## 1. Company-reported engineering & product practices (Layer 2)

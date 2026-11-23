@@ -1,6 +1,6 @@
 # Operator intelligence: practical fraud, AML and risk-stack knowledge
 
-Status: proposed editorial expansion | 2026-11-21
+Status: active v1 editorial guide (incorporated into frozen four-layer scope; see ARCHITECTURE_FREEZE.md and CONTENT_SCHEMA.md)
 
 ## Product mission
 The Atlas is an India-focused, source-cited engineering reference that helps fintechs and banks design, review and improve fraud, AML and risk controls. **Not** a regulation-only directory. Include credible field observations, production failure modes, practical control designs, data prerequisites, validation and trade-offs. Foreign sources are permitted as method/architecture references, but do not automatically imply applicability to Indian payment rails or law.

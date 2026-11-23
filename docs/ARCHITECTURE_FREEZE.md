@@ -17,7 +17,7 @@ A record may contain several layers. **Do not duplicate canonical patterns per s
 Product, Pattern, Gap, Control, Requirement, Source, Claim, Evaluation, Case, Glossary. Stable IDs and many-to-many links. Frontmatter is metadata; Markdown is the readable source. Legacy UPI-001… IDs remain stable aliases until a tested migration to global PAT/CTRL IDs. Do not undertake a mass renaming during UPI v1.
 
 ## Publication and presentation
-GitHub repository as the content store, Astro + Starlight + Pagefind as the static rendering layer, GitHub Pages as the host, GitHub Actions as the build and validation mechanism. **No runtime backend, database, scraper, CMS, vector store or AI endpoint.** One shared article template may render thousands of generated HTML pages; contributors maintain records, not page code.
+GitHub repository as the content store, Astro + Starlight + Pagefind as the static rendering layer, GitHub Pages as the host, GitHub Actions as the build and validation mechanism. **No runtime backend, database, scraper, CMS, vector store or AI endpoint.** One shared article template may render thousands of generated HTML pages; contributors maintain records, not page code. Always link to official external PDFs rather than committing large binary documents into Git (to respect GitHub Pages size limits), and run synthetic build/search stress tests (`500 / 2,000 / 5,000` records) before considering any custom search or backend infrastructure.
 
 ## User-facing navigation and filters
 P0: UPI landing; scheme and lifecycle; fraud patterns; controls; operations; evidence policy; source index; glossary; full-text search. P1: product, record type, actor, lifecycle, evidence layer, reviewed state. Do not implement custom faceted filtering until native search/navigation is tested and insufficient. Search is not a claim of coverage completeness.
@@ -35,7 +35,7 @@ One record or closely related section per agent work unit. Researcher collects s
 - Earlier '17 entries complete' language means **17 draft pages exist**, not verified complete research.
 - Any proposed AI layer is future research, **not** part of the frozen v1.
 - A private repository cannot be assumed eligible for free GitHub Pages; check repository plan/visibility before public deployment.
-- `docs/FINAL_CONTENT_ARCHITECTURE.md`, `docs/PRODUCT_ARCHITECTURE.md`, `docs/DATA_MODEL.md` remain historical design rationale where inconsistent; **this freeze record governs new work**.
+- Superseded pre-freeze design memos and pre-consolidation drafts are preserved in `docs/archive/`; active schema, workflow, and status rules live in `docs/CONTENT_SCHEMA.md`, `docs/RESEARCH_PROTOCOL.md`, and `docs/RELEASE_STATUS.md`. **This freeze record governs new work.**
 
 ## Change control
 Freeze new features and schema migrations after UPI launch. Exceptions only for material factual errors, broken publishing/security, legal rights issues, or demonstrably high-value user feedback. Each exception needs a short issue explaining impact and minimum change.

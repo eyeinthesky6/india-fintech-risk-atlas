@@ -1,5 +1,6 @@
 # UPI primary-source register
 
+> **Internal audit ledger:** Published public view lives at [src/content/docs/upi/sources.md](../../src/content/docs/upi/sources.md).  
 **Last audited:** 2026-11-23 (source-checked against directly retrieved documents; independent second-reviewer verification pending).
 
 ## 1. Directly retrieved primary RBI & government documents (verified 2026-11-23)

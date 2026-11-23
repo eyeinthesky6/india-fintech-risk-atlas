@@ -3,20 +3,18 @@ title: Unusual outbound payment velocity
 description: UPI-001 — account-level outbound burst and rapid balance-depletion signals.
 recordId: UPI-001
 products:
-  - UPI
+  - upi
 recordType: detective-control
-recordTypeLabel: Detective signal
 theme: monitoring-mules-merchants
-themeLabel: Monitoring, mules & merchants
 lifecycle:
   - initiation
   - authorization
   - monitoring
 actors:
-  - Remitter bank
-  - PSP bank
-  - TPAP
-  - Payment aggregator
+  - remitter-bank
+  - psp-bank
+  - tpap
+  - payment-aggregator
 evidenceLayers:
   - official
   - atlas

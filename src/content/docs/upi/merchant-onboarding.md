@@ -3,20 +3,18 @@ title: Merchant onboarding and classification
 description: UPI-012 — Payment Aggregator KYC/CDD, MCC classification, acquiring bank oversight, and transaction laundering risks.
 recordId: UPI-012
 products:
-  - UPI
+  - upi
 recordType: preventive-control
-recordTypeLabel: Preventive & detective control
 theme: monitoring-mules-merchants
-themeLabel: Monitoring, mules & merchants
 lifecycle:
   - onboarding
   - processing
   - monitoring
 actors:
-  - Payment aggregator
-  - Beneficiary bank
-  - PSP bank
-  - Merchant
+  - payment-aggregator
+  - beneficiary-bank
+  - psp-bank
+  - merchant
 evidenceLayers:
   - official
   - atlas

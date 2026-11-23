@@ -3,20 +3,18 @@ title: Potential mule-account funnel
 description: UPI-002 — pass-through layering networks, RBIH MuleHunter.AI / I4C coordination, and relational detection limits.
 recordId: UPI-002
 products:
-  - UPI
+  - upi
 recordType: fraud-pattern
-recordTypeLabel: Fraud & AML pattern
 theme: monitoring-mules-merchants
-themeLabel: Monitoring, mules & merchants
 lifecycle:
   - onboarding
   - monitoring
   - investigation
 actors:
-  - Beneficiary bank
-  - Remitter bank
-  - PSP bank
-  - Payment aggregator
+  - beneficiary-bank
+  - remitter-bank
+  - psp-bank
+  - payment-aggregator
 evidenceLayers:
   - official
   - atlas

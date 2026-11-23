@@ -3,23 +3,21 @@ title: UPI dispute and complaint routing
 description: UPI-013 — RBI Online Dispute Resolution (ODR), PA chargeback/dispute flows, and separating failed vs. fraudulent incidents.
 recordId: UPI-013
 products:
-  - UPI
+  - upi
 recordType: recovery-process
-recordTypeLabel: Recovery process
 theme: reconciliation-disputes-protection
-themeLabel: Reconciliation, disputes & protection
 lifecycle:
   - dispute
   - recovery
   - servicing
 actors:
-  - Payer
-  - TPAP
-  - PSP bank
-  - Remitter bank
-  - Beneficiary bank
-  - Payment aggregator
-  - NPCI
+  - payer
+  - tpap
+  - psp-bank
+  - remitter-bank
+  - beneficiary-bank
+  - payment-aggregator
+  - npci
 evidenceLayers:
   - official
   - industry

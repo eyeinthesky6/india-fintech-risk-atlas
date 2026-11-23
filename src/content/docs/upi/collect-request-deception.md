@@ -3,20 +3,18 @@ title: Collect-request deception
 description: UPI-004 — social engineering around payment direction, P2P collect discontinuation, and P2M pull controls.
 recordId: UPI-004
 products:
-  - UPI
+  - upi
 recordType: fraud-pattern
-recordTypeLabel: Fraud pattern
 theme: social-engineering
-themeLabel: Social engineering & scams
 lifecycle:
   - initiation
   - authorization
 actors:
-  - Payer
-  - TPAP
-  - PSP bank
-  - Remitter bank
-  - Merchant
+  - payer
+  - tpap
+  - psp-bank
+  - remitter-bank
+  - merchant
 evidenceLayers:
   - official
   - industry

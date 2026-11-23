@@ -3,20 +3,18 @@ title: Repeated failed authentication attempts
 description: UPI-011 — detecting credential stuffing, wrong-PIN probing, lockouts, and customer alerts.
 recordId: UPI-011
 products:
-  - UPI
+  - upi
 recordType: detective-control
-recordTypeLabel: Detective & preventive control
 theme: identity-auth
-themeLabel: Identity, access & authentication
 lifecycle:
   - authentication
   - authorization
   - monitoring
 actors:
-  - Payer
-  - TPAP
-  - PSP bank
-  - Remitter bank
+  - payer
+  - tpap
+  - psp-bank
+  - remitter-bank
 evidenceLayers:
   - official
   - atlas

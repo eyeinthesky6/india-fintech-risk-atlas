@@ -3,20 +3,18 @@ title: Account takeover and device-binding risk
 description: UPI-003 — unauthorized account/device compromise, SIM/device binding, and post-change cooling periods.
 recordId: UPI-003
 products:
-  - UPI
+  - upi
 recordType: fraud-pattern
-recordTypeLabel: Fraud pattern
 theme: identity-auth
-themeLabel: Identity, access & authentication
 lifecycle:
   - onboarding
   - authentication
   - authorization
 actors:
-  - Payer
-  - TPAP
-  - PSP bank
-  - Remitter bank
+  - payer
+  - tpap
+  - psp-bank
+  - remitter-bank
 evidenceLayers:
   - official
   - atlas

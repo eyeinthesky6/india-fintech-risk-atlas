@@ -5,6 +5,8 @@ import {
   getBasePath,
   getUpiRecords,
   splitUpiRecordsByStage,
+  taxonomy,
+  taxonomyLabel,
 } from '../lib/upi-records';
 
 const base = getBasePath();
@@ -40,7 +42,7 @@ const summary = splitUpiRecordsByStage(records);
               <tr>
                 <td><code>{entry.data.recordId}</code></td>
                 <td><a href={`${base}/${entry.id}/`}>{entry.data.title}</a></td>
-                <td>{entry.data.recordTypeLabel ?? entry.data.recordType}</td>
+                <td>{taxonomyLabel(taxonomy.recordTypes, entry.data.recordType)}</td>
                 <td>{formatRecordStatus(entry)}</td>
               </tr>
             ))}

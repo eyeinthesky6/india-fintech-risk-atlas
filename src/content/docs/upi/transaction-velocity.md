@@ -3,20 +3,18 @@ title: Transaction velocity and EFRM monitoring
 description: UPI-010 — regulatory Enterprise Fraud Risk Management (EFRM) architecture, alert parameterization, staff calibration, and feedback loops.
 recordId: UPI-010
 products:
-  - UPI
+  - upi
 recordType: detective-control
-recordTypeLabel: Detective & operational governance control
 theme: monitoring-mules-merchants
-themeLabel: Monitoring, mules & merchants
 lifecycle:
   - monitoring
   - investigation
   - servicing
 actors:
-  - Remitter bank
-  - Beneficiary bank
-  - PSP bank
-  - Payment aggregator
+  - remitter-bank
+  - beneficiary-bank
+  - psp-bank
+  - payment-aggregator
 evidenceLayers:
   - official
   - industry

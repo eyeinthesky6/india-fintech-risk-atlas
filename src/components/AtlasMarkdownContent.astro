@@ -1,27 +1,14 @@
 ---
 import Default from '@astrojs/starlight/components/MarkdownContent.astro';
 import { Aside } from '@astrojs/starlight/components';
-import { getBasePath } from '../lib/upi-records';
+import { getBasePath, taxonomy, taxonomyLabel } from '../lib/upi-records';
 
 const { entry } = Astro.locals.starlightRoute;
 const data = entry.data;
 const base = getBasePath();
 const stage = data.reviewStage ?? 'draft';
-
-const STAGE_LABELS: Record<string, string> = {
-  draft: 'Draft',
-  researching: 'Researching',
-  'source-checked': 'Source-checked draft',
-  reviewed: 'Independently reviewed',
-  published: 'Published',
-};
-
-const LAYER_LABELS: Record<string, string> = {
-  official: 'Official (RBI/NPCI)',
-  industry: 'Industry',
-  practitioner: 'Practitioner',
-  atlas: 'Atlas analysis & research refs',
-};
+const stageLabel = taxonomyLabel(taxonomy.reviewStages, stage);
+const recordTypeLabel = taxonomyLabel(taxonomy.recordTypes, data.recordType);
 ---
 
 <Default>
@@ -51,52 +38,64 @@ const LAYER_LABELS: Record<string, string> = {
           {data.recordType && (
             <>
               <span class="atlas-meta__label">Type</span>
-              <span class="atlas-chip" data-pagefind-filter={`record_type:${data.recordType}`}>
-                {data.recordTypeLabel ?? data.recordType}
+              <span class="atlas-chip" data-pagefind-filter={`record_type:${recordTypeLabel}`}>
+                {recordTypeLabel}
               </span>
             </>
           )}
           <span class="atlas-meta__label">Stage</span>
-          <span class="atlas-chip" data-pagefind-filter={`stage:${stage}`}>
-            {STAGE_LABELS[stage] ?? stage}
+          <span class="atlas-chip" data-pagefind-filter={`stage:${stageLabel}`}>
+            {stageLabel}
           </span>
-          {data.products?.map((product) => (
-            <span class="atlas-chip" data-pagefind-filter={`product:${product}`}>
-              {product}
-            </span>
-          ))}
+          {data.products?.map((product) => {
+            const label = taxonomyLabel(taxonomy.products, product);
+            return (
+              <span class="atlas-chip" data-pagefind-filter={`product:${label}`}>
+                {label}
+              </span>
+            );
+          })}
         </div>
 
         {data.lifecycle && data.lifecycle.length > 0 && (
           <div class="atlas-meta__row">
             <span class="atlas-meta__label">Lifecycle</span>
-            {data.lifecycle.map((item) => (
-              <span class="atlas-chip" data-pagefind-filter={`lifecycle:${item}`}>
-                {item}
-              </span>
-            ))}
+            {data.lifecycle.map((item) => {
+              const label = taxonomyLabel(taxonomy.lifecycle, item);
+              return (
+                <span class="atlas-chip" data-pagefind-filter={`lifecycle:${label}`}>
+                  {label}
+                </span>
+              );
+            })}
           </div>
         )}
 
         {data.actors && data.actors.length > 0 && (
           <div class="atlas-meta__row">
             <span class="atlas-meta__label">Actors</span>
-            {data.actors.map((actor) => (
-              <span class="atlas-chip" data-pagefind-filter={`actor:${actor}`}>
-                {actor}
-              </span>
-            ))}
+            {data.actors.map((actor) => {
+              const label = taxonomyLabel(taxonomy.actors, actor);
+              return (
+                <span class="atlas-chip" data-pagefind-filter={`actor:${label}`}>
+                  {label}
+                </span>
+              );
+            })}
           </div>
         )}
 
         {data.evidenceLayers && data.evidenceLayers.length > 0 && (
           <div class="atlas-meta__row">
             <span class="atlas-meta__label">Evidence layers</span>
-            {data.evidenceLayers.map((layer) => (
-              <span class="atlas-chip" data-pagefind-filter={`evidence_layer:${layer}`}>
-                {LAYER_LABELS[layer] ?? layer}
-              </span>
-            ))}
+            {data.evidenceLayers.map((layer) => {
+              const label = taxonomyLabel(taxonomy.evidenceLayers, layer);
+              return (
+                <span class="atlas-chip" data-pagefind-filter={`evidence_layer:${label}`}>
+                  {label}
+                </span>
+              );
+            })}
           </div>
         )}
       </div>

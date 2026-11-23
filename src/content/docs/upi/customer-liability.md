@@ -3,20 +3,18 @@ title: Unauthorized and fraudulent transaction customer protection
 description: UPI-015 — customer liability allocation, burden of proof, 2026–2027 commercial-bank amendments vs. payments-bank baseline.
 recordId: UPI-015
 products:
-  - UPI
+  - upi
 recordType: recovery-process
-recordTypeLabel: Customer protection & regulatory obligation
 theme: reconciliation-disputes-protection
-themeLabel: Reconciliation, disputes & protection
 lifecycle:
   - servicing
   - dispute
   - recovery
 actors:
-  - Payer
-  - Remitter bank
-  - Beneficiary bank
-  - PSP bank
+  - payer
+  - remitter-bank
+  - beneficiary-bank
+  - psp-bank
 evidenceLayers:
   - official
   - atlas

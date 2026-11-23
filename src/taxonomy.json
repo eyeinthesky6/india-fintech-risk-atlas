@@ -1,0 +1,60 @@
+{
+  "recordIdPattern": "^[A-Z]+-(?:OVERVIEW|\\d{3})$",
+  "products": {
+    "upi": "UPI"
+  },
+  "recordTypes": {
+    "explainer": "System explainer",
+    "fraud-pattern": "Fraud pattern",
+    "preventive-control": "Preventive control",
+    "detective-control": "Detective control",
+    "operational-failure": "Operational failure & control",
+    "recovery-process": "Recovery & customer protection",
+    "policy-consultation": "Policy & consultation explainer"
+  },
+  "themes": {
+    "overview": "Overview & ecosystem",
+    "social-engineering": "Social engineering & scams",
+    "identity-auth": "Identity, access & authentication",
+    "monitoring-mules-merchants": "Monitoring, mules & merchants",
+    "reconciliation-disputes-protection": "Reconciliation, disputes & protection",
+    "policy": "Policy & consultation"
+  },
+  "lifecycle": {
+    "onboarding": "Onboarding",
+    "initiation": "Initiation",
+    "authentication": "Authentication",
+    "authorization": "Authorization",
+    "processing": "Processing",
+    "monitoring": "Monitoring",
+    "settlement": "Settlement",
+    "reconciliation": "Reconciliation",
+    "investigation": "Investigation",
+    "dispute": "Dispute",
+    "recovery": "Recovery",
+    "servicing": "Servicing"
+  },
+  "actors": {
+    "payer": "Payer",
+    "merchant": "Merchant",
+    "tpap": "TPAP",
+    "psp-bank": "PSP bank",
+    "remitter-bank": "Remitter bank",
+    "beneficiary-bank": "Beneficiary bank",
+    "payment-aggregator": "Payment aggregator",
+    "npci": "NPCI"
+  },
+  "evidenceLayers": {
+    "official": "Official (RBI/NPCI)",
+    "industry": "Industry",
+    "practitioner": "Practitioner",
+    "atlas": "Atlas analysis & research refs"
+  },
+  "reviewStages": {
+    "draft": "Draft",
+    "researching": "Researching",
+    "source-checked": "Source-checked draft",
+    "reviewed": "Independently reviewed",
+    "published": "Published"
+  }
+}

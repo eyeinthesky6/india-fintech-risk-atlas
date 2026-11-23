@@ -1,15 +1,13 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
+import taxonomy from '../taxonomy.json';
 
+export { taxonomy };
 export type UpiDocEntry = CollectionEntry<'docs'>;
 
-export const UPI_THEMES = [
-  { id: 'overview', label: 'Overview & ecosystem' },
-  { id: 'social-engineering', label: 'Social engineering & scams' },
-  { id: 'identity-auth', label: 'Identity, access & authentication' },
-  { id: 'monitoring-mules-merchants', label: 'Monitoring, mules & merchants' },
-  { id: 'reconciliation-disputes-protection', label: 'Reconciliation, disputes & protection' },
-  { id: 'policy', label: 'Policy & consultation' },
-] as const;
+export const UPI_THEMES = Object.entries(taxonomy.themes).map(([id, label]) => ({
+  id,
+  label,
+}));
 
 const UPI_ORDER = [
   'UPI-OVERVIEW',
@@ -37,10 +35,15 @@ export function getBasePath(): string {
   return import.meta.env.BASE_URL.replace(/\/$/, '');
 }
 
+export function taxonomyLabel(map: Record<string, string>, key: string | undefined): string {
+  if (!key) return '';
+  return map[key] ?? key;
+}
+
 export async function getUpiRecords(): Promise<UpiDocEntry[]> {
   const entries = await getCollection(
     'docs',
-    (entry) => Boolean(entry.data.recordId && entry.data.products?.includes('UPI')),
+    (entry) => Boolean(entry.data.recordId && entry.data.products?.includes('upi')),
   );
   return [...entries].sort((a, b) => {
     const idA = a.data.recordId ?? '';

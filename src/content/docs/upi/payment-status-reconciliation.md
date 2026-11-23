@@ -3,20 +3,18 @@ title: Payment status and order reconciliation
 description: UPI-005 — merchant/PA payment status, webhook authenticity, idempotency, and order-fulfilment reconciliation.
 recordId: UPI-005
 products:
-  - UPI
+  - upi
 recordType: operational-failure
-recordTypeLabel: Operational failure & control
 theme: reconciliation-disputes-protection
-themeLabel: Reconciliation, disputes & protection
 lifecycle:
   - processing
   - reconciliation
 actors:
-  - Payment aggregator
-  - Merchant
-  - PSP bank
-  - Remitter bank
-  - Beneficiary bank
+  - payment-aggregator
+  - merchant
+  - psp-bank
+  - remitter-bank
+  - beneficiary-bank
 evidenceLayers:
   - official
   - industry

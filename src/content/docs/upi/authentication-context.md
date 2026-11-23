@@ -3,19 +3,17 @@ title: Authentication and payment authorization
 description: UPI-009 — multi-factor authentication, dynamic factors, exemptions, and issuer responsibility.
 recordId: UPI-009
 products:
-  - UPI
+  - upi
 recordType: preventive-control
-recordTypeLabel: Preventive control
 theme: identity-auth
-themeLabel: Identity, access & authentication
 lifecycle:
   - authentication
   - authorization
 actors:
-  - Payer
-  - TPAP
-  - PSP bank
-  - Remitter bank
+  - payer
+  - tpap
+  - psp-bank
+  - remitter-bank
 evidenceLayers:
   - official
   - atlas

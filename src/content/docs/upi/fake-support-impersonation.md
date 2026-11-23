@@ -3,21 +3,19 @@ title: Fake support and grievance impersonation
 description: UPI-007 — search-result, social-media, and bogus call-centre impersonation around refunds and failed payments.
 recordId: UPI-007
 products:
-  - UPI
+  - upi
 recordType: fraud-pattern
-recordTypeLabel: Fraud pattern
 theme: social-engineering
-themeLabel: Social engineering & scams
 lifecycle:
   - servicing
   - dispute
   - recovery
 actors:
-  - Payer
-  - TPAP
-  - PSP bank
-  - Remitter bank
-  - Payment aggregator
+  - payer
+  - tpap
+  - psp-bank
+  - remitter-bank
+  - payment-aggregator
 evidenceLayers:
   - official
   - atlas

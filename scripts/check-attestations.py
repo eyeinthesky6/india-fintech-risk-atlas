@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """Lightweight content attestation check. Standard library only; not a truth verifier."""
+import json
 import pathlib
 import re
 import subprocess
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
+TAXONOMY = json.loads((ROOT / 'src' / 'taxonomy.json').read_text(encoding='utf-8'))
 CONTENT_PREFIXES = ('src/content/docs/',)
-VALID_STAGES = {'draft', 'researching', 'source-checked', 'reviewed', 'published'}
+VALID_STAGES = set(TAXONOMY['reviewStages'])
+RECORD_ID_RE = re.compile(TAXONOMY['recordIdPattern'])
 EXEMPT = {
     'src/content/docs/index.mdx',
     'src/content/docs/methodology.md',
@@ -120,6 +123,9 @@ def main():
         rid = record_id_from_frontmatter(fm)
         if not rid:
             failures.append(f'{path}: missing frontmatter recordId')
+            continue
+        if not RECORD_ID_RE.match(rid):
+            failures.append(f'{path}: invalid frontmatter recordId ({rid})')
             continue
 
         fm_stage = fm.get('reviewStage', '').strip().lower()

@@ -3,19 +3,17 @@ title: Untrusted app and remote-access risk
 description: UPI-008 — sideloaded APKs, screen mirroring, remote-access coercion, and mobile RASP controls.
 recordId: UPI-008
 products:
-  - UPI
+  - upi
 recordType: preventive-control
-recordTypeLabel: Preventive & detective control
 theme: identity-auth
-themeLabel: Identity, access & authentication
 lifecycle:
   - initiation
   - authentication
 actors:
-  - Payer
-  - TPAP
-  - PSP bank
-  - Remitter bank
+  - payer
+  - tpap
+  - psp-bank
+  - remitter-bank
 evidenceLayers:
   - official
   - atlas

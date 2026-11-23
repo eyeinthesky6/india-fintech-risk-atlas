@@ -3,20 +3,18 @@ title: Settlement and reconciliation exceptions
 description: UPI-014 — interbank settlement-file reconciliation, failed-transaction TATs, and scheme exception handling.
 recordId: UPI-014
 products:
-  - UPI
+  - upi
 recordType: operational-failure
-recordTypeLabel: Operational failure & control
 theme: reconciliation-disputes-protection
-themeLabel: Reconciliation, disputes & protection
 lifecycle:
   - settlement
   - reconciliation
   - dispute
 actors:
-  - Remitter bank
-  - Beneficiary bank
-  - PSP bank
-  - NPCI
+  - remitter-bank
+  - beneficiary-bank
+  - psp-bank
+  - npci
 evidenceLayers:
   - official
   - atlas

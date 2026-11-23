@@ -3,21 +3,19 @@ title: Digital payment fraud safeguards under discussion
 description: UPI-016 — RBI's April 2026 Discussion Paper on lagged credit, trusted-person verification, KYC credit checks, and kill switches.
 recordId: UPI-016
 products:
-  - UPI
+  - upi
 recordType: policy-consultation
-recordTypeLabel: Policy & consultation explainer
 theme: policy
-themeLabel: Policy & consultation
 lifecycle:
   - initiation
   - authorization
   - servicing
 actors:
-  - Remitter bank
-  - Beneficiary bank
-  - PSP bank
-  - TPAP
-  - Payment aggregator
+  - remitter-bank
+  - beneficiary-bank
+  - psp-bank
+  - tpap
+  - payment-aggregator
 evidenceLayers:
   - official
   - atlas

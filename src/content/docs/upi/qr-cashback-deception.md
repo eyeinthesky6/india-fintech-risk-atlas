@@ -3,20 +3,18 @@ title: QR and fake cashback deception
 description: UPI-006 — social engineering via deceptive QR codes, cashback claims, and tampered payment links.
 recordId: UPI-006
 products:
-  - UPI
+  - upi
 recordType: fraud-pattern
-recordTypeLabel: Fraud pattern
 theme: social-engineering
-themeLabel: Social engineering & scams
 lifecycle:
   - initiation
   - authorization
 actors:
-  - Payer
-  - TPAP
-  - PSP bank
-  - Remitter bank
-  - Merchant
+  - payer
+  - tpap
+  - psp-bank
+  - remitter-bank
+  - merchant
 evidenceLayers:
   - official
   - industry

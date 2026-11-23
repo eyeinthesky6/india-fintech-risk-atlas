@@ -3,11 +3,9 @@ title: UPI ecosystem and participant roles
 description: UPI-OVERVIEW — system architecture, participant boundaries, and asymmetric risk telemetry.
 recordId: UPI-OVERVIEW
 products:
-  - UPI
+  - upi
 recordType: explainer
-recordTypeLabel: System explainer
 theme: overview
-themeLabel: Overview & ecosystem
 lifecycle:
   - onboarding
   - initiation
@@ -21,13 +19,13 @@ lifecycle:
   - recovery
   - servicing
 actors:
-  - NPCI
-  - Remitter bank
-  - Beneficiary bank
-  - PSP bank
-  - TPAP
-  - Payment aggregator
-  - Merchant
+  - npci
+  - remitter-bank
+  - beneficiary-bank
+  - psp-bank
+  - tpap
+  - payment-aggregator
+  - merchant
 evidenceLayers:
   - official
   - atlas

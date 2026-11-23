@@ -1,3 +1,11 @@
 #!/bin/sh
 # Opt-in: git config core.hooksPath .githooks
-python3 scripts/check-attestations.py --staged
+if python3 -c "import sys; assert sys.version_info >= (3, 8)" >/dev/null 2>&1; then
+  PY=python3
+elif python -c "import sys; assert sys.version_info >= (3, 8)" >/dev/null 2>&1; then
+  PY=python
+else
+  echo "Python 3.8+ is required to run scripts/check-attestations.py" >&2
+  exit 1
+fi
+"$PY" scripts/check-attestations.py --staged

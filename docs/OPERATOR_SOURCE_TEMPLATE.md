@@ -5,7 +5,7 @@ Author / public role:
 Publisher / company:
 Publication date:
 Accessed date:
-Type: firsthand practitioner / company engineering / vendor claim / case study / regulator / research paper (Layer 4 idea lead)
+Type: firsthand practitioner / company engineering / vendor claim / case study / regulator / research paper (Research & academic idea lead)
 Specific observation (original paraphrase):
 Products / lifecycle:
 Operational gap:

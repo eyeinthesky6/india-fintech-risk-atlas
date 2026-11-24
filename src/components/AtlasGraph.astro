@@ -1,0 +1,941 @@
+---
+import { getAtlasGraphData, getPageNeighbors, type AtlasGraphNode } from '../lib/atlas-graph';
+import { taxonomy } from '../lib/upi-records';
+
+interface Props {
+  currentId: string;
+}
+
+const { currentId } = Astro.props;
+const graph = await getAtlasGraphData();
+const neighbors = getPageNeighbors(graph, currentId);
+const linkedCount = new Set([
+  ...neighbors.directNeighbors.map((n) => n.node.slug),
+  ...neighbors.sharedSourceNeighbors.map((n) => n.node.slug),
+]).size;
+
+const TYPE_COLORS: Record<string, string> = {
+  'fraud-pattern': '#ef4444',
+  'preventive-control': '#10b981',
+  'detective-control': '#3b82f6',
+  'operational-failure': '#f59e0b',
+  'recovery-process': '#8b5cf6',
+  explainer: '#06b6d4',
+  'policy-consultation': '#ec4899',
+  hub: '#64748b',
+};
+
+const HUB_SHORT_LABELS: Record<string, string> = {
+  upi: 'UPI HUB',
+  'upi/risk-stack-playbook': 'PLAYBOOK',
+  'upi/operator-insights': 'OPERATOR',
+  'upi/sources': 'SOURCES',
+  'upi/glossary': 'GLOSSARY',
+  'upi/coverage': 'COVERAGE',
+};
+
+function shortLabel(node: AtlasGraphNode): string {
+  if (!node.isHub) return node.recordId.replace('UPI-OVERVIEW', 'OVERVIEW');
+  return HUB_SHORT_LABELS[node.slug] ?? node.recordId.slice(0, 10);
+}
+
+// Compute deterministic SSR positions for the 280x230 right-sidebar mini-graph
+const W = 280;
+const H = 230;
+const cx = W / 2;
+const cy = 112;
+const centerSlug = neighbors.currentNode?.slug ?? '';
+const ringNodes = neighbors.localNodes.filter((n) => n.slug !== centerSlug).slice(0, 7);
+const visibleMiniSlugs = new Set([centerSlug, ...ringNodes.map((n) => n.slug)]);
+const miniNodes = neighbors.localNodes.filter((n) => visibleMiniSlugs.has(n.slug));
+const miniEdges = neighbors.localEdges.filter(
+  (e) => visibleMiniSlugs.has(e.source) && visibleMiniSlugs.has(e.target),
+);
+const radius = 80;
+
+const posBySlug = new Map<string, { x: number; y: number }>();
+if (neighbors.currentNode) {
+  posBySlug.set(neighbors.currentNode.slug, { x: cx, y: cy });
+}
+ringNodes.forEach((node, idx) => {
+  const angle = (-Math.PI / 2) + (2 * Math.PI * idx) / Math.max(ringNodes.length, 1);
+  posBySlug.set(node.slug, {
+    x: Number((cx + radius * Math.cos(angle)).toFixed(1)),
+    y: Number((cy + radius * Math.sin(angle)).toFixed(1)),
+  });
+});
+
+const actorOptions = Object.entries(taxonomy.actors).map(([id, label]) => ({ id, label }));
+const legendItems = [
+  ...Object.entries(taxonomy.recordTypes).map(([id, label]) => ({
+    id,
+    label,
+    color: TYPE_COLORS[id] ?? '#64748b',
+  })),
+  { id: 'hub', label: 'Hub / guide', color: TYPE_COLORS.hub },
+];
+
+const payload = JSON.stringify({
+  currentSlug: centerSlug,
+  nodes: graph.nodes,
+  sourceEdges: graph.sourceEdges,
+  themeEdges: graph.themeEdges,
+  directEdges: graph.directEdges,
+  typeColors: TYPE_COLORS,
+  hubShortLabels: HUB_SHORT_LABELS,
+}).replace(/</g, '\\u003c');
+---
+
+<section class="atlas-graph-panel not-content" aria-label="Knowledge graph and connected records">
+  <button
+    type="button"
+    class="atlas-graph-btn"
+    data-open-full-graph
+    aria-haspopup="dialog"
+  >
+    Expand
+  </button>
+
+  <details class="atlas-graph-details">
+    <summary class="atlas-graph-summary">
+      <span class="atlas-graph-summary__left">
+        <svg
+          class="atlas-graph-chevron"
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+        <span class="atlas-graph-panel__title">Knowledge graph</span>
+        <span class="atlas-graph-count">
+          {linkedCount > 0 ? `${linkedCount} linked` : `${graph.nodes.length} nodes`}
+        </span>
+      </span>
+    </summary>
+
+    <div class="atlas-graph-body">
+      <div class="atlas-mini-canvas-wrap">
+        <svg
+          viewBox={`0 0 ${W} ${H}`}
+          class="atlas-mini-svg"
+          role="img"
+          aria-label="Local record connection graph"
+        >
+          {miniEdges.map((edge) => {
+            const a = posBySlug.get(edge.source);
+            const b = posBySlug.get(edge.target);
+            if (!a || !b) return null;
+            const touchesCenter = edge.source === centerSlug || edge.target === centerSlug;
+            return (
+              <line
+                x1={a.x}
+                y1={a.y}
+                x2={b.x}
+                y2={b.y}
+                class={touchesCenter ? 'atlas-mini-edge atlas-mini-edge--active' : 'atlas-mini-edge'}
+              >
+                <title>{edge.labels.join(', ')}</title>
+              </line>
+            );
+          })}
+
+          {miniNodes.map((node) => {
+            const pos = posBySlug.get(node.slug);
+            if (!pos) return null;
+            const isCurrent = node.slug === centerSlug;
+            const fill = TYPE_COLORS[node.recordType] ?? '#64748b';
+            return (
+              <a href={node.href} class="atlas-mini-node" aria-label={`${node.recordId}: ${node.title}`}>
+                <title>{`${node.recordId} — ${node.title} (${node.recordTypeLabel})`}</title>
+                <circle
+                  cx={pos.x}
+                  cy={pos.y}
+                  r={isCurrent ? 9.5 : 6.5}
+                  fill={fill}
+                  class={isCurrent ? 'atlas-mini-dot atlas-mini-dot--current' : 'atlas-mini-dot'}
+                />
+                <text
+                  x={pos.x}
+                  y={pos.y + (isCurrent ? 20 : 15.5)}
+                  text-anchor="middle"
+                  class={isCurrent ? 'atlas-mini-label atlas-mini-label--current' : 'atlas-mini-label'}
+                >
+                  {shortLabel(node)}
+                </text>
+              </a>
+            );
+          })}
+        </svg>
+        <p class="atlas-mini-caption">
+          {neighbors.sharedSourceNeighbors.length > 0
+            ? `${neighbors.sharedSourceNeighbors.length} records share primary citations`
+            : `${graph.nodes.length} indexed nodes`}
+        </p>
+      </div>
+
+      {(neighbors.directNeighbors.length > 0 || neighbors.sharedSourceNeighbors.length > 0) && (
+        <div class="atlas-links-box">
+          {neighbors.directNeighbors.length > 0 && (
+            <div class="atlas-links-group">
+              <h3 class="atlas-links-heading">Direct links &amp; backlinks</h3>
+              <ul class="atlas-links-list">
+                {neighbors.directNeighbors.slice(0, 5).map(({ node, reasons }) => (
+                  <li>
+                    <a href={node.href} class="atlas-link-item">
+                      <span class="atlas-link-badge">{node.recordId}</span>
+                      <span class="atlas-link-title">{node.title}</span>
+                    </a>
+                    <span class="atlas-link-meta">{reasons[0]}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {neighbors.sharedSourceNeighbors.length > 0 && (
+            <div class="atlas-links-group">
+              <h3 class="atlas-links-heading">Shares primary sources</h3>
+              <ul class="atlas-links-list">
+                {neighbors.sharedSourceNeighbors.slice(0, 5).map(({ node, reasons }) => (
+                  <li>
+                    <a href={node.href} class="atlas-link-item">
+                      <span class="atlas-link-badge">{node.recordId}</span>
+                      <span class="atlas-link-title">{node.title}</span>
+                    </a>
+                    <span class="atlas-link-meta">{reasons.slice(0, 2).join(' · ')}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  </details>
+</section>
+
+<dialog class="atlas-graph-dialog not-content" data-atlas-graph-dialog aria-label="Full Atlas Knowledge Graph">
+  <div class="atlas-dialog__header">
+    <div>
+      <h2 class="atlas-dialog__title">India Risk Atlas — Interactive Graph</h2>
+      <p class="atlas-dialog__subtitle">
+        Explore how fraud patterns, preventive/detective controls, operational failures, and RBI/NPCI circulars connect.
+      </p>
+    </div>
+    <button type="button" class="atlas-dialog__close" data-close-full-graph aria-label="Close graph modal">
+      Close
+    </button>
+  </div>
+
+  <div class="atlas-dialog__controls">
+    <div class="atlas-mode-tabs" role="tablist" aria-label="Graph relationship view">
+      <button type="button" class="atlas-tab-btn is-active" data-graph-mode="shared-source" role="tab" aria-selected="true">
+        Shared Sources (RBI/NPCI)
+      </button>
+      <button type="button" class="atlas-tab-btn" data-graph-mode="theme" role="tab" aria-selected="false">
+        By Theme
+      </button>
+      <button type="button" class="atlas-tab-btn" data-graph-mode="direct-link" role="tab" aria-selected="false">
+        Direct Links
+      </button>
+    </div>
+
+    <label class="atlas-actor-filter">
+      <span>Actor:</span>
+      <select data-graph-actor>
+        <option value="all">All actors</option>
+        {actorOptions.map((a) => (
+          <option value={a.id}>{a.label}</option>
+        ))}
+      </select>
+    </label>
+  </div>
+
+  <div class="atlas-dialog__body">
+    <svg viewBox="0 0 820 480" class="atlas-full-svg" data-full-graph-svg role="img" aria-label="Full Atlas node-link diagram"></svg>
+  </div>
+
+  <div class="atlas-dialog__footer">
+    <div class="atlas-inspector" data-graph-inspector>
+      Hover or focus a node to inspect its sources and connections; click any node to open it.
+    </div>
+    <div class="atlas-legend">
+      {legendItems.map((item) => (
+        <span class="atlas-legend-item">
+          <span class="atlas-legend-dot" style={`background:${item.color}`}></span>
+          {item.label}
+        </span>
+      ))}
+    </div>
+  </div>
+</dialog>
+
+<script type="application/json" is:inline data-atlas-graph-payload set:html={payload}></script>
+
+<script is:inline>
+  (() => {
+    if (window.__atlasGraphBound) return;
+    window.__atlasGraphBound = true;
+
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+
+    function getGraphContext() {
+      const payloadEl = document.querySelector('script[data-atlas-graph-payload]');
+      const dialog = document.querySelector('dialog[data-atlas-graph-dialog]');
+      if (!payloadEl || !dialog) return null;
+      return {
+        data: JSON.parse(payloadEl.textContent || '{}'),
+        dialog,
+        svg: dialog.querySelector('[data-full-graph-svg]'),
+        inspector: dialog.querySelector('[data-graph-inspector]'),
+        actorSelect: dialog.querySelector('[data-graph-actor]'),
+      };
+    }
+
+    function computePositions(data, mode) {
+      const W = 820;
+      const H = 480;
+      const nodes = data.nodes || [];
+      const edges =
+        mode === 'theme'
+          ? data.themeEdges
+          : mode === 'direct-link'
+            ? data.directEdges
+            : data.sourceEdges;
+
+      // In shared-source/direct modes focus primarily on canonical records + connected hubs
+      const connectedSet = new Set();
+      edges.forEach((e) => {
+        connectedSet.add(e.source);
+        connectedSet.add(e.target);
+      });
+      const visibleNodes = nodes.filter((n) => !n.isHub || connectedSet.has(n.slug) || mode === 'direct-link');
+
+      const positions = new Map();
+      const themes = Array.from(new Set(visibleNodes.map((n) => n.theme)));
+      const themeIndex = new Map(themes.map((t, idx) => [t, idx]));
+
+      // Initialize clustered circular layout grouped by theme so nodes start neatly separated
+      const byTheme = new Map();
+      visibleNodes.forEach((n) => {
+        const arr = byTheme.get(n.theme) || [];
+        arr.push(n);
+        byTheme.set(n.theme, arr);
+      });
+
+      visibleNodes.forEach((n) => {
+        const tIdx = themeIndex.get(n.theme) || 0;
+        const group = byTheme.get(n.theme) || [n];
+        const posInGroup = group.indexOf(n);
+        const sectorAngle = (-Math.PI / 2) + (2 * Math.PI * tIdx) / Math.max(themes.length, 1);
+        const clusterCx = W / 2 + 165 * Math.cos(sectorAngle);
+        const clusterCy = H / 2 + 125 * Math.sin(sectorAngle);
+        const localAngle = (2 * Math.PI * posInGroup) / Math.max(group.length, 1) + tIdx * 0.4;
+        const localR = group.length === 1 ? 0 : Math.min(82, 34 + group.length * 10);
+        positions.set(n.slug, {
+          x: clusterCx + localR * Math.cos(localAngle),
+          y: clusterCy + localR * Math.sin(localAngle),
+        });
+      });
+
+      // Simple deterministic relaxation for clean spacing without random drift
+      for (let iter = 0; iter < 45; iter++) {
+        for (let i = 0; i < visibleNodes.length; i++) {
+          for (let j = i + 1; j < visibleNodes.length; j++) {
+            const a = positions.get(visibleNodes[i].slug);
+            const b = positions.get(visibleNodes[j].slug);
+            const dx = b.x - a.x || 0.5;
+            const dy = b.y - a.y || 0.5;
+            const dist = Math.hypot(dx, dy);
+            const minDist = 72;
+            if (dist < minDist) {
+              const push = ((minDist - dist) / dist) * 0.35;
+              a.x -= dx * push;
+              a.y -= dy * push;
+              b.x += dx * push;
+              b.y += dy * push;
+            }
+          }
+        }
+        edges.forEach((e) => {
+          const a = positions.get(e.source);
+          const b = positions.get(e.target);
+          if (!a || !b) return;
+          const dx = b.x - a.x;
+          const dy = b.y - a.y;
+          const dist = Math.hypot(dx, dy) || 1;
+          const pull = mode === 'shared-source' ? 0.015 : 0.03;
+          if (dist > 140) {
+            a.x += dx * pull;
+            a.y += dy * pull;
+            b.x -= dx * pull;
+            b.y -= dy * pull;
+          }
+        });
+        visibleNodes.forEach((n) => {
+          const p = positions.get(n.slug);
+          p.x = Math.max(60, Math.min(W - 60, p.x));
+          p.y = Math.max(42, Math.min(H - 44, p.y));
+        });
+      }
+
+      return { visibleNodes, edges, positions };
+    }
+
+    function renderFullGraph(ctx, mode, actorFilter) {
+      if (!ctx || !ctx.svg) return;
+      const { visibleNodes, edges, positions } = computePositions(ctx.data, mode);
+      const colors = ctx.data.typeColors || {};
+      ctx.svg.innerHTML = '';
+
+      const edgeEls = [];
+      const nodeEls = [];
+
+      const edgesLayer = document.createElementNS(SVG_NS, 'g');
+      const nodesLayer = document.createElementNS(SVG_NS, 'g');
+
+      edges.forEach((edge) => {
+        const a = positions.get(edge.source);
+        const b = positions.get(edge.target);
+        if (!a || !b) return;
+        const line = document.createElementNS(SVG_NS, 'line');
+        line.setAttribute('x1', String(a.x.toFixed(1)));
+        line.setAttribute('y1', String(a.y.toFixed(1)));
+        line.setAttribute('x2', String(b.x.toFixed(1)));
+        line.setAttribute('y2', String(b.y.toFixed(1)));
+        line.setAttribute('class', 'atlas-full-edge');
+        line.dataset.source = edge.source;
+        line.dataset.target = edge.target;
+        const title = document.createElementNS(SVG_NS, 'title');
+        title.textContent = (edge.labels || []).join(', ');
+        line.appendChild(title);
+        edgesLayer.appendChild(line);
+        edgeEls.push({ el: line, edge });
+      });
+
+      visibleNodes.forEach((node) => {
+        const pos = positions.get(node.slug);
+        if (!pos) return;
+        const matchesActor = actorFilter === 'all' || (node.actors || []).includes(actorFilter);
+        const isCurrent = node.slug === ctx.data.currentSlug;
+
+        const g = document.createElementNS(SVG_NS, 'g');
+        g.setAttribute('class', matchesActor ? 'atlas-full-node' : 'atlas-full-node atlas-full-node--dim');
+        g.setAttribute('tabindex', '0');
+        g.setAttribute('role', 'link');
+        g.setAttribute('aria-label', `${node.recordId}: ${node.title}`);
+        g.dataset.slug = node.slug;
+
+        const circle = document.createElementNS(SVG_NS, 'circle');
+        circle.setAttribute('cx', String(pos.x.toFixed(1)));
+        circle.setAttribute('cy', String(pos.y.toFixed(1)));
+        circle.setAttribute('r', isCurrent ? '12' : node.isHub ? '8' : '9.5');
+        circle.setAttribute('fill', colors[node.recordType] || '#64748b');
+        if (isCurrent) circle.setAttribute('class', 'atlas-full-dot--current');
+
+        const label = document.createElementNS(SVG_NS, 'text');
+        label.setAttribute('x', String(pos.x.toFixed(1)));
+        label.setAttribute('y', String((pos.y + 21).toFixed(1)));
+        label.setAttribute('text-anchor', 'middle');
+        label.setAttribute('class', 'atlas-full-label');
+        const hubLabels = ctx.data.hubShortLabels || {};
+        label.textContent = node.isHub
+          ? (hubLabels[node.slug] || node.recordId.slice(0, 10))
+          : node.recordId.replace('UPI-OVERVIEW', 'OVERVIEW');
+
+        const title = document.createElementNS(SVG_NS, 'title');
+        title.textContent = `${node.recordId} — ${node.title}`;
+
+        const onHover = () => {
+          const connected = edges.filter((e) => e.source === node.slug || e.target === node.slug);
+          edgeEls.forEach(({ el, edge }) => {
+            const active = edge.source === node.slug || edge.target === node.slug;
+            el.classList.toggle('atlas-full-edge--active', active);
+            el.classList.toggle('atlas-full-edge--dim', !active);
+          });
+          nodeEls.forEach(({ el, n }) => {
+            const linked = n.slug === node.slug || connected.some((e) => e.source === n.slug || e.target === n.slug);
+            el.classList.toggle('atlas-full-node--hover-dim', !linked);
+          });
+          if (ctx.inspector) {
+            const reasons = Array.from(new Set(connected.flatMap((e) => e.labels || []))).slice(0, 5);
+            ctx.inspector.textContent = `${node.recordId} · ${node.title} (${node.recordTypeLabel}, ${node.reviewStage}) — ${connected.length} connection(s)${reasons.length ? ': ' + reasons.join(', ') : ''}. Click to open.`;
+          }
+        };
+
+        const onLeave = () => {
+          edgeEls.forEach(({ el }) => el.classList.remove('atlas-full-edge--active', 'atlas-full-edge--dim'));
+          nodeEls.forEach(({ el }) => el.classList.remove('atlas-full-node--hover-dim'));
+        };
+
+        const onActivate = () => {
+          window.location.href = node.href;
+        };
+
+        g.addEventListener('mouseenter', onHover);
+        g.addEventListener('focus', onHover);
+        g.addEventListener('mouseleave', onLeave);
+        g.addEventListener('blur', onLeave);
+        g.addEventListener('click', onActivate);
+        g.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onActivate();
+          }
+        });
+
+        g.appendChild(title);
+        g.appendChild(circle);
+        g.appendChild(label);
+        nodesLayer.appendChild(g);
+        nodeEls.push({ el: g, n: node });
+      });
+
+      ctx.svg.appendChild(edgesLayer);
+      ctx.svg.appendChild(nodesLayer);
+    }
+
+    let currentMode = 'shared-source';
+
+    document.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+
+      if (target.closest('[data-open-full-graph]')) {
+        event.preventDefault();
+        event.stopPropagation();
+        const ctx = getGraphContext();
+        if (!ctx) return;
+        const actor = ctx.actorSelect ? ctx.actorSelect.value : 'all';
+        renderFullGraph(ctx, currentMode, actor);
+        ctx.dialog.showModal();
+        return;
+      }
+
+      if (target.closest('[data-close-full-graph]') || target.matches('dialog[data-atlas-graph-dialog]')) {
+        const ctx = getGraphContext();
+        if (ctx && ctx.dialog.open) ctx.dialog.close();
+        return;
+      }
+
+      const modeBtn = target.closest('[data-graph-mode]');
+      if (modeBtn) {
+        const ctx = getGraphContext();
+        if (!ctx) return;
+        currentMode = modeBtn.getAttribute('data-graph-mode') || 'shared-source';
+        ctx.dialog.querySelectorAll('[data-graph-mode]').forEach((btn) => {
+          const active = btn === modeBtn;
+          btn.classList.toggle('is-active', active);
+          btn.setAttribute('aria-selected', String(active));
+        });
+        const actor = ctx.actorSelect ? ctx.actorSelect.value : 'all';
+        renderFullGraph(ctx, currentMode, actor);
+      }
+    });
+
+    document.addEventListener('change', (event) => {
+      const target = event.target;
+      if (target instanceof HTMLSelectElement && target.matches('[data-graph-actor]')) {
+        const ctx = getGraphContext();
+        if (ctx) renderFullGraph(ctx, currentMode, target.value);
+      }
+    });
+  })();
+</script>
+
+<style is:global>
+  .atlas-graph-panel {
+    position: relative;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--card);
+  }
+
+  .atlas-graph-summary {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.4rem;
+    padding: 0.5rem 4.35rem 0.5rem 0.65rem;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+  }
+
+  .atlas-graph-panel .atlas-graph-btn {
+    position: absolute;
+    top: 0.44rem;
+    right: 0.55rem;
+    z-index: 2;
+  }
+
+  .atlas-graph-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .atlas-graph-summary__left {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-width: 0;
+  }
+
+  .atlas-graph-chevron {
+    flex-shrink: 0;
+    color: var(--muted-foreground);
+    transform: rotate(-90deg);
+    transition: transform 0.15s ease;
+  }
+
+  .atlas-graph-details[open] .atlas-graph-chevron {
+    transform: rotate(0deg);
+  }
+
+  .atlas-graph-panel__title {
+    margin: 0;
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: var(--foreground-light);
+    white-space: nowrap;
+  }
+
+  .atlas-graph-count {
+    font-size: 0.7rem;
+    color: var(--muted-foreground);
+    white-space: nowrap;
+  }
+
+  .atlas-graph-body {
+    padding: 0.55rem 0.65rem 0.65rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .atlas-graph-btn,
+  .atlas-dialog__close,
+  .atlas-tab-btn {
+    border: 1px solid var(--border);
+    background: var(--background);
+    color: var(--foreground-light);
+    border-radius: calc(var(--radius) - 2px);
+    padding: 0.15rem 0.45rem;
+    font-size: 0.7rem;
+    font-weight: 400;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .atlas-graph-btn:hover,
+  .atlas-dialog__close:hover,
+  .atlas-tab-btn:hover {
+    border-color: var(--foreground-light);
+    background: var(--accent);
+  }
+
+  .atlas-mini-canvas-wrap {
+    border: 1px solid var(--border);
+    border-radius: 0.375rem;
+    background: var(--background);
+    padding: 0.35rem;
+  }
+
+  .atlas-mini-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .atlas-mini-edge {
+    stroke: var(--border);
+    stroke-width: 1;
+    opacity: 0.7;
+  }
+
+  .atlas-mini-edge--active {
+    stroke: var(--foreground-light);
+    stroke-width: 1.5;
+    opacity: 0.75;
+  }
+
+  .atlas-mini-dot {
+    stroke: var(--background);
+    stroke-width: 1.5;
+    transition: transform 0.15s ease;
+  }
+
+  .atlas-mini-dot--current {
+    stroke: var(--foreground-light);
+    stroke-width: 2;
+  }
+
+  .atlas-mini-node:hover .atlas-mini-dot {
+    stroke: var(--foreground-light);
+    stroke-width: 2;
+  }
+
+  .atlas-mini-label {
+    fill: var(--foreground);
+    font-size: 8.5px;
+    font-family: var(--sl-font-mono);
+    paint-order: stroke;
+    stroke: var(--background);
+    stroke-width: 3px;
+    stroke-linejoin: round;
+  }
+
+  .atlas-mini-label--current {
+    fill: var(--foreground-light);
+    font-weight: 600;
+  }
+
+  .atlas-mini-caption {
+    margin: 0.35rem 0 0;
+    font-size: 0.72rem;
+    color: var(--muted-foreground);
+    text-align: center;
+  }
+
+  .atlas-links-box {
+    margin-top: 0.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .atlas-links-heading {
+    margin: 0 0 0.28rem;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted-foreground);
+  }
+
+  .atlas-links-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.38rem;
+  }
+
+  .atlas-links-list li {
+    display: flex;
+    flex-direction: column;
+    gap: 0.08rem;
+  }
+
+  .atlas-link-item {
+    display: flex;
+    align-items: baseline;
+    gap: 0.32rem;
+    text-decoration: none;
+    color: var(--foreground-light);
+    font-size: 0.75rem;
+    line-height: 1.25;
+  }
+
+  .atlas-link-item:hover .atlas-link-title {
+    color: var(--foreground-light);
+    text-decoration: underline;
+  }
+
+  .atlas-link-badge {
+    flex-shrink: 0;
+    font-family: var(--sl-font-mono);
+    font-size: 0.64rem;
+    padding: 0.05rem 0.28rem;
+    border-radius: 0.25rem;
+    border: 1px solid var(--border);
+    color: var(--muted-foreground);
+  }
+
+  .atlas-link-meta {
+    font-size: 0.66rem;
+    color: var(--muted-foreground);
+    padding-left: 0.1rem;
+  }
+
+  .atlas-graph-dialog {
+    width: min(940px, 94vw);
+    max-height: 90vh;
+    margin: auto;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    background: var(--background);
+    color: var(--foreground);
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+  }
+
+  .atlas-graph-dialog::backdrop {
+    background: rgba(10, 14, 23, 0.72);
+    backdrop-filter: blur(3px);
+  }
+
+  .atlas-dialog__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .atlas-dialog__title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--foreground-light);
+  }
+
+  .atlas-dialog__subtitle {
+    margin: 0.2rem 0 0;
+    font-size: 0.8rem;
+    color: var(--muted-foreground);
+  }
+
+  .atlas-dialog__controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .atlas-mode-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .atlas-tab-btn.is-active {
+    border-color: var(--foreground-light);
+    color: var(--foreground-light);
+    background: var(--accent);
+    font-weight: 600;
+  }
+
+  .atlas-actor-filter {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+    color: var(--muted-foreground);
+  }
+
+  .atlas-actor-filter select {
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--foreground-light);
+    border-radius: 0.375rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.78rem;
+  }
+
+  .atlas-dialog__body {
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    background: var(--card);
+    overflow: hidden;
+  }
+
+  .atlas-full-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 58vh;
+  }
+
+  .atlas-full-edge {
+    stroke: var(--border);
+    stroke-width: 1.1;
+    opacity: 0.7;
+    transition: opacity 0.15s ease, stroke 0.15s ease;
+  }
+
+  .atlas-full-edge--active {
+    stroke: var(--foreground-light);
+    stroke-width: 2;
+    opacity: 0.85;
+  }
+
+  .atlas-full-edge--dim {
+    opacity: 0.08;
+  }
+
+  .atlas-full-node {
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+  }
+
+  .atlas-full-node circle {
+    stroke: var(--background);
+    stroke-width: 1.75;
+  }
+
+  .atlas-full-dot--current {
+    stroke: var(--foreground-light) !important;
+    stroke-width: 2.5 !important;
+  }
+
+  .atlas-full-node--dim,
+  .atlas-full-node--hover-dim {
+    opacity: 0.2;
+  }
+
+  .atlas-full-label {
+    fill: var(--foreground-light);
+    font-size: 10px;
+    font-family: var(--sl-font-mono);
+    pointer-events: none;
+    paint-order: stroke;
+    stroke: var(--background);
+    stroke-width: 3px;
+    stroke-linejoin: round;
+  }
+
+  .atlas-dialog__footer {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .atlas-inspector {
+    font-size: 0.8rem;
+    padding: 0.45rem 0.65rem;
+    border-radius: 0.375rem;
+    border: 1px solid var(--border);
+    background: var(--muted);
+    color: var(--foreground);
+  }
+
+  .atlas-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem 0.9rem;
+    font-size: 0.74rem;
+    color: var(--muted-foreground);
+  }
+
+  .atlas-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .atlas-legend-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 999px;
+    display: inline-block;
+  }
+</style>

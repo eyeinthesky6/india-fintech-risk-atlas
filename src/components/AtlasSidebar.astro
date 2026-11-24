@@ -1,0 +1,186 @@
+---
+import AtlasSidebarSublist from './AtlasSidebarSublist.astro';
+
+const { sidebar } = Astro.locals.starlightRoute;
+---
+
+<nav class="atlas-sidebar-nav" aria-label="Atlas navigation">
+  <AtlasSidebarSublist sublist={sidebar} depth={0} />
+</nav>
+
+<style is:global>
+  .atlas-sidebar-nav {
+    height: calc(100vh - 3.5rem);
+    max-height: calc(100vh - 3.5rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0.75rem 0.65rem 2.25rem 0;
+    scrollbar-width: thin;
+  }
+
+  .atlas-nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.12rem;
+  }
+
+  .atlas-nav-list--depth-0 {
+    gap: 0.55rem;
+  }
+
+  .atlas-nav-item {
+    margin: 0;
+    padding: 0;
+  }
+
+  .atlas-nav-group {
+    margin: 0;
+  }
+
+  .atlas-nav-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+    border-radius: calc(var(--radius) - 2px);
+  }
+
+  .atlas-nav-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .atlas-nav-summary:hover {
+    color: var(--accent-foreground);
+  }
+
+  .atlas-nav-group--depth-0 > .atlas-nav-summary {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--foreground-light);
+    padding: 0.35rem 0.4rem;
+  }
+
+  .atlas-nav-group--depth-1 > .atlas-nav-summary,
+  .atlas-nav-group--depth-2 > .atlas-nav-summary {
+    font-size: 0.77rem;
+    font-weight: 600;
+    color: var(--foreground);
+    padding: 0.28rem 0.4rem;
+    margin-top: 0.2rem;
+  }
+
+  .atlas-nav-chevron {
+    flex-shrink: 0;
+    width: 0.85rem;
+    height: 0.85rem;
+    color: var(--muted-foreground);
+    transition: transform 0.15s ease;
+  }
+
+  .atlas-nav-group:not([open]) > .atlas-nav-summary .atlas-nav-chevron {
+    transform: rotate(-90deg);
+  }
+
+  .atlas-nav-items {
+    margin-left: 0.45rem;
+    padding-left: 0.5rem;
+    border-left: 1px solid var(--border);
+    margin-top: 0.12rem;
+  }
+
+  .atlas-nav-group:not([open]) > .atlas-nav-items {
+    display: none;
+  }
+
+  .atlas-nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.35rem;
+    font-size: 0.8125rem;
+    line-height: 1.35;
+    padding: 0.26rem 0.5rem;
+    border-radius: calc(var(--radius) - 2px);
+    color: var(--muted-foreground) !important;
+    text-decoration: none;
+    font-weight: 400;
+  }
+
+  .atlas-nav-link:hover {
+    background-color: var(--accent);
+    color: var(--accent-foreground) !important;
+  }
+
+  .atlas-nav-link[aria-current='page'] {
+    background-color: var(--accent);
+    color: var(--accent-foreground) !important;
+    font-weight: 600;
+  }
+
+  .atlas-nav-badge {
+    flex-shrink: 0;
+    font-size: 0.68rem;
+    line-height: 1;
+    padding: 0.15rem 0.35rem;
+    border-radius: calc(var(--radius) - 2px);
+    background-color: var(--sl-color-purple);
+    color: #fff;
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    const STORAGE_PREFIX = 'atlas-nav:';
+
+    function initAtlasSidebar() {
+      const groups = document.querySelectorAll('.atlas-sidebar-nav details[data-atlas-nav-group]');
+      groups.forEach((group) => {
+        const label = group.getAttribute('data-atlas-nav-group');
+        if (!label) return;
+        const hasCurrent = group.getAttribute('data-has-current') === 'true';
+
+        if (hasCurrent) {
+          group.open = true;
+        } else {
+          try {
+            const saved = localStorage.getItem(STORAGE_PREFIX + label);
+            if (saved === 'closed') {
+              group.open = false;
+            } else if (saved === 'open') {
+              group.open = true;
+            }
+          } catch {
+            // Ignore storage errors
+          }
+        }
+
+        group.addEventListener('toggle', () => {
+          try {
+            localStorage.setItem(STORAGE_PREFIX + label, group.open ? 'open' : 'closed');
+          } catch {
+            // Ignore storage errors
+          }
+        });
+      });
+
+      const currentLink = document.querySelector('.atlas-sidebar-nav .atlas-nav-link[aria-current="page"]');
+      if (currentLink instanceof HTMLElement) {
+        currentLink.scrollIntoView({ block: 'nearest' });
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initAtlasSidebar, { once: true });
+    } else {
+      initAtlasSidebar();
+    }
+  })();
+</script>

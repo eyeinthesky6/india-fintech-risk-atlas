@@ -8,7 +8,7 @@
 - Banks (SBI, ICICI, HDFC, Axis and payments banks): public fraud advisories, customer reporting journeys and published risk controls. Do not infer proprietary monitoring systems.
 - Vendor engineering material (Featurespace, Feedzai, Google Cloud AML AI, Stripe Radar): reusable monitoring, alert quality, investigator feedback, model evaluation and false-positive techniques. Mark vendor-reported and assess India relevance.
 - Practitioner talks and LinkedIn posts: original author, date, role as publicly stated, post URL, firsthand versus relayed, operational observation, counterexample and independent corroboration.
-- Research papers (classified strictly under **Layer 4** as candidate gap ideas, not Layer 2/3): dataset provenance, geography, sample selection, labels, model comparison, precision/recall, operational cost, reproducibility and narrow-study caveats.
+- Research papers (classified strictly under **`Research & academic` (`research`)**—separate from Industry practice, Community insight, and Atlas guidance): dataset provenance, geography, sample selection, labels, model comparison, precision/recall, operational cost, reproducibility and narrow-study caveats.
 
 ## Search queries
 - site:razorpay.com/blog UPI payment reconciliation webhook idempotency

@@ -1,0 +1,386 @@
+---
+import { getBasePath, taxonomy, taxonomyLabel } from '../lib/upi-records';
+import { normalizeDocSlug } from '../lib/atlas-graph';
+
+const { entry } = Astro.locals.starlightRoute;
+const {
+  id,
+  body,
+  data: { title, template, description, theme },
+} = entry;
+
+const shouldRenderTitle = template !== 'splash';
+const base = getBasePath();
+const slug = normalizeDocSlug(id);
+const isUpiHub = slug === 'upi';
+const isUpiChild = slug.startsWith('upi/');
+const isUpiPage = isUpiHub || isUpiChild;
+const themeLabel = theme ? taxonomyLabel(taxonomy.themes, theme) : '';
+
+const rawBody = typeof body === 'string' ? body.trim() : '';
+const isComponentMdx =
+  id.endsWith('.mdx') || /^import\s+/m.test(rawBody) || /<Upi[A-Za-z]+/.test(rawBody);
+const copyPayload = JSON.stringify({
+  title,
+  description: description ?? '',
+}).replace(/</g, '\\u003c');
+---
+
+{
+  shouldRenderTitle && (
+    <header class="atlas-page-header">
+      <nav aria-label="Breadcrumb" class="atlas-breadcrumb not-content">
+        {isUpiHub ? (
+          <>
+            <a href={`${base}/`}>Atlas</a>
+            <span aria-hidden="true">/</span>
+            <span class="atlas-breadcrumb__current">UPI</span>
+          </>
+        ) : isUpiChild ? (
+          <>
+            <a href={`${base}/upi/`}>UPI</a>
+            {themeLabel && (
+              <>
+                <span aria-hidden="true">/</span>
+                <span>{themeLabel}</span>
+              </>
+            )}
+            <span aria-hidden="true">/</span>
+            <span class="atlas-breadcrumb__current">{title}</span>
+          </>
+        ) : (
+          <>
+            <a href={`${base}/`}>Atlas</a>
+            <span aria-hidden="true">/</span>
+            <span class="atlas-breadcrumb__current">{title}</span>
+          </>
+        )}
+      </nav>
+
+      <div class="atlas-title-row">
+        <h1 id="_top" class="atlas-page-title">{title}</h1>
+
+        <div class="atlas-page-actions not-content" data-pagefind-ignore>
+          <button
+            type="button"
+            class="atlas-action-btn"
+            data-atlas-copy-content
+            aria-label="Copy page content"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+              <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+            </svg>
+            <span data-action-label>Copy</span>
+          </button>
+
+          <button
+            type="button"
+            class="atlas-action-btn"
+            data-atlas-share-page
+            aria-label="Share page link"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="18" cy="5" r="3" />
+              <circle cx="6" cy="12" r="3" />
+              <circle cx="18" cy="19" r="3" />
+              <line x1="8.59" x2="15.42" y1="13.51" y2="17.49" />
+              <line x1="15.41" x2="8.59" y1="6.51" y2="10.49" />
+            </svg>
+            <span data-action-label>Share</span>
+          </button>
+        </div>
+      </div>
+
+      {description && <p class="atlas-page-desc">{description}</p>}
+
+      <div
+        class="atlas-accuracy-strip atlas-accuracy-strip--top not-content"
+        data-atlas-accuracy-bar
+        data-pagefind-ignore
+      >
+        <div class="atlas-accuracy-strip__actions">
+          <button type="button" class="atlas-action-btn atlas-accuracy-btn" data-atlas-mark-accurate>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span data-accurate-label>Looks accurate</span>
+          </button>
+
+          <button
+            type="button"
+            class="atlas-action-btn atlas-accuracy-btn atlas-accuracy-btn--report"
+            data-atlas-start-report
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+              <line x1="4" y1="22" x2="4" y2="15"></line>
+            </svg>
+            <span>Report an error</span>
+          </button>
+        </div>
+      </div>
+
+      <script type="application/json" is:inline data-atlas-page-copy data-pagefind-ignore set:html={copyPayload}></script>
+    </header>
+  )
+}
+
+<script is:inline>
+  (() => {
+    if (window.__atlasPageActionsBound) return;
+    window.__atlasPageActionsBound = true;
+
+    async function copyToClipboard(text) {
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        try {
+          await navigator.clipboard.writeText(text);
+          return true;
+        } catch {
+          // Fall through to textarea copy fallback
+        }
+      }
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        ta.style.pointerEvents = 'none';
+        document.body.appendChild(ta);
+        ta.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        return ok;
+      } catch {
+        return false;
+      }
+    }
+
+    function flashLabel(btn, nextLabel, fallbackLabel) {
+      const span = btn.querySelector('[data-action-label]');
+      if (!span) return;
+      const timerId = btn.dataset.timerId ? Number(btn.dataset.timerId) : 0;
+      if (timerId) window.clearTimeout(timerId);
+      span.textContent = nextLabel;
+      btn.setAttribute('data-copied', 'true');
+      btn.dataset.timerId = String(
+        window.setTimeout(() => {
+          span.textContent = fallbackLabel;
+          btn.removeAttribute('data-copied');
+          delete btn.dataset.timerId;
+        }, 1800),
+      );
+    }
+
+    function extractContentText(payload) {
+      const cleanUrl = window.location.origin + window.location.pathname;
+      const root = document.querySelector('.sl-markdown-content');
+      const titleText = (payload?.title || document.title).replace(/\s*\|.*$/, '').trim();
+      if (!root) {
+        return (titleText ? titleText + '\n\n' : '') + 'Source: ' + cleanUrl;
+      }
+      const clone = root.cloneNode(true);
+      if (clone instanceof Element) {
+        clone
+          .querySelectorAll(
+            '.atlas-refs-section, .atlas-dossier, .atlas-accuracy-strip, .atlas-disclaimer, .atlas-reporter-root, .atlas-reporter-overlay, .sl-anchor-link, script, style'
+          )
+          .forEach((el) => el.remove());
+        const text = (clone.innerText || clone.textContent || '').trim();
+        return (titleText ? titleText + '\n\n' : '') + text + '\n\nSource: ' + cleanUrl;
+      }
+      return 'Source: ' + cleanUrl;
+    }
+
+    document.addEventListener('click', async (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+
+      const copyBtn = target.closest('[data-atlas-copy-content]');
+      if (copyBtn instanceof HTMLButtonElement) {
+        const dataEl = document.querySelector('script[data-atlas-page-copy]');
+        let payload = {};
+        try {
+          payload = JSON.parse(dataEl?.textContent || '{}');
+        } catch {
+          payload = {};
+        }
+        const ok = await copyToClipboard(extractContentText(payload));
+        flashLabel(copyBtn, ok ? 'Copied' : 'Unavailable', 'Copy');
+        return;
+      }
+
+      const shareBtn = target.closest('[data-atlas-share-page]');
+      if (shareBtn instanceof HTMLButtonElement) {
+        const dataEl = document.querySelector('script[data-atlas-page-copy]');
+        let payload = {};
+        try {
+          payload = JSON.parse(dataEl?.textContent || '{}');
+        } catch {
+          payload = {};
+        }
+        const cleanUrl = window.location.origin + window.location.pathname;
+        if (typeof navigator.share === 'function') {
+          try {
+            await navigator.share({
+              title: payload.title || document.title,
+              text: payload.description || undefined,
+              url: cleanUrl,
+            });
+            flashLabel(shareBtn, 'Shared', 'Share');
+            return;
+          } catch (err) {
+            if (err && err.name === 'AbortError') return;
+          }
+        }
+        const ok = await copyToClipboard(cleanUrl);
+        flashLabel(shareBtn, ok ? 'Link copied' : 'Unavailable', 'Share');
+      }
+    });
+  })();
+</script>
+
+<style>
+  .atlas-page-header {
+    margin-bottom: 0.75rem;
+  }
+
+  .atlas-breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.78rem;
+    line-height: 1.35;
+    color: var(--muted-foreground);
+    margin-bottom: 0.45rem;
+  }
+
+  .atlas-breadcrumb a {
+    color: var(--muted-foreground);
+    text-decoration: none;
+    font-weight: 400;
+  }
+
+  .atlas-breadcrumb a:hover {
+    color: var(--foreground-light);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .atlas-breadcrumb__current {
+    color: var(--foreground);
+    font-weight: 400;
+  }
+
+  .atlas-title-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+  }
+
+  .atlas-page-title {
+    margin: 0;
+    flex: 1 1 260px;
+    min-width: 0;
+    color: var(--foreground-light);
+    font-size: 1.45rem;
+    line-height: 1.25;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    scroll-margin-top: 5rem;
+  }
+
+  .atlas-page-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-shrink: 0;
+    padding-top: 0.1rem;
+  }
+
+  .atlas-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.32rem;
+    padding: 0.28rem 0.58rem;
+    border: 1px solid var(--border);
+    border-radius: calc(var(--radius) - 2px);
+    background: var(--card);
+    color: var(--muted-foreground);
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 400;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+  }
+
+  .atlas-action-btn:hover {
+    border-color: var(--foreground-light);
+    background: var(--accent);
+    color: var(--foreground-light);
+  }
+
+  .atlas-action-btn[data-copied='true'] {
+    border-color: var(--foreground-light);
+    color: var(--foreground-light);
+    font-weight: 600;
+  }
+
+  .atlas-page-desc {
+    margin: 0.35rem 0 0;
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    font-weight: 400;
+    max-width: 62ch;
+  }
+</style>

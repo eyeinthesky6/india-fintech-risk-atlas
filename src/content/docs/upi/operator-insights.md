@@ -1,9 +1,9 @@
 ---
 title: Operator practices and evidence
-description: Company-reported payment engineering documentation (Layer 2) and academic research leads for gap exploration (Layer 4).
+description: Company-reported payment engineering docs (Industry practice) alongside empirical Research & academic studies.
 ---
 
-This page separates **company-reported engineering practices** (Layer 2) from **official regulatory requirements** (Layer 1), **named practitioner observations** (Layer 3), and **Atlas analysis & research paper leads** (Layer 4). Company docs describe how one provider integrates or operates—they are neither universal bank practices nor RBI/NPCI mandates. Academic papers appear strictly under **Layer 4** as idea leads for addressing operational gaps, never as ready-to-use rules or practitioner proof.
+This page separates **company-reported engineering practices** (`Industry practice`) from binding **Regulatory** mandates, named **Community insight** observations, empirical **Research & academic** studies, and **Atlas guidance**. Company docs describe how one provider integrates or operates—they are neither universal bank practices nor RBI/NPCI mandates. Academic papers sit in their own `Research & academic` layer with explicit dataset limits—never as ready-to-use bank rules.
 
 ## 1. Payment event duplication, signatures, and ordering
 
@@ -33,13 +33,13 @@ This page separates **company-reported engineering practices** (Layer 2) from **
 
 **Industry — Stripe Radar (`company-reported`; non-India reference).** Stripe documents backtesting fraud rules against historical data (comparing fraud caught vs. legitimate sales blocked) and warns about label maturity lags (60–120 days for non-fraudulent baselines vs. recent fraud warnings). [5] *Do not transplant Stripe card rule syntax or thresholds to UPI.*
 
-## 5. Practitioner observations (Layer 3)
+## 5. Community insight (practitioner observations)
 
-No named LinkedIn practitioner observation is promoted to a verified UPI finding in v1. Any future entry requires the author's name, stated public role, publication date, canonical URL, firsthand-vs-secondhand status, and independent verification.
+No named practitioner observation is promoted to a verified UPI finding in v1. Any future entry requires the author's name, stated public role, publication date, canonical URL, firsthand-vs-secondhand status, and independent verification.
 
-## 6. Academic & research paper leads (Layer 4 — ideas for gap exploration, not ready-to-use rules)
+## 6. Research & academic studies (empirical papers — dataset limits apply)
 
-Academic papers are listed strictly under **Layer 4** as reference ideas when designing controls for identified gaps; they focus on narrow datasets or benchmarks and are neither industry practices nor turnkey deployment recipes:
+Academic papers live in their own **Research & academic** layer because empirical studies evaluate narrow datasets or benchmarks rather than turnkey production rules:
 
 - **RBIH NFPC Money-Mule Benchmark (India, 2026):** Using the public RBIH NFPC dataset (~237.8M rows across 96,091 Indian accounts, 2,683 labelled mules), Ahmad & Deodhar compare tabular GBDTs against temporal heterogeneous GNNs (`HeteroGraphSAGE`, `RelGNN`), showing GBDTs matched GNNs at `k = 100` daily alerts (96–99% precision) while graph models degraded less at `k = 500` (~0.676–0.680 vs ~0.562–0.564), and documenting **positive-unlabelled feedback bias** when uninvestigated mule rings sit in negative labels. [6]
 - **Google Pay India UPI Scam Classification Study (2024):** Dahiphale et al. evaluate fine-tuned Gemini classifiers and an LLM reviewer-assistant on balanced/sampled GPay India splits (>88% recall at ~30% precision; mixed reviewer-reasoning fidelity: 57% exact match, 32% novel valid, 6% incorrect, <1% hallucinated). *Design takeaway:* ~30% precision cannot drive blind automated blocks without human review or low-friction step-ups. [7]
@@ -56,4 +56,4 @@ Academic papers are listed strictly under **Layer 4** as reference ideas when de
 7. Dahiphale, D. et al. / Google, Inc. (2024), [Enhancing Trust and Safety in Digital Payments: An LLM-Powered Approach](https://arxiv.org/html/2410.19845v1), `arXiv:2410.19845v1` (accessed Nov 23, 2026).
 8. Zhang, Y. et al. / OCBC Singapore (2026), [Detection, Attribution, Narration: An End-to-End Pipeline for Explainable Money Mule Identification](https://arxiv.org/html/2607.17586v1), `arXiv:2607.17586v1` (accessed Nov 23, 2026).
 
-**Review status:** company technical docs and Layer 4 academic research leads retrieved and checked 2026-11-23; independent second-reviewer verification pending.
+**Review status:** `Industry practice` docs and `Research & academic` papers retrieved and checked 2026-11-23; independent second-reviewer verification pending.

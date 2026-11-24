@@ -1,5 +1,7 @@
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import starlightThemeSix from '@six-tech/starlight-theme-six';
 import starlightLinksValidator from 'starlight-links-validator';
 
 export default defineConfig({
@@ -8,10 +10,27 @@ export default defineConfig({
   integrations: [starlight({
     title: 'India Fintech Risk Atlas',
     description: 'An open, source-cited reference for Indian fintech fraud and risk patterns.',
-    plugins: [starlightLinksValidator()],
+    logo: { src: './public/favicon.svg', alt: 'India Risk Atlas' },
+    plugins: [
+      starlightThemeSix({
+        navLinks: [
+          { label: 'UPI Atlas', link: '/upi/' },
+          { label: 'Coverage', link: '/upi/coverage/' },
+          { label: 'Sources', link: '/upi/sources/' },
+          { label: 'Methodology', link: '/methodology/' },
+        ],
+        footerText: 'India Risk Atlas — Open, source-cited fintech risk reference (CC BY 4.0 content, MIT code).',
+      }),
+      starlightLinksValidator(),
+    ],
     components: {
       MarkdownContent: './src/components/AtlasMarkdownContent.astro',
+      PageSidebar: './src/components/AtlasPageSidebar.astro',
+      PageTitle: './src/components/AtlasPageTitle.astro',
+      Sidebar: './src/components/AtlasSidebar.astro',
+      ThemeSelect: './src/components/AtlasThemeSelect.astro',
     },
+    customCss: ['./src/styles/atlas-custom.css'],
     social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/eyeinthesky6/india-fintech-risk-atlas' }],
     editLink: { baseUrl: 'https://github.com/eyeinthesky6/india-fintech-risk-atlas/edit/main/' },
     sidebar: [
@@ -84,5 +103,37 @@ export default defineConfig({
         ],
       },
     ],
-  })]
+  })],
+  vite: {
+    plugins: [
+      {
+        // Work around upstream CSS reset typo & removed StarlightThemeProvider in @six-tech/starlight-theme-six
+        name: 'fix-theme-six-compat',
+        enforce: 'pre',
+        resolveId(source, importer) {
+          if (importer && importer.includes('starlight-theme-six')) {
+            if (
+              source === './ThemeSelect.astro' ||
+              source.endsWith('/ThemeSelect.astro') ||
+              source.endsWith('\\ThemeSelect.astro')
+            ) {
+              return fileURLToPath(new URL('./src/components/AtlasThemeSelect.astro', import.meta.url));
+            }
+            if (
+              source === '../components/Drawer.astro' ||
+              source.endsWith('/Drawer.astro') ||
+              source.endsWith('\\Drawer.astro')
+            ) {
+              return fileURLToPath(new URL('./src/components/AtlasDrawer.astro', import.meta.url));
+            }
+          }
+        },
+        transform(code, id) {
+          if (id.includes('starlight-theme-six') && id.endsWith('base.css')) {
+            return code.replace(':after :before', '::after, ::before');
+          }
+        },
+      },
+    ],
+  },
 });

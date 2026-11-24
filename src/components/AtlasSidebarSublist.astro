@@ -1,0 +1,67 @@
+---
+import type { StarlightRouteData } from '@astrojs/starlight/route-data';
+
+type SidebarEntry = StarlightRouteData['sidebar'][number];
+
+interface Props {
+  sublist: SidebarEntry[];
+  depth?: number;
+}
+
+const { sublist, depth = 0 } = Astro.props;
+
+function containsCurrent(entries: SidebarEntry[]): boolean {
+  return entries.some((item) =>
+    item.type === 'link' ? Boolean(item.isCurrent) : containsCurrent(item.entries),
+  );
+}
+---
+
+<ul class:list={['atlas-nav-list', `atlas-nav-list--depth-${depth}`]}>
+  {
+    sublist.map((entry) => (
+      <li class="atlas-nav-item">
+        {entry.type === 'link' ? (
+          <a
+            href={entry.href}
+            aria-current={entry.isCurrent ? 'page' : undefined}
+            class:list={['atlas-nav-link', { 'is-nested': depth > 0 }, entry.attrs?.class]}
+            {...entry.attrs}
+          >
+            <span class="atlas-nav-link__text">{entry.label}</span>
+            {entry.badge && <span class="atlas-nav-badge">{entry.badge.text}</span>}
+          </a>
+        ) : (
+          <details
+            class:list={['atlas-nav-group', `atlas-nav-group--depth-${depth}`]}
+            open
+            data-atlas-nav-group={entry.label}
+            data-has-current={containsCurrent(entry.entries) ? 'true' : undefined}
+          >
+            <summary class="atlas-nav-summary">
+              <span class="atlas-nav-summary__label">{entry.label}</span>
+              <svg
+                class="atlas-nav-chevron"
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </summary>
+            <div class="atlas-nav-items">
+              <Astro.self sublist={entry.entries} depth={depth + 1} />
+            </div>
+          </details>
+        )}
+      </li>
+    ))
+  }
+</ul>

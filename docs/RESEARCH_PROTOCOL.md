@@ -8,13 +8,14 @@ Create accurate, accessible, independently verifiable explanations of fraud, AML
 
 **Quality principle:** Completeness means clearly bounded, source-backed coverage with visible limitations and blockers—never an assertion that all fraud methods or detection rules are exhausted, and never treating a passing build as proof of truth.
 
-## Four-layer evidence rules
+## Five-layer evidence rules
 
-Organize and cite sources strictly across **four layers** (`official`, `industry`, `practitioner`, `atlas`):
-- **Layer 1 (`Official`):** Verifiable regulatory/scheme mandates and official guidance, scoped precisely to entity class and effective period.
-- **Layer 2 (`Industry`):** Company-reported engineering docs and practices; **not** regulatory mandates or proof of ecosystem-wide adoption.
-- **Layer 3 (`Practitioner`):** Named human professionals' dated firsthand operational observations (author, stated role/organization, date, URL, concise original paraphrase; no employer endorsement implied).
-- **Layer 4 (`Atlas & research references`):** Atlas editorial synthesis, candidate gap controls, hypotheses, and **academic/research paper leads (`arXiv`, etc.)**. Because academic papers are typically narrow and short-objective-focused (useful for exploring ideas rather than reliable ready-to-use content), keep them in Layer 4 with dataset/sample caveats—never under Industry or Practitioner.
+Organize and cite sources strictly across **five layers** (`official`, `industry`, `practitioner`, `research`, `atlas`):
+- **Regulatory (`official`):** Verifiable regulatory/scheme mandates and official guidance, scoped precisely to entity class and effective period.
+- **Industry practice (`industry`):** Company-reported engineering docs and practices; **not** regulatory mandates or proof of ecosystem-wide adoption.
+- **Community insight (`practitioner`):** Named human professionals' dated firsthand operational observations (author, stated role/organization, date, URL, concise original paraphrase; no employer endorsement implied).
+- **Research & academic (`research`):** Published **academic/research paper leads (`arXiv`, etc.)**. Kept strictly in their own layer—separate from `Industry practice`, `Community insight`, and `Atlas guidance`—because academic papers are typically narrow and short-objective-focused (useful for exploring gaps rather than ready-to-use production rules); always state dataset, period, and sample caveats.
+- **Atlas guidance (`atlas`):** Atlas editorial synthesis, operational gap framing, candidate gap controls, telemetry prerequisites, and validation hypotheses. Never present Atlas synthesis as a binding obligation or advisory service.
 - **No scraping infrastructure:** Fetch/read only publicly accessible URLs directly; document access blockers (`HTTP 403`, paywalls) honestly rather than bypassing access controls or inventing claims.
 
 ## Smallest work unit & agent contract
@@ -24,9 +25,9 @@ Organize and cite sources strictly across **four layers** (`official`, `industry
 Lifecycle progression: `discover → extract → draft → source-check → independent review → publish`.
 
 1. Check [CONTENT_SCHEMA.md](CONTENT_SCHEMA.md), [RELEASE_STATUS.md](RELEASE_STATUS.md), existing records, and `research/upi/` registers to avoid duplicates and clarify actor applicability/exclusions.
-2. Search original RBI/NPCI/statutory sources first, then operator engineering docs, dated practitioner observations, and (as Layer 4 gap-solution leads) open-access academic papers.
+2. Search original RBI/NPCI/statutory sources first, then operator engineering docs, dated practitioner observations, and (under `research`) open-access academic papers.
 3. Open every primary source directly (never cite search snippets). Extract exact claims and locators into the Markdown pipe table in `research/evidence/<RECORD-ID>.md`.
-4. Draft or update the article under `src/content/docs/<product>/` using typed YAML frontmatter matching `src/content.config.ts` and the unified 8-section layout in [CONTENT_SCHEMA.md](CONTENT_SCHEMA.md).
+4. Draft or update the article under `src/content/docs/<product>/` using typed YAML frontmatter matching `src/content.config.ts` and the Ready-Reckoner layout in [CONTENT_SCHEMA.md](CONTENT_SCHEMA.md).
 5. Update `research/attestations/<RECORD-ID>.md` strictly from `docs/ATTESTATION_TEMPLATE.md`. Unchecked boxes are expected and valid for `draft` and `source-checked` work; **never** check boxes 8–10 or 12 without an independent reviewer.
 6. Separate independent reviewer re-opens every cited URL, verifies scope/dates/context, marks outcomes in `research/evidence/<RECORD-ID>.md`, and signs the attestation. **Researcher and reviewer must never be the same agent or pass.**
 7. Open a PR with the PR template checklist, disclose blockers, and wait for human review. Never merge or deploy autonomously.
@@ -36,11 +37,11 @@ Lifecycle progression: `discover → extract → draft → source-check → inde
 ## Unified 10-step research & synthesis pipeline
 
 1. **Scope & deduplicate:** Select product, lifecycle stage(s), risk/control record, and target actors; check existing `UPI-*` / canonical IDs.
-2. **Discover candidates:** Search RBI, NPCI, and Indian sector regulators first; then PSP/bank/PA documentation, dated practitioners, and open-access studies (`arXiv`, Google Scholar, SSRN) for Layer 4 ideas.
+2. **Discover candidates:** Search RBI, NPCI, and Indian sector regulators first; then PSP/bank/PA documentation, dated practitioners, and open-access studies (`arXiv`, Google Scholar, SSRN) for `Research & academic` leads.
 3. **Retrieve originals:** Open full source PDFs/HTML pages directly. Record title, publisher, circular/notification number, document date, version, effective period, actor scope, section/clause, and URL.
 4. **Extract & atomize claims:** Split prose into discrete claims using the source extraction sheet below and log each claim in `research/evidence/<RECORD-ID>.md`'s 7-column Markdown table (`Claim ID | Layer | Claim | Source | Exact locator | Scope & effective date | Result`).
 5. **Cross-check:** Verify substantive technical assertions with a second independent source where feasible (two blogs quoting the same press release do not count as independent corroboration). Deduplicate by underlying mechanism, not surface title.
-6. **Draft record:** Write original Markdown per `docs/CONTENT_SCHEMA.md`, putting verified reference facts first and Layer 4 candidate controls & academic research leads second, with data prerequisites, false positives, customer harm, and validation trade-offs without disclosing exploitable evasion thresholds.
+6. **Draft record:** Write original Ready-Reckoner Markdown per `docs/CONTENT_SCHEMA.md`, putting plain-English explanations and verified reference facts first and colour-keyed `Basis | Owner | Action` controls, data prerequisites, and `Research & academic` leads alongside watch-outs, false positives, customer harm, and validation trade-offs without disclosing exploitable evasion thresholds.
 7. **Self-attest honestly:** Set frontmatter `reviewStage` and attestation `Stage:` consistently (`draft` if any source is blocked/incomplete; `source-checked` only when every cited claim's primary source has been opened and recorded with `Independent reviewer: PENDING`).
 8. **Independent audit & editor spot-checks:** Separate reviewer independently re-opens each cited URL, verifies exact passages, legal applicability, effective dates, supersession, link validity, duplication, and copyright, and logs `supported` / `partially-supported` / `unsupported` / `conflicting`. An editor additionally spot-checks a risk-based sample of reviewed claims directly against primary documents.
 9. **Resolve discrepancies:** Remove unsupported claims or downgrade them to visibly labeled hypotheses; preserve genuine contradictions cleanly.
@@ -51,9 +52,9 @@ Lifecycle progression: `discover → extract → draft → source-check → inde
 **Source precedence:**
 1. Current primary statutory, regulatory, and scheme documents (RBI, NPCI, Parliament/GoI, FIU-IND, SEBI, IRDAI, CERT-In).
 2. Official product, API, and security documentation (banks, PSPs, PAs, card networks).
-3. Firsthand operational incident postmortems and dated practitioner observations (Layer 2 / Layer 3).
+3. Firsthand operational incident postmortems and dated practitioner observations (`Industry practice` / `Community insight`).
 4. Vendor case studies and media reports (secondary context only; mark `vendor-reported`).
-5. Academic papers and open benchmarks (cited strictly under **Layer 4** as candidate gap ideas/evaluations, never Layer 2/3 production proof).
+5. Academic papers and open benchmarks (cited strictly under **`Research & academic` (`research`)** as candidate gap ideas/evaluations, never `Industry practice`, `Community insight`, or `Atlas guidance`).
 
 **India source map:**
 - **RBI:** Master Directions, circulars, FAQs, annual reports, payments oversight, discussion papers — `https://www.rbi.org.in/`
@@ -64,7 +65,7 @@ Lifecycle progression: `discover → extract → draft → source-check → inde
 - **MeitY / CERT-In:** Advisories and cyber incident directives — `https://www.cert-in.org.in/`
 - **Government / parliamentary / courts:** PIB releases, committee reports, public rulings.
 - **Industry operators:** Banks, PSPs, PAs, card networks, bureaus (secondary technical evidence only).
-- **Academic & open benchmarks (Layer 4 leads):** arXiv, Google Scholar, SSRN, ACM/IEEE (explicitly state dataset/sample biases and narrow study scope).
+- **Research & academic (`research`) leads:** arXiv, Google Scholar, SSRN, ACM/IEEE (explicitly state dataset/sample biases and narrow study scope).
 
 **Search recipes (date-bounded; log queries and rejected candidates):**
 - `site:rbi.org.in "UPI" "fraud" "direction" OR "circular"`
@@ -104,7 +105,7 @@ Lifecycle progression: `discover → extract → draft → source-check → inde
 - [ ] Draft, consultation (`non-binding`), and superseded guidance marked clearly
 - [ ] Fraud indicators distinguished from proof of fraud
 - [ ] False positives, customer friction, and data-access limits documented
-- [ ] Academic papers classified strictly under Layer 4 (`atlas`) with narrow-study caveats
+- [ ] Academic papers classified strictly under `Research & academic` (`research`) with narrow-study caveats
 - [ ] Every URL checked and external `## References` match `research/evidence/<RECORD-ID>.md`
 - [ ] No copied protected text or actionable evasion thresholds
 - [ ] No duplicate canonical IDs or broken cross-links
@@ -113,10 +114,10 @@ Lifecycle progression: `discover → extract → draft → source-check → inde
 ## Agent prompts
 
 ### Contributor / researcher prompt
-> You are a research contributor to India Fintech Risk Atlas. Work on **one** bounded unit (`1–5` records) at a time. Remember the Atlas is a **reference platform first** (candidate solutions second). Read `README.md`, `docs/ARCHITECTURE_FREEZE.md`, `docs/CONTENT_SCHEMA.md`, `docs/OPERATOR_INTELLIGENCE.md`, `docs/EVIDENCE_LAYERS_AND_RIGHTS.md`, `docs/RESEARCH_PROTOCOL.md`, and `.agents/skills/atlas-content-update/SKILL.md` before drafting. Prioritize current primary RBI/NPCI sources, open original documents (never snippets; use manual browser computer-use verification when automated HTTP fails or hits SPA portals), separate evidence strictly across 4 layers (`Official`, `Industry`, `Practitioner`, and `Atlas`—keeping academic papers in Layer 4 as gap-idea leads), produce `research/evidence/<ID>.md` and `research/attestations/<ID>.md`, ensure frontmatter `reviewStage` matches attestation `Stage`, run `scripts/verify-citations.py` and `scripts/check-attestations.py --all`, and open a PR disclosing blockers. Never invent citations, thresholds, or dates, and never self-certify independent review.
+> You are a research contributor to India Fintech Risk Atlas. Work on **one** bounded unit (`1–5` records) at a time. Remember the Atlas is a **reference platform first** (candidate solutions second). Read `README.md`, `docs/ARCHITECTURE_FREEZE.md`, `docs/CONTENT_SCHEMA.md`, `docs/OPERATOR_INTELLIGENCE.md`, `docs/EVIDENCE_LAYERS_AND_RIGHTS.md`, `docs/RESEARCH_PROTOCOL.md`, and `.agents/skills/atlas-content-update/SKILL.md` before drafting. Prioritize current primary RBI/NPCI sources, open original documents (never snippets; use manual browser computer-use verification when automated HTTP fails or hits SPA portals), separate evidence strictly across 5 layers (`Regulatory`, `Industry practice`, `Community insight`, `Research & academic`, and `Atlas guidance`—keeping academic papers in `research` with dataset/sample caveats), write plain-English Ready-Reckoner records, produce `research/evidence/<ID>.md` and `research/attestations/<ID>.md`, ensure frontmatter `reviewStage` matches attestation `Stage`, run `scripts/verify-citations.py` and `scripts/check-attestations.py --all`, and open a PR disclosing blockers. Never invent citations, thresholds, or dates, and never self-certify independent review.
 
 ### Independent audit agent prompt
-> Read `docs/ARCHITECTURE_FREEZE.md`, `docs/CONTENT_SCHEMA.md`, `docs/RESEARCH_PROTOCOL.md`, `docs/EVIDENCE_LAYERS_AND_RIGHTS.md`, and `.agents/skills/atlas-content-update/SKILL.md`. Inspect every changed claim and its primary source directly (switching to manual browser verification whenever automated fetches fail or hit SPA shells). For each assertion record `supported` / `partially-supported` / `unsupported` / `conflicting`, exact locator, actor scope, and effective date. Check for fabricated/misattributed sources, invalid or stale links, legal overreach across actor classes, academic papers misclassified as Industry or Practitioner proof, copied protected text, duplicate records, and missing false positives. Do not rewrite evidence to force a pass and never review work from your own drafting run. Report blockers cleanly in ledger files and PR review comments.
+> Read `docs/ARCHITECTURE_FREEZE.md`, `docs/CONTENT_SCHEMA.md`, `docs/RESEARCH_PROTOCOL.md`, `docs/EVIDENCE_LAYERS_AND_RIGHTS.md`, and `.agents/skills/atlas-content-update/SKILL.md`. Inspect every changed claim (including reader reports filed via `.github/ISSUE_TEMPLATE/factual-correction.yml`) and its primary source directly (switching to manual browser verification whenever automated fetches fail or hit SPA shells). For each assertion record `supported` / `partially-supported` / `unsupported` / `conflicting`, exact locator, actor scope, and effective date. Check for fabricated/misattributed sources, invalid or stale links, legal overreach across actor classes, academic papers misclassified as Industry practice, Community insight, or Atlas guidance proof, copied protected text, duplicate records, and missing false positives. Do not rewrite evidence to force a pass and never review work from your own drafting run. Report blockers cleanly in ledger files and PR review comments.
 
 ## Source & provenance methodology references
 

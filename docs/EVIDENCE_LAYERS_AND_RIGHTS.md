@@ -2,11 +2,12 @@
 
 Status: v1 editorial policy | 2026-11-21
 
-## Four distinct evidence layers
-1. **Official**: binding regulations, circulars, scheme rules and official guidance. Record issuer, exact provision, actor applicability, version, effective period, amendments and binding/guidance distinction.
-2. **Industry**: banks, fintechs, PSPs, vendors, company blogs and public case studies. Record who claims what, whether implementation is described, and whether performance is vendor-reported or independently assessed. Do not fold academic papers under Industry.
-3. **Practitioner**: named professionals' public articles, LinkedIn posts, talks and firsthand technical observations. Preserve attribution, original URL, date, role as stated, first-hand vs second-hand status, and limitations. Never imply employer endorsement, and do not place academic papers here.
-4. **Atlas analysis & research references**: our editorial synthesis, candidate gap solutions, future AI-assisted hypotheses, and academic/research paper leads (`arXiv`, workshop studies). Because academic papers are typically narrow and short-objective-focused (helpful for ideas rather than reliable ready-to-use content), keep them here with dataset/sample limitations and human review rather than under Industry or Practitioner. Never mix with source assertions or auto-promote to validated control.
+## Five distinct evidence layers
+1. **Regulatory (`official`)**: binding regulations, circulars, scheme rules and official guidance. Record issuer, exact provision, actor applicability, version, effective period, amendments and binding/guidance distinction.
+2. **Industry practice (`industry`)**: banks, fintechs, PSPs, vendors, company blogs and public case studies. Record who claims what, whether implementation is described, and whether performance is vendor-reported or independently assessed. Do not fold academic papers under Industry practice.
+3. **Community insight (`practitioner`)**: named professionals' public articles, LinkedIn posts, talks and firsthand technical observations. Preserve attribution, original URL, date, role as stated, first-hand vs second-hand status, and limitations. Never imply employer endorsement, and do not place academic papers here.
+4. **Research & academic (`research`)**: published empirical benchmarks and academic papers (`arXiv`, workshop studies, Google Scholar, SSRN). Keep academic studies in their own layer—separate from Industry practice, Community insight, and Atlas guidance—with explicit dataset, time-window, sample, and jurisdiction caveats rather than treating narrow benchmarks as ready-to-use rules.
+5. **Atlas guidance (`atlas`)**: editorial synthesis, operational gap framing, candidate controls, telemetry prerequisites, and validation hypotheses. Never mix with source assertions or auto-promote to validated control or binding fact.
 
 **Product priority:** Reference platform first; candidate solutions come second preference.
 
@@ -30,8 +31,8 @@ V1: targeted web searches, public source links, RSS/sitemaps where permitted, ma
 - Company practice: describe as **company-reported**, not universally adopted.
 - Practitioner: describe as **author-observed** unless independently corroborated.
 - Vendor performance: label **vendor-reported**, with methodology/limitations.
-- Research paper (Layer 4): describe as **research paper lead (idea only)**, with dataset, period, and sample/jurisdiction limitations; never treat narrow paper metrics as turnkey rules.
-- Atlas AI inference: clearly **hypothesis**, never a verified fact without separate evidence.
+- Research & academic paper (`research`): describe as **Research & academic lead (idea only)**, with dataset, period, and sample/jurisdiction limitations; never treat narrow paper metrics as turnkey rules.
+- Atlas guidance (`atlas`): clearly **Atlas synthesis / hypothesis**, never a verified statutory obligation or advisory opinion without separate primary evidence.
 
 ## Non-goals
 No live scraping service, browser automation backend, vector database, AI inference on visitor requests, copyrighted source mirroring, or automatic AI publication.

@@ -17,41 +17,48 @@ actors:
   - payment-aggregator
 evidenceLayers:
   - official
+  - research
   - atlas
 reviewStage: source-checked
 lastSourceCheck: "2026-11-23"
 ---
 
-## Risk mechanism and operational gap
-Money mules receive proceeds of fraud or cybercrime from multiple unrelated victims and rapidly layer them onward across accounts, wallets, or cash-outs. Individually, each UPI transfer may resemble ordinary retail activity; the signal lies in **inflow-to-outflow coupling, dormant-to-burst account behavior, and shared relational infrastructure** across seemingly separate accounts.
+## What it is
+Money mules receive fraud proceeds from unrelated victims and quickly forward them onward across other bank accounts, wallets, or cash-outs. On its own, each UPI transaction can look like normal retail spend—the giveaway is **tight inflow-to-outflow coupling, sudden activity after dormancy, and shared infrastructure** (devices, addresses, IP/branch attributes) tying separate accounts together.
 
-## Layer 1 — Official regulatory and institutional context
-- **RBI Digital Payment Security Controls (`id=13642`, `id=13624`, `id=13633`):** `§53` lists new-account excessive activity, rapid transfer velocity, beneficiary additions, and transfers to mobile numbers/VPAs linked to recorded frauds among bank monitoring parameters; `§56` requires maintaining stakeholder coordination SOPs. [1]
-- **RBI Fraud Risk Management (`id=13641` Commercial Banks, `id=13623` PBs, `id=13632` SFBs):** Requires Data Analytics / MI monitoring of digital transactions (`§25`), EWS/RFA frameworks (`§12`), and natural-justice procedures (21-day Show Cause Notice and reasoned order under `§6`) before formally classifying entities as fraud. [2]
-- **MuleHunter.AI & I4C NCRP Suspect Registry:** RBI's April 9, 2026 Discussion Paper (`id=23810 §§viii–ix`) highlights I4C's NCRP SOP and **MuleHunter.AI** built by RBIH (2024) for mule account detection, alongside a consultation proposal (`Option 3`) for monitoring credits commensurate with customer KYC profile (non-binding). A Government of India / PIB press release confirms an MoU between **I4C (MHA)** and **RBIH** to share mule-account intelligence from the NCRP Suspect Registry with `MuleHunter.AI`. [3][4]
+## Impact
+- **Beneficiary & remitter banks:** High alert backlogs, NCRP lien/freeze coordination overhead, and regulatory scrutiny on mule onboarding.
+- **Innocent sellers & community accounts:** Broad or blunt freezes lock up legitimate livelihoods when normal merchants receive a tainted scam transfer.
+- **Ecosystem recovery:** Every extra hop delays inter-bank tracing and lowers funds recoverable after fraud reporting.
 
-## Layer 4 — Candidate controls, data prerequisites, and research references
-- **Multi-hop & temporal coupling features:** Combine net inflow/outflow ratio, time-to-onward-debit latency, unique sender-to-recipient fan ratio, account age, and shared device/address/IP/branch identifiers.
-- **Proportionate hold & NCRP alignment:** Route high-confidence Suspect Registry / MuleHunter alerts to rapid specialist triage; isolate disputed credits rather than freezing an entire customer's livelihood balance blindly where law/policy permits.
-- **Data prerequisites:** account opening & KYC profile, credit/debit timestamps, anonymized counterparty graphs, shared contact/address attributes (within privacy/data-minimization bounds), NCRP/I4C intelligence tags, investigator outcomes.
+## Common patterns
+- **Dormant-to-burst pass-through:** A low-balance or inactive account receives multiple inbound credits and immediately drains onward.
+- **Shared-entity mule rings:** Separate customer accounts reuse underlying phone numbers, addresses, postal PINs, counterparties, or devices.
+- **Layered cross-rail cash-out:** Inbound UPI credits rapidly scatter across linked UPI handles, cards, or ATM withdrawals.
 
-### Research paper leads (ideas for gaps, not ready-to-use rules)
-- **RBIH NFPC Indian Banking Benchmark (`arXiv:2610.21314v1`):** Analyzing ~237.8M transactions across 96,091 Indian accounts (2,683 confirmed mules, 2.6% prevalence), Ahmad & Deodhar find:
-  - *Behavioural & relational shape:* Mules exhibit alternating high-velocity/directional-flow weeks and shared counterparties, addresses, or postal PINs across multi-hop database schemas. [5]
-  - *Queue capacity matters:* At `k=100` daily alerts, well-featurized GBDTs (`XGBoost`/`LightGBM`) achieved 96–99% precision; at `k=500`, temporal heterogeneous GNNs (`HeteroGraphSAGE` 0.676, `RelGNN` 0.680 precision) significantly outperformed GBDTs (0.562–0.564) by capturing 2-to-4-hop shared endpoints. [5]
-  - *Positive-unlabelled bias:* Treating uninvestigated accounts as negative labels teaches undetected mule rings as normal behavior. [5]
-- **Explainable Mule Triage (`arXiv:2607.17586v1`, non-India AML comparison):** OCBC Singapore researchers pair 280 account features, LightGBM, TreeSHAP, and constrained LLM narratives to raise investigator alert yield from 61% to 89%. [6]
+## What to do (rules and mitigations)
 
-## False positives, customer impact, and validation
-- **Legitimate lookalikes:** Community/religious fundraisers, housing-society collections, micro-merchants/kirana aggregators, gig-worker payouts, and innocent sellers who unknowingly received a payment from a scam victim (experiencing collateral account freezes).
-- **Validation:** Enforce strict temporal scoring cutoffs (`τ(v) <= t_seed`) to prevent future label leakage, evaluate `precision@k` at realistic analyst capacity, and audit overturned freezes to mitigate positive-unlabelled feedback bias.
+| Basis | Owner | Action |
+|---|---|---|
+| Regulatory | Commercial, Payments & Small Finance banks | Monitor new-account activity spikes, rapid velocity, beneficiary additions, and transfers to VPAs/mobile numbers linked to recorded frauds; maintain stakeholder coordination SOPs. |
+| Regulatory | Commercial, Payments & Small Finance banks | Run Data Analytics/MI digital transaction monitoring and EWS frameworks; follow natural-justice due process (21-day Show Cause Notice and reasoned order) before formal fraud classification. |
+| Regulatory | Banks, I4C, RBIH | Coordinate NCRP Suspect Registry intelligence with RBIH `MuleHunter.AI`; RBI's Apr 2026 discussion paper also consults on monitoring credits against KYC profile (non-binding). |
+| Research & academic | Risk & ML teams | On the Indian RBIH NFPC dataset (~237.8M txns across 96,091 accounts), GBDTs (`XGBoost`/`LightGBM`) achieved 96–99% precision for tiny daily queues (`k=100`), whereas temporal heterogeneous GNNs outperformed GBDTs at deeper queues (`k=500`) by capturing 2-to-4-hop shared counterparties, addresses, and PINs. |
+| Research & academic | Investigation teams | An OCBC Singapore study combined 280 account features, LightGBM, TreeSHAP, and constrained LLM case narratives to lift investigator alert yield from 61% to 89% (non-India AML comparison; dataset limits apply). |
+| Atlas guidance | Banks, PAs | Score inflow/outflow ratio, onward-debit latency, fan-in/fan-out diversity, and shared device/address attributes; isolate only contested funds where permitted instead of freezing entire livelihood accounts blindly. |
+
+## Watch-outs and validation
+- **Legitimate lookalikes:** Community or housing-society collections, micro-merchants/kiranas, gig-worker payouts, and innocent sellers who unwittingly accepted payment from a scam victim.
+- **Positive-unlabelled feedback trap:** Treating every uninvestigated account as "confirmed clean" teaches models to treat undetected mule rings as normal behavior.
+- **Signals needed:** KYC profile/account age, credit-debit latency pairs, anonymized counterparty graph edges, shared contact/address indicators, NCRP Suspect Registry hits, and investigator dispositions.
+- **How to validate:** Enforce strict per-account time cutoffs (`τ(v) <= t_seed`) to stop future label leakage, evaluate `precision@k` at your real daily analyst queue size, and audit overturned freezes separately from confirmed fraud.
 
 ## References and review history
-1. RBI, [Commercial Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/scripts/BS_ViewMasDirections.aspx?id=13642), `RBI/DoS/2026-27/411` (`§§53, 56`), accessed Nov 23, 2026 (parallel `id=13624` PBs, `id=13633` SFBs).
-2. RBI, [Commercial Banks – Fraud Risk Management Directions, 2026](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13641), Jul 2026 (`§§6, 12, 25`), accessed Nov 23, 2026.
-3. RBI, [Discussion Paper – Exploring safeguards in digital payments to curb frauds](https://www.rbi.org.in/scriptS/PublicationsView.aspx?id=23810), Apr 9, 2026 (`§§viii–ix, Option 3`; non-binding), accessed Nov 23, 2026.
-4. PIB / Government of India, [I4C and RBIH MoU on MuleHunter.AI](https://www.pib.gov.in/PressReleasePage.aspx?PRID=2260277&reg=3&lang=2), accessed Nov 23, 2026.
-5. Ahmad, O. & Deodhar, A. (2026), [Money-Mule Detection as a Relational Learning Problem: A Study on the RBIH NFPC Dataset](https://arxiv.org/html/2610.21314v1), `arXiv:2610.21314v1` (§§1, 5, 7.2, 8), accessed Nov 23, 2026.
-6. Zhang, Y. et al. / OCBC Singapore (2026), [Detection, Attribution, Narration: An End-to-End Pipeline for Explainable Money Mule Identification](https://arxiv.org/html/2607.17586v1), `arXiv:2607.17586v1`, accessed Nov 23, 2026.
+1. RBI, [Commercial Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/scripts/BS_ViewMasDirections.aspx?id=13642), `RBI/DoS/2026-27/411` — fraud-linked monitoring parameters (`§53`) and stakeholder coordination SOPs (`§56`), accessed Nov 23, 2026 (parallel `id=13624` PBs, `id=13633` SFBs).
+2. RBI, [Commercial Banks – Fraud Risk Management Directions, 2026](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13641) (Jul 2026) — digital analytics/MI (`§25`), EWS/RFA (`§12`), and 21-day Show Cause Notice + reasoned order (`§6`), accessed Nov 23, 2026 (parallel `id=13623` PBs, `id=13632` SFBs).
+3. RBI, [Discussion Paper – Exploring safeguards in digital payments to curb frauds](https://www.rbi.org.in/scriptS/PublicationsView.aspx?id=23810) (Apr 9, 2026; non-binding consultation) — NCRP SOP, `MuleHunter.AI` context (`§§viii–ix`), and KYC-commensurate credit monitoring (`Option 3`), accessed Nov 23, 2026.
+4. PIB / Government of India, [I4C and RBIH MoU on MuleHunter.AI](https://www.pib.gov.in/PressReleasePage.aspx?PRID=2260277&reg=3&lang=2) — confirms Suspect Registry data-sharing MoU, accessed Nov 23, 2026.
+5. Ahmad, O. & Deodhar, A. (2026), [Money-Mule Detection as a Relational Learning Problem: A Study on the RBIH NFPC Dataset](https://arxiv.org/html/2610.21314v1), `arXiv:2610.21314v1` (`§§1, 5, 7.2, 8`) — Indian NFPC benchmark & PU-bias analysis (academic research lead, not a ready-to-use bank threshold), accessed Nov 23, 2026.
+6. Zhang, Y. et al. / OCBC Singapore (2026), [Detection, Attribution, Narration: An End-to-End Pipeline for Explainable Money Mule Identification](https://arxiv.org/html/2607.17586v1), `arXiv:2607.17586v1` — non-India AML explainability study, accessed Nov 23, 2026.
 
 **Review status:** RBI, PIB, and `arXiv` sources checked 2026-11-23; independent reviewer: `PENDING`.

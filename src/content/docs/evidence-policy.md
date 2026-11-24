@@ -1,22 +1,23 @@
 ---
 title: Evidence and attribution policy
-description: How the Atlas puts reference facts first and separates Official, Industry, Practitioner, and Atlas & research-lead layers.
+description: How the Atlas puts reference facts first and separates Regulatory, Industry practice, Community insight, Research & academic, and Atlas guidance layers.
 ---
 
-India Fintech Risk Atlas is a **reference platform first**; candidate solutions come second. Every record separates verified reference facts from company practices, practitioner accounts, and research ideas across **four evidence layers**:
+India Fintech Risk Atlas is a **reference platform first**; candidate solutions come second. Every record separates verified reference facts from company practices, practitioner accounts, academic paper leads, and editorial guidance across **five evidence layers**:
 
-## Four evidence layers
+## Five evidence layers
 
 | Layer | What it means | Typical attribution |
 | --- | --- | --- |
-| **Official** | Regulator or scheme operator's requirement or guidance, scoped to applicable entities and dates | RBI/NPCI, document, section and date |
-| **Industry** | Published company implementation or case study | Company and original article; `company-reported` |
-| **Practitioner** | A named individual's firsthand public observation or operational lesson | Author, publication date and original link |
-| **Atlas analysis & research refs** | Our synthesis, candidate gap solutions, and academic/research paper leads (`arXiv`, etc.) | Atlas interpretation, paper citation, caveats, and reviewer |
+| **Regulatory** | Regulator or scheme operator's requirement or guidance, scoped to applicable entities and dates | RBI/NPCI, document, section and date |
+| **Industry practice** | Published company implementation or case study | Company and original article; `company-reported` or `vendor-reported` |
+| **Community insight** | A named individual's firsthand public observation or operational lesson | Author, role, publication date and original link |
+| **Research & academic** | Published empirical or academic studies (`arXiv`, workshops, benchmarks) exploring open gaps | Authors, paper ID/venue, dataset period, sample limits, and evaluation caveats |
+| **Atlas guidance** | Editorial synthesis, operational gap framing, candidate controls, telemetry prerequisites, and validation guidance | Atlas synthesis, source links, caveats, and independent reviewer state |
 
-Academic and empirical papers sit under **Layer 4** as candidate ideas for exploring operational gaps—not under **Industry** or **Practitioner**, because papers are typically narrow, short-objective studies rather than ready-to-use production controls.
+Academic and empirical papers sit in their own **Research & academic** layer—separate from **Industry practice**, **Community insight**, and **Atlas guidance**—so narrow benchmark results are never mistaken for production adoption or binding rules, and Atlas suggestions remain clearly attributed.
 
-An industry claim is not a regulatory obligation. A practitioner observation is not universal proof. Research paper leads and Atlas hypotheses require domain validation before production use.
+An industry claim is not a regulatory obligation. A community observation is not universal proof. Research paper leads and Atlas guidance require domain validation before production use, and users should verify original primary sources before taking material action.
 
 ## How we reference others
 We link to original publications and write our own concise summaries, crediting the author or company. We do not reproduce full posts, diagrams, proprietary rules or documents without appropriate rights. Attribution alone does not provide copyright permission.

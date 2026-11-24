@@ -22,30 +22,38 @@ reviewStage: source-checked
 lastSourceCheck: "2026-11-23"
 ---
 
-## Risk mechanism and operational gap
-Account takeover (ATO) occurs when an attacker gains control of a customer's SIM/mobile number, UPI app registration, or credentials—through SIM swap, reassigned/revoked mobile numbers, malware, or social-engineered binding—to execute unauthorized transfers.
+## What it is
+Account takeover (ATO) happens when an attacker steals control of a customer's mobile number, SIM, UPI app login, or credentials and uses that access to drain the account. While bank device checks have reduced pure technical takeovers relative to manipulation scams, silent SIM swaps, recycled mobile numbers, and malware-based re-registration still create high-speed losses.
 
-Operational gaps emerge when device/SIM re-registration lacks binding verification, when contact-detail updates permit immediate high-value transfers, or when downstream payment authorization ignores sudden device, IP, or channel shifts.
+## Impact
+- **Customer:** Rapid unauthorized transfers shortly after a SIM swap, device switch, or mobile-number change.
+- **Bank & PSP:** Sudden shift from trusted-device activity to risky transfers and zero-warning dispute liability checks.
+- **Legitimate users:** Overly rigid device checks after genuine phone upgrades, lost SIM replacements, or travel can lock victims out during emergencies.
 
-## Layer 1 — Official regulatory requirements
-- **Mobile device binding & session re-auth (Banks):** Under *Digital Payment Security Controls Directions, 2026* (`id=13642` Commercial Banks, `id=13624` Payments Banks, `id=13633` Small Finance Banks), `§68(6)` mandates device binding of the mobile app using a combination of hardware, software, and service information (with defined controls if multiple devices are permitted); `§68(8)` requires re-authentication after designated inactivity and at every app launch; `§68(2)(iv)` requires detecting remote-access apps and prohibiting login access; and `§53` cites first-time mobile/internet channel usage, IP anomalies, geo-location, and behavioral biometrics among monitorable alert parameters. [1][2][3]
-- **SIM/device binding & 12-hour cooling period (Non-bank PSOs):** Under *Master Directions on Cyber Resilience and Digital Payment Security Controls for non-bank PSOs* (`RBI/DPSS/2026-27/475`, Nov 5, 2026; Large/Medium effective immediately, Small effective Apr 1, 2028 per §3), `§31(c)` mandates **device binding / fingerprinting** tied to **both the device and SIM** (and re-binding after prolonged disuse), while `§31(g)` requires a **minimum 12-hour cooling period** before allowing online payment transactions after any change in registered mobile number or email ID. [4]
-- **MNRL & ATO vs. APP trend (RBI Discussion Paper):** RBI's *Discussion Paper – Exploring safeguards in digital payments to curb frauds* (Apr 9, 2026; non-binding) notes RBI directions to use the **Mobile Number Revocation List (MNRL)** on DoT's Digital Intelligence Platform (DIP) (`§vii`) and observes that while bank controls have made technical ATO frauds relatively small, Authorised Push Payment (APP) manipulation now dominates (`§x`). [5]
+## Common patterns
+- **SIM swap & silent re-binding:** Attackers transfer the victim's mobile number to a new SIM and re-register UPI on an unfamiliar handset.
+- **Recycled or disconnected mobile numbers:** Reassigned MSISDNs expose dormant accounts or linked VPAs if telecom revocation lists are not checked.
+- **Post-change draining:** Credentials or phone numbers are updated and followed immediately by high-value or first-time-channel payouts.
 
-## Layer 4 — Candidate controls and data prerequisites
-- **Multi-signal device/SIM binding & MNRL hygiene:** Bind app registration to hardware/SIM tokens (`§68(6)`, `§31(c)`), enforce cooling periods on mobile/email/device changes (`§31(g)`), and screen linked mobile numbers against MNRL updates to flag disconnected or reassigned MSISDNs.
-- **Context-aware step-up & alerts:** Trigger out-of-band alerts on new device linkages (`id=13642 §46`) and step up verification when a newly bound device initiates immediate high-value or first-time-channel transfers.
-- **Data prerequisites:** device fingerprint, SIM/IMSI change signals, MSISDN/email update timestamps, IP/ASN & coarse geolocation consistency, active remote-access/emulator flags, authentication success/failure logs.
+## What to do (rules and mitigations)
 
-## False positives, customer impact, and validation
-- **Legitimate lookalikes:** Phone upgrades, lost-phone replacement SIMs, dual-SIM handsets, carrier roaming, OS updates altering device attributes, and VPN usage. Indiscriminate blocks after legitimate SIM swaps lock victims out during travel or emergencies; pair cooling periods with clear customer notifications and documented recovery channels.
-- **Validation:** Test SIM-change + cooling-period enforcement in staging; verify alert delivery on new device linkages; track legitimate re-binding support tickets and false-block overturn rates.
+| Basis | Owner | Action |
+|---|---|---|
+| Regulatory | Commercial, Payments & Small Finance banks | Bind mobile apps to hardware, software, and service identifiers; require re-auth at launch and after inactivity; block access when remote-access apps are detected; monitor first-time channel, IP, geo, and behavioral anomalies. |
+| Regulatory | Non-bank PSOs | Enforce binding tied to both device and SIM (with re-binding after prolonged disuse), plus a minimum 12-hour cooling period for online payments after any mobile-number or email change. |
+| Atlas guidance | Banks, TPAPs, PSPs | Screen customer mobile numbers against the DoT Mobile Number Revocation List (MNRL) to catch disconnected or reassigned numbers early. |
+| Atlas guidance | Banks, TPAPs | Send instant out-of-band alerts on new device linkages, and apply step-up checks when a newly bound device attempts immediate high-value transfers. |
+
+## Watch-outs and validation
+- **Legitimate lookalikes:** Phone upgrades, lost-phone replacement SIMs, dual-SIM handsets, carrier roaming, OS updates altering device fingerprints, and VPN traffic. Always provide clear alerts and documented recovery paths alongside cooling periods.
+- **Signals needed:** Device fingerprint, SIM/IMSI change markers, MSISDN/email update timestamps, IP/ASN & coarse location history, remote-access/emulator flags, and auth attempt logs.
+- **How to validate:** Test cooling-period enforcement in staging after SIM/contact updates, verify out-of-band delivery of new-device alerts, and track support tickets plus false-block overturn rates after OS or SIM upgrades.
 
 ## References and review history
-1. RBI, [Commercial Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/scripts/BS_ViewMasDirections.aspx?id=13642), `RBI/DoS/2026-27/411`, updated Oct 1, 2026 (`§§46, 53, 68(2)(iv), 68(6), 68(8)`), accessed Nov 23, 2026.
-2. RBI, [Payments Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13624), `RBI/DoS/2026-27/429`, updated Oct 1, 2026, accessed Nov 23, 2026.
-3. RBI, [Small Finance Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13633), updated Oct 1, 2026, accessed Nov 23, 2026.
-4. RBI, [Master Directions on Cyber Resilience and Digital Payment Security Controls for non-bank PSOs](https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=13751&Mode=0), `RBI/DPSS/2026-27/475`, Nov 5, 2026 (`§§3, 31(c), 31(g)`), accessed Nov 23, 2026.
-5. RBI, [Discussion Paper – Exploring safeguards in digital payments to curb frauds](https://www.rbi.org.in/scriptS/PublicationsView.aspx?id=23810), Apr 9, 2026 (`§§vii, x`; non-binding), accessed Nov 23, 2026.
+1. RBI, [Commercial Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/scripts/BS_ViewMasDirections.aspx?id=13642), `RBI/DoS/2026-27/411` (updated Oct 1, 2026) — device binding (`§68(6)`), session/launch re-auth (`§68(8)`), remote-access login prohibition (`§68(2)(iv)`), anomaly monitoring (`§53`), and device/limit/PIN change alerts (`§46`), accessed Nov 23, 2026.
+2. RBI, [Payments Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13624), `RBI/DoS/2026-27/429` (updated Oct 1, 2026) — parallel bank controls, accessed Nov 23, 2026.
+3. RBI, [Small Finance Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13633) (updated Oct 1, 2026) — parallel SFB controls, accessed Nov 23, 2026.
+4. RBI, [Master Directions on Cyber Resilience and Digital Payment Security Controls for non-bank PSOs](https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=13751&Mode=0), `RBI/DPSS/2026-27/475` (Nov 5, 2026; Large/Medium effective immediately, Small effective Apr 1, 2028 per `§3`) — device+SIM binding (`§31(c)`) and 12-hour contact-change cooling period (`§31(g)`), accessed Nov 23, 2026.
+5. RBI, [Discussion Paper – Exploring safeguards in digital payments to curb frauds](https://www.rbi.org.in/scriptS/PublicationsView.aspx?id=23810) (Apr 9, 2026; non-binding consultation) — DoT MNRL usage (`§vii`) and observation that technical ATO fraud is relatively small compared to APP scams (`§x`), accessed Nov 23, 2026.
 
 **Review status:** RBI primary sources checked 2026-11-23; independent reviewer: `PENDING`.

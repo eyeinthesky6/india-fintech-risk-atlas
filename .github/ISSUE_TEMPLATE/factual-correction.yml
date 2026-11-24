@@ -1,0 +1,43 @@
+name: Report a factual error or outdated source
+description: Flag an inaccurate claim, missing bank-type carve-out, broken circular link, or outdated regulation on any Atlas page.
+title: "[Correction]: "
+labels:
+  - factual-correction
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping keep India Fintech Risk Atlas accurate. We separate regulatory mandates (`Regulatory`), company docs (`Industry practice`), named operator notes (`Community insight`), empirical papers (`Research & academic`), and our own suggestions (`Atlas guidance`).
+  - type: input
+    id: record
+    attributes:
+      label: Page URL or Record ID
+      description: Example — `UPI-004`, `/upi/account-takeover/`, or the page title.
+      placeholder: UPI-004 — Collect-request deception
+    validations:
+      required: true
+  - type: textarea
+    id: issue_detail
+    attributes:
+      label: What is inaccurate, incomplete, or outdated?
+      description: Quote the sentence or table row that needs fixing, and note any missing entity carve-out (e.g. commercial bank vs SFB/PB/PA) or effective date.
+    validations:
+      required: true
+  - type: input
+    id: source_url
+    attributes:
+      label: Primary source URL (RBI / NPCI / company doc / paper)
+      description: Direct link to the authoritative primary source backing the correction.
+      placeholder: https://www.rbi.org.in/... or https://www.npci.org.in/...
+    validations:
+      required: true
+  - type: textarea
+    id: suggested_fix
+    attributes:
+      label: Suggested plain-English correction (optional)
+      description: How should the row or bullet read in plain language?
+  - type: input
+    id: context
+    attributes:
+      label: Your role or context (optional)
+      description: Only include details you are comfortable sharing publicly on GitHub.

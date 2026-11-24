@@ -33,46 +33,43 @@ reviewStage: source-checked
 lastSourceCheck: "2026-11-23"
 ---
 
-## At a glance
-Unified Payments Interface (UPI) is an interoperable instant payment rail operated by NPCI across multiple regulated and contractual entities. Risk monitoring, authentication, merchant due diligence, reconciliation, and dispute handling do not sit in one place: each participant sees a different slice of transaction, device, and customer telemetry.
+## What it covers
+Unified Payments Interface (UPI) runs across separate banks, TPAP apps, Payment Aggregators, and NPCI rather than inside a single institution. Authentication, fraud monitoring, merchant onboarding, settlement reconciliation, and dispute resolution are split—each participant sees only its own slice of customer, device, and payment telemetry.
 
-## Layer 1 — Official regulatory and scheme framework
-RBI regulations allocate distinct statutory duties across entity classes rather than treating all UPI participants identically:
+## Participant roles at a glance
 
-- **NPCI & Non-bank PSOs:** Under *Master Directions on Cyber Resilience and Digital Payment Security Controls for non-bank Payment System Operators* (`RBI/DPSS/2026-27/475`, Nov 5, 2026), NPCI is categorized as a large non-bank PSO (footnote 1, effective immediately upon publication; small non-bank PSOs effective Apr 1, 2028 per §3). Section 5 governs risk management across linkages with unregulated ecosystem entities through mutual agreements, not direct statutory equivalence. [1]
-- **Commercial Banks, Payments Banks & Small Finance Banks:** Governed separately by entity-scoped *Digital Payment Security Controls Directions, 2026* (`id=13642` for commercial banks excluding SFBs/PBs/LABs; `id=13624` for payments banks; `id=13633` for small finance banks), covering authentication (§§42–51), fraud risk management (§§52–57), and mobile application controls (§68). [2][3][4]
-- **Authentication across participants:** *Authentication Mechanisms for Digital Payment Transactions Directions, 2025* (`RBI/2025-26/79`, compliance by Apr 1, 2026) applies across domestic Payment System Providers and Participants (§4), placing issuer-side responsibility under §9. [5]
-- **Payment Aggregators & Acquiring Banks:** *Master Direction on Regulation of Payment Aggregator (PA)* (`RBI/DPSS/2025-26/141`, Sep 15, 2025, updated Nov 11, 2026) assigns merchant KYC/CDD, MCC allotment, ongoing profile monitoring, and escrow governance to PAs (§§13, 16–18), while requiring acquiring banks to enforce merchant-acquiring policy oversight (§14). [6]
-- **Dispute & ODR channels:** *Online Dispute Resolution (ODR) System for Digital Payments* (`RBI/2020-21/21`, Aug 6, 2020) applies to PSOs, PSPs, and requires TPAPs to provide in-app failed-transaction dispute lodging (Annex §5.2). [7]
-- **NPCI scheme architecture, participants, and role boundaries:** Browser inspection of NPCI's canonical [UPI Overview](https://www.npci.org.in/product/upi), [About UPI](https://www.npci.org.in/product/upi/about-upi), [Roles and Responsibilities](https://www.npci.org.in/product/upi/roles-responsibilities), and [UPI FAQs](https://www.npci.org.in/faqs/upi) (`upihelp.npci.org.in` assistant; organized across Customers, Banks, TPAPs, Merchants, and PPI on UPI) confirms the scheme's operational division of duties [8][9][10]:
-  - *Participants:* UPI App, Payer PSP, Remitter Bank, Payee PSP, Beneficiary Bank, Users, and Merchants [8].
-  - *NPCI:* Approves Issuer Banks, PSP Banks, TPAPs, and PPIs; frames scheme rules, processing, settlement, clearing cut-offs, and dispute management; performs audits; and provides bank reporting, chargeback, and status-update systems [9].
-  - *PSP Bank:* Connects UPI Apps, customers, and merchants; onboards, authenticates, and links accounts; ensures UPI App security and audits; stores UPI transaction data exclusively in India; and maintains customer grievance redressal [9].
-  - *UPI App:* Participates through a sponsor PSP Bank; complies with PSP, NPCI, regulatory, and data-privacy requirements; facilitates audits; and provides end-user grievance redressal via app, web, email, or IVR [9].
-
-## Layer 4 — Operational gaps across actor boundaries
-
-| Participant | Telemetry typically visible | Operational blind spots | Primary control ownership |
+| Participant | Telemetry typically visible | Blind spots | Core control ownership |
 |---|---|---|---|
-| **Remitter (Issuer) Bank** | Account tenure, historical balance/outflows, PIN/auth status, SMS/alert responses | Client app UI warnings, installed rogue apps on third-party TPAPs | Authentication, outbound velocity/EFRM, customer liability & NCRP coordination |
-| **Beneficiary Bank** | Payee KYC, credit inflows, onward fan-out / ATM cash-out, shared address/branch links | Payer's social-engineering context prior to transfer | Mule-account detection (`MuleHunter.AI`), inflow anomaly alerts, `T+1` failed-credit auto-reversals |
-| **PSP Bank / TPAP** | VPA mapping, device/SIM binding, session/screen-mirroring telemetry, payment memo/intent | Full core-banking balance/income history across non-linked banks | Mobile app RASP, intent/payee UX clarity, in-app ODR initiation |
-| **Acquiring Bank / PA** | Merchant onboarding KYC/CPV, MCC, order volume, chargebacks, webhook delivery | Payer's device security or pre-checkout scam coercion | Merchant CDD/MCC vetting, transaction profile monitoring, settlement/dispute workflows |
+| **Remitter (Issuer) Bank** | Account tenure, historical outflows, PIN/auth checks, SMS alert replies | Third-party TPAP UI screens, client-side screen sharing | Authentication, outbound velocity/EFRM, customer liability, NCRP coordination |
+| **Beneficiary Bank** | Payee KYC, credit inflows, onward fan-out / ATM cash-outs, shared branch/address ties | Payer's pre-payment social-engineering context | Mule-funnel detection (`MuleHunter.AI`), inflow alerts, `T+1` failed-credit reversals |
+| **PSP Bank / TPAP** | VPA mapping, device/SIM binding, runtime/screen-share checks, intent metadata | Customer balance/income across unlinked banks | Mobile app security/audits, debit-direction UX clarity, in-app ODR initiation |
+| **Acquiring Bank / PA** | Merchant KYC/CPV, MCC, checkout volume, chargebacks, webhook status | Payer's handset security or phone-call coercion | Merchant CDD/MCC vetting, profile-drift monitoring, escrow/dispute flows |
 
-## False positives, customer impact, and validation
-- **Friction & double-blocking:** Uncoordinated rules across TPAP, remitter bank, and beneficiary bank can repeatedly block legitimate customers or impose prolonged account freezes without clear ownership of unblocking.
-- **Validation:** Map every fraud or reconciliation control to its specific owning entity, data prerequisites, and cross-entity escalation SLA before deployment.
+## Key obligations and boundaries
+
+| Basis | Owner | Rule / operational boundary |
+|---|---|---|
+| Regulatory | NPCI & Non-bank PSOs | NPCI is regulated as a Large non-bank PSO (effective Nov 5, 2026; Small PSOs effective Apr 1, 2028); risk with unregulated ecosystem links is governed via agreements rather than identical bank mandates. Under NPCI scheme rules, NPCI frames operating, settlement, and dispute cutoffs while approving banks and TPAPs. |
+| Regulatory | Commercial, PB & Small Finance banks | Banks follow separate entity-scoped RBI Digital Payment Security Controls covering MFA, EFRM alert parameters, 24-hour settlement reconciliation, and mobile app binding. |
+| Regulatory | Domestic Payment Providers & Participants | RBI's 2025 Authentication Directions apply across domestic payment providers/participants (with explicit recurring e-mandate and Tap-and-Pay UPI exemptions), placing compliance responsibility on issuers. |
+| Regulatory | PSP Banks & UPI Apps (TPAPs) | Under NPCI role rules, **PSP Banks** connect TPAP apps/merchants, onboard/link accounts, enforce app security audits, keep UPI transaction data exclusively in India, and handle grievances; **TPAPs** operate through sponsor PSP banks and must offer in-app ODR dispute lodging. |
+| Regulatory | Payment Aggregators & Acquiring Banks | RBI's PA Master Direction assigns merchant KYC/CDD, MCC accuracy, profile monitoring, and escrow governance to PAs while keeping acquiring banks responsible for policy oversight. |
+| Atlas guidance | Product & risk architects | Map every fraud or recon rule explicitly to its owning institution, required signals, and cross-entity handoff SLA so checks don't silently fall between TPAP and bank boundaries. |
+
+## Watch-outs
+- **Double-blocking & blind spots:** Uncoordinated heuristics across TPAPs, issuer banks, and beneficiary banks can stack conflicting friction or prolong erroneous freezes with unclear unblocking ownership.
+- **No single-entity rulebooks:** Never assume a bank obligation applies identically to a TPAP or Small PSO without verifying entity class and effective dates.
 
 ## References and review history
-1. RBI, [Master Directions on Cyber Resilience and Digital Payment Security Controls for non-bank PSOs](https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=13751&Mode=0), `RBI/DPSS/2026-27/475`, Nov 5, 2026 (§§3–5, footnote 1), accessed Nov 23, 2026.
-2. RBI, [Commercial Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/scripts/BS_ViewMasDirections.aspx?id=13642), `RBI/DoS/2026-27/411`, updated Oct 1, 2026 (Ch. I §3), accessed Nov 23, 2026.
-3. RBI, [Payments Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13624), `RBI/DoS/2026-27/429`, updated Oct 1, 2026 (Ch. I §3), accessed Nov 23, 2026.
-4. RBI, [Small Finance Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13633), updated Oct 1, 2026 (Ch. I §3), accessed Nov 23, 2026.
-5. RBI, [Authentication Mechanisms for Digital Payment Transactions Directions, 2025](https://rbi.org.in/Scripts/NotificationUser.aspx?Id=12898&Mode=0), `RBI/2025-26/79`, Sep 25, 2025 (§§3–4, §9), accessed Nov 23, 2026.
-6. RBI, [Master Direction on Regulation of Payment Aggregator (PA)](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=12896), `RBI/DPSS/2025-26/141`, updated Nov 11, 2026 (§§3, 13–14, 16–18), accessed Nov 23, 2026.
-7. RBI, [Online Dispute Resolution (ODR) System for Digital Payments](https://www.rbi.org.in/Scripts/NotificationUser.aspx?Id=11946&Mode=0), `RBI/2020-21/21`, Aug 6, 2020 (Annex §§1.1, 5.2), accessed Nov 23, 2026.
-8. NPCI, [UPI Overview](https://www.npci.org.in/product/upi) & [About UPI](https://www.npci.org.in/product/upi/about-upi), browser-checked Nov 23, 2026.
-9. NPCI, [UPI Roles and Responsibilities](https://www.npci.org.in/product/upi/roles-responsibilities) (NPCI, PSP Bank, and UPI App tabs), browser-checked Nov 23, 2026.
-10. NPCI, [UPI FAQs](https://www.npci.org.in/faqs/upi), browser-checked Nov 23, 2026.
+1. RBI, [Master Directions on Cyber Resilience and Digital Payment Security Controls for non-bank PSOs](https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=13751&Mode=0), `RBI/DPSS/2026-27/475` (Nov 5, 2026; `§§3–5`, footnote 1 — Large/Medium immediate, Small Apr 1, 2028), accessed Nov 23, 2026.
+2. RBI, [Commercial Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/scripts/BS_ViewMasDirections.aspx?id=13642), `RBI/DoS/2026-27/411` (`Ch. I §3`, updated Oct 1, 2026 — excludes SFBs/PBs/LABs), accessed Nov 23, 2026.
+3. RBI, [Payments Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13624), `RBI/DoS/2026-27/429` (`Ch. I §3`, updated Oct 1, 2026), accessed Nov 23, 2026.
+4. RBI, [Small Finance Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13633) (`Ch. I §3`, updated Oct 1, 2026), accessed Nov 23, 2026.
+5. RBI, [Authentication Mechanisms for Digital Payment Transactions Directions, 2025](https://rbi.org.in/Scripts/NotificationUser.aspx?Id=12898&Mode=0), `RBI/2025-26/79` (Sep 25, 2025; `§§3–4, §9`, `Annexure-1`), accessed Nov 23, 2026.
+6. RBI, [Master Direction on Regulation of Payment Aggregator (PA)](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=12896), `RBI/DPSS/2025-26/141` (updated Nov 11, 2026; `§§3, 13–14, 16–18`), accessed Nov 23, 2026.
+7. RBI, [Online Dispute Resolution (ODR) System for Digital Payments](https://www.rbi.org.in/Scripts/NotificationUser.aspx?Id=11946&Mode=0), `RBI/2020-21/21` (Aug 6, 2020; `Annex §§1.1, 5.2`), accessed Nov 23, 2026.
+8. NPCI, [UPI Overview](https://www.npci.org.in/product/upi) & [About UPI](https://www.npci.org.in/product/upi/about-upi) — scheme participants, browser-checked Nov 23, 2026.
+9. NPCI, [UPI Roles and Responsibilities](https://www.npci.org.in/product/upi/roles-responsibilities) (NPCI, PSP Bank, and UPI App role split, data localization in India), browser-checked Nov 23, 2026.
+10. NPCI, [UPI FAQs](https://www.npci.org.in/faqs/upi) (`upihelp.npci.org.in` grievance guidance across participants), browser-checked Nov 23, 2026.
 
 **Review status:** RBI entity boundaries and browser-accessible NPCI scheme sources checked 2026-11-23; independent reviewer: `PENDING`.

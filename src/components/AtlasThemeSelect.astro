@@ -1,0 +1,143 @@
+---
+---
+
+<atlas-theme-select>
+  <button
+    type="button"
+    aria-label={Astro.locals.t('themeSelect.accessibleLabel')}
+    aria-live="polite"
+    class="sl-flex button"
+    title={Astro.locals.t('themeSelect.accessibleLabel')}
+    data-variant="ghost"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="sun"
+    >
+      <circle cx="12" cy="12" r="4"></circle>
+      <path d="M12 2v2"></path>
+      <path d="M12 20v2"></path>
+      <path d="m4.93 4.93 1.41 1.41"></path>
+      <path d="m17.66 17.66 1.41 1.41"></path>
+      <path d="M2 12h2"></path>
+      <path d="M20 12h2"></path>
+      <path d="m6.34 17.66-1.41 1.41"></path>
+      <path d="m19.07 4.93-1.41 1.41"></path>
+    </svg>
+
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="moon"
+    >
+      <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+    </svg>
+
+    <span class="sr-only">Toggle theme</span>
+  </button>
+</atlas-theme-select>
+
+<style is:global>
+  atlas-theme-select svg {
+    flex-shrink: 0;
+    width: 1rem;
+    height: 1rem;
+    pointer-events: none;
+  }
+
+  html[data-theme='light'] atlas-theme-select svg.sun {
+    display: none;
+  }
+
+  html[data-theme='dark'] atlas-theme-select svg.moon,
+  html:not([data-theme='light']) atlas-theme-select svg.moon {
+    display: none;
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    const storageKey = 'starlight-theme';
+
+    function parseTheme(theme) {
+      return theme === 'auto' || theme === 'dark' || theme === 'light' ? theme : 'auto';
+    }
+
+    function loadTheme() {
+      try {
+        return parseTheme(typeof localStorage !== 'undefined' && localStorage.getItem(storageKey));
+      } catch {
+        return 'auto';
+      }
+    }
+
+    function getPreferredColorScheme() {
+      return matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    }
+
+    function applyTheme(theme, persist) {
+      const resolved = theme === 'auto' ? getPreferredColorScheme() : theme;
+      document.documentElement.dataset.theme = resolved;
+      if (persist) {
+        try {
+          localStorage.setItem(storageKey, theme === 'light' || theme === 'dark' ? theme : '');
+        } catch {
+          // Ignore storage errors
+        }
+      }
+      document.querySelectorAll('atlas-theme-select button').forEach((btn) => {
+        btn.setAttribute('aria-label', 'Switch theme (current: ' + resolved + ')');
+      });
+    }
+
+    if (!window.__atlasThemeSelectInit) {
+      window.__atlasThemeSelectInit = true;
+      applyTheme(loadTheme(), false);
+
+      matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+        if (loadTheme() === 'auto') {
+          applyTheme('auto', false);
+        }
+      });
+
+      if (!customElements.get('atlas-theme-select')) {
+        customElements.define(
+          'atlas-theme-select',
+          class AtlasThemeSelect extends HTMLElement {
+            constructor() {
+              super();
+              const button = this.querySelector('button');
+              const resolved =
+                document.documentElement.dataset.theme === 'dark' ||
+                document.documentElement.dataset.theme === 'light'
+                  ? document.documentElement.dataset.theme
+                  : getPreferredColorScheme();
+              button?.setAttribute('aria-label', 'Switch theme (current: ' + resolved + ')');
+              button?.addEventListener('click', () => {
+                const current =
+                  document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+                const next = current === 'dark' ? 'light' : 'dark';
+                applyTheme(next, true);
+              });
+            }
+          },
+        );
+      }
+    }
+  })();
+</script>

@@ -45,10 +45,11 @@
     "npci": "NPCI"
   },
   "evidenceLayers": {
-    "official": "Official (RBI/NPCI)",
-    "industry": "Industry",
-    "practitioner": "Practitioner",
-    "atlas": "Atlas analysis & research refs"
+    "official": "Regulatory",
+    "industry": "Industry practice",
+    "practitioner": "Community insight",
+    "research": "Research & academic",
+    "atlas": "Atlas guidance"
   },
   "reviewStages": {
     "draft": "Draft",

@@ -3,7 +3,7 @@ title: UPI source register
 description: Verified RBI regulatory texts, NPCI circular status, and research references for UPI risk controls.
 ---
 
-These sources anchor **Layer 1 (Official)** citations across the UPI section alongside **Layer 4** academic/research paper leads cited for candidate gap ideas. A citation supports only the specific scope, entity class, effective date, and provision verified in the document—never blanket requirements across unrelated participants.
+These sources anchor **Regulatory** citations across the UPI section alongside **Research & academic** empirical papers. A citation supports only the specific scope, entity class, effective date, and provision verified in the document—never blanket requirements across unrelated participants.
 
 ## Directly inspected RBI and government primary sources (checked 2026-11-23)
 
@@ -32,9 +32,9 @@ Automated HTTP fetchers receive **HTTP 403 Forbidden** from `www.npci.org.in` WA
 - **Directly verified NPCI circulars & settlement guide:** [UPI Circulars index](https://www.npci.org.in/circulars/upi), [NPCI/UPI/OC/220/2025-26](https://www.npci.org.in/uploads/UPI_OC_No_220_FY_2025_26_Discontinuing_the_service_of_UPI_Collect_Request_for_Person_to_Person_P2_P_transactions_3fb30c60d7.pdf) (P2P Collect discontinued beyond Oct 1, 2025), [NPCI/2025-26/UPI/222A](https://www.npci.org.in/uploads/UPI_OC_No_222_A_FY_2025_26_Addendum_segregation_of_UPI_settlement_cycles_for_Auth_and_disputes_transactions_42766ab9aa.pdf) (`AUTH` 1–10 vs. `DC1`/`DC2` dispute cycles + `DR`, eff. Dec 15, 2025), [NPCI/UPI/OC No. 235/2026-27](https://www.npci.org.in/uploads/UPI_OC_No_235_FY_2026_27_Revision_of_Turnaround_Time_TAT_for_Responding_to_Fraud_and_Wrong_Credit_Chargebacks_in_URCS_Back_Office_System_aa420e4bcc.pdf) (URCS Fraud/Wrong Credit TAT reduced from 35 to 15 calendar days, eff. Aug 1, 2026), and [UPI Settlement Process](https://www.npci.org.in/uploads/UPI_Settlement_Process_256f73e1df.pdf) (§4 Dispute Resolution Mechanism, undated 4 pp. public PDF).
 - **Sole unconfirmed NPCI circular (provisional mirror):** `NPCI/2025-26/IS/003` (*Comprehensive Mobile Application Security Framework for UPI - 2025*, May 19, 2025) does **not** appear publicly under `/circulars/upi` or `/circulars/others`, so it remains cited provisionally via [bank mirror](https://rscb.bank.in/Content/pdf/npcicircular.pdf) and keeps `UPI-008` in `draft`.
 
-## Academic & research paper references (Layer 4 — ideas only)
+## Research & academic references (empirical studies — scope caveats apply)
 
-Academic papers are tracked under **Layer 4** as candidate reference leads for exploring control gaps—not under Industry or Practitioner practice—because papers usually examine narrow datasets or short-term objectives rather than turnkey production rules:
+Academic papers live in their own **Research & academic** layer—separate from **Industry practice**, **Community insight**, and **Atlas guidance**—because empirical studies usually examine narrow datasets or short-term objectives rather than turnkey production bank rules:
 
 1. Ahmad, O. & Deodhar, A. (2026), [Money-Mule Detection as a Relational Learning Problem: A Study on the RBIH NFPC Dataset](https://arxiv.org/html/2610.21314v1), `arXiv:2610.21314v1`.
 2. Dahiphale, D. et al. / Google, Inc. (2024), [Enhancing Trust and Safety in Digital Payments: An LLM-Powered Approach](https://arxiv.org/html/2410.19845v1), `arXiv:2410.19845v1`.

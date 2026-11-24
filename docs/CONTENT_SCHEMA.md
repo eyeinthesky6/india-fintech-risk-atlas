@@ -6,7 +6,7 @@
 
 - **Content first:** One Markdown/MDX file per canonical pattern, control, operational failure, recovery process, or policy explainer. Typed YAML frontmatter (validated by Astro/Zod in `src/content.config.ts`) is the machine-readable index; readable Markdown is the canonical article.
 - **Stable IDs and URLs:** Record identifiers (`UPI-001`, etc., and v2 global `PAT-0001` / `CTRL-0001` IDs) and URL slugs never change when titles or taxonomies evolve.
-- **Strict four evidence layers without duplication:** Attach assertions from the **4 frozen evidence layers** (`official`, `industry`, `practitioner`, `atlas`) to the same canonical record rather than creating separate articles per layer. Academic/research papers sit inside **Layer 4 (`atlas`)** under reference leads for candidate gap solutions—never under `industry` or `practitioner`.
+- **Strict five evidence layers without duplication:** Attach assertions from the **5 frozen evidence layers** (`official`, `industry`, `practitioner`, `research`, `atlas`) to the same canonical record rather than creating separate articles per layer. Academic/research papers sit in their own **`research`** (`Research & academic`) layer—separate from `industry`, `practitioner`, and `atlas`.
 - **Static build, no backend:** Product directories, verification summaries, and Pagefind filter metadata are generated at build time from frontmatter—no database, CMS server, runtime API, or custom search UI.
 
 ## Canonical content entities
@@ -17,10 +17,10 @@
 | `Pattern` | Fraud, scam, AML, or abuse mechanism reusable across products | Canonical articles with `recordId` frontmatter |
 | `Control` | Preventive, detective, or governance measure | Canonical articles with `recordId` frontmatter |
 | `Gap` | Operational or telemetry breakdown enabling a failure mode | Documented per record (`docs/OPERATOR_INTELLIGENCE.md` `GAP-ID`) |
-| `Requirement` | Precisely scoped statutory/regulatory/scheme rule with actor scope & dates | Layer 1 citations inside records + `PRIMARY_SOURCE_REGISTER.md` |
+| `Requirement` | Precisely scoped statutory/regulatory/scheme rule with actor scope & dates | `Regulatory` (`official`) citations inside records + `PRIMARY_SOURCE_REGISTER.md` |
 | `Source` | Immutable versioned source metadata & reuse rights | Linked in references, source registers, and claim ledgers |
 | `Claim` / `Assertion` | Atomic factual/normative assertion paired with locator, layer, and outcome | Markdown table rows in `research/evidence/<RECORD-ID>.md` |
-| `Evaluation` | Academic/empirical method, dataset, baseline, metrics, and caveats | Layer 4 research-lead notes (`OPERATOR_EVIDENCE.md` `RES-*` / v2 `EVAL-*`) |
+| `Evaluation` | Academic/empirical method, dataset, baseline, metrics, and caveats | `Research & academic` (`research`) lead notes (`OPERATOR_EVIDENCE.md` `RES-*` / v2 `EVAL-*`) |
 | `Case` | Publicly documented incident or clearly marked illustrative scenario | Inline examples & case citations |
 | `Glossary` | Canonical definitions and operational distinctions | `src/content/docs/upi/glossary.md` |
 
@@ -48,7 +48,7 @@ actors:
   - payment-aggregator
 evidenceLayers:
   - official
-  - atlas                          # Only 4 layers allowed: official | industry | practitioner | atlas
+  - atlas                          # Only 5 keys allowed: official | industry | practitioner | research | atlas
 reviewStage: source-checked         # Must match research/attestations/<RECORD-ID>.md Stage:
 blockerNote: ""                     # Optional; rendered in caution banner when draft/researching
 lastSourceCheck: "2026-11-23"
@@ -62,7 +62,7 @@ Starlight overrides (`src/components/AtlasMarkdownContent.astro`) look up displa
 ### Enforced in v1 (single source of truth: [src/taxonomy.json](../src/taxonomy.json))
 
 - **`products`, `recordType`, `theme`, `lifecycle`, `actors`, `evidenceLayers`, `reviewStage`, and `recordIdPattern`:** See [src/taxonomy.json](../src/taxonomy.json) for the authoritative list of allowed keys and display labels.
-- **Editorial scope discipline:** Keep legal/regulatory citations separated per entity class (commercial bank vs. payments bank vs. small finance bank vs. non-bank PSO vs. payment aggregator). Academic/research papers are tagged under `atlas` as research paper leads, not `industry` or `practitioner`.
+- **Editorial scope discipline:** Keep legal/regulatory citations separated per entity class (commercial bank vs. payments bank vs. small finance bank vs. non-bank PSO vs. payment aggregator). Academic/research papers are tagged under `research` as Research & academic leads, not `industry`, `practitioner`, or `atlas`.
 
 ### Planned for v2 roadmap (not enforced in v1 build)
 
@@ -114,26 +114,24 @@ Publication status: BLOCKED until independent reviewer verification.
 | Claim ID | Layer | Claim | Source | Exact locator | Scope & effective date | Result |
 |---|---|---|---|---|---|---|
 | `UPI-001-C1` | Official | Concise paraphrased claim. | [Source Title](https://...) | Ch. III §53 (Oct 1, 2026) | Commercial banks (excl. PBs/SFBs) | supported (primary checked YYYY-MM-DD; independent review pending) |
-| `UPI-001-C2` | Atlas (research ref) | Narrow empirical finding cited as gap idea. | [arXiv:2610.21314v1](https://...) | §4, Fig. 2 | Public NFPC benchmark (not turnkey rule) | supported (source checked YYYY-MM-DD; independent review pending) |
+| `UPI-001-C2` | Research & academic | Narrow empirical finding cited as gap idea. | [arXiv:2610.21314v1](https://...) | §4, Fig. 2 | Public NFPC benchmark (not turnkey rule) | supported (source checked YYYY-MM-DD; independent review pending) |
 ```
 
-- Valid `Layer` cell labels: `Official`, `Official (mirror)`, `Industry`, `Practitioner`, `Atlas (research ref)`, `Atlas`.
+- Valid `Layer` cell labels: `Regulatory` / `Official`, `Official (mirror)`, `Industry practice` / `Industry`, `Community insight` / `Practitioner`, `Research & academic` / `Atlas (research ref)`, `Atlas guidance` / `Atlas`.
 - Any row containing `| PENDING |`, `| unverified |`, or `| blocked... |` in the `Result` column prevents promotion to `source-checked`, `reviewed`, or `published`.
 
-## Canonical article section blueprint (single repository format)
+## Canonical Ready-Reckoner article section blueprint (single repository format)
 
-All records follow this unified 8-part layout, keeping **reference facts first** and **candidate solutions second**:
+All records follow this unified **Ready-Reckoner** layout, keeping plain-English scanning first, colour-keyed **Basis** controls second, and merged reference proof collapsed at the bottom:
 
-1. **Risk mechanism and operational gap** *(or **At a glance** for explainers)*: How the pattern or failure works at a non-evasion level, which telemetry/UX boundary breaks, and affected roles.
-2. **Layer 1 — Official regulatory and scheme context** *(when applicable)*: Scoped obligations or non-binding consultations with exact circular ID, section/clause, effective date, and excluded entities.
-3. **Layer 2 — Company-reported industry practices** *(when observed)*: Attributed operator documentation or engineering posts marked `company-reported` / `vendor-reported`.
-4. **Layer 3 — Practitioner observations** *(when observed)*: Dated firsthand human practitioner observations (`single-source practitioner observation` unless corroborated). *Omit when none verified; never place academic papers here.*
-5. **Layer 4 — Candidate controls, data prerequisites, and research references** *(Atlas synthesis)*: Controls tailored to the operational gap, required telemetry/data access limits, and an optional `### Research paper leads (ideas for gaps, not ready-to-use rules)` subsection summarizing academic studies with sample/objective caveats.
-6. **False positives, customer impact, and validation**: Legitimate lookalikes, friction/disruption risks, investigation workflow notes, and offline/shadow validation methods (without copy-paste evasion thresholds).
-7. **Related records** *(where helpful)*.
-8. **References and review history**: Numbered external citations (every URL must appear in `research/evidence/<RECORD-ID>.md`), access/blocker status, and `Independent reviewer` state.
+1. **What it is** *(or **What it solves** / **What it covers**)*: Plain-English explanation of the fraud pattern, control, failure, or overview, affected roles, and which telemetry/UX boundary breaks—followed where helpful by a concise **Impact** subsection.
+2. **Common patterns** *(or **When it applies**)*: Bulleted real-world variants, operational triggers, or scenario paths in plain language without vague prose paragraphs.
+3. **What to do** *(3-column `Basis | Owner | Action` checklist)*: Each actionable row is tagged by its exact evidence basis (`Regulatory`, `Industry practice`, `Community insight`, `Research & academic`, or `Atlas guidance`), the responsible `Owner` (`Remitter bank`, `PSP bank`, `TPAP`, `PA`, `Customer`), and the concrete `Action` with citation anchors (`<a href="#ref-N">[N]</a>`). Optional subheadings (such as `### Data prerequisites` or `### Research paper leads`) stay inside this plain-English operational flow.
+4. **Watch-outs and validation**: Legitimate lookalikes, false-positive friction risks, legal/scope boundaries, and shadow/replay validation methods (without copy-paste evasion thresholds).
+5. **Related records** *(where helpful)*.
+6. **Sources, legal scope & review history** *(bottom collapsed `<details>` drawer built under `## References and review history`)*: Entity-class scope caveats, `Independent reviewer` state, `Researcher`, `Last source check`, and numbered external citations `[1]..[N]` (`id="ref-N"`) verified against `research/evidence/<RECORD-ID>.md`. The page component (`AtlasMarkdownContent.astro`) renders the Record Dossier (`5 evidence layers`) and best-effort legal disclaimer with **Report a factual error** link below the main content.
 
-Omit empty layers rather than padding; never imply that missing public operator documentation makes a control unnecessary.
+Use only real citations from the page's verified sources; never fabricate company practices or academic claims to fill rows.
 
 ## Cross-product reuse and v2 migration
 
@@ -142,5 +140,5 @@ Omit empty layers rather than padding; never imply that missing public operator 
 
 ## Search facets (Pagefind, zero server)
 
-- **Implemented P0/P1 facets:** `product`, `record_type`, `stage` (`reviewStage`), `lifecycle`, `actor`, `evidence_layer` (4 layers) — emitted from frontmatter via `data-pagefind-filter` attributes in `src/components/AtlasMarkdownContent.astro`.
-- **Planned v2 P2 additions:** evidence strength filter, last-verified range, static `llms.txt` + build-time JSON/CSV catalogue, and a post-launch **read-only MCP server** exposing canonical records, evidence ledgers, entity scopes, and `reviewStage` metadata to external AI agents once live.
+- **Implemented P0/P1 facets:** `product`, `record_type`, `stage` (`reviewStage`), `lifecycle`, `actor`, `evidence_layer` (5 layers) — emitted from frontmatter via `data-pagefind-filter` attributes in `src/components/AtlasMarkdownContent.astro`.
+- **Planned v2 P2 additions:** actor persona-based matrix filtering (`TPAP`, `Bank`, `PA`), interactive/exportable readiness & self-audit gap checklists, evidence strength filter, last-verified range, static `llms.txt` + build-time JSON/CSV catalogue, and a post-launch **read-only MCP server** exposing canonical records, evidence ledgers, entity scopes, and `reviewStage` metadata to external AI agents once live.

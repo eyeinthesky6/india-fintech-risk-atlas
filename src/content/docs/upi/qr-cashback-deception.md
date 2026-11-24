@@ -18,41 +18,46 @@ actors:
 evidenceLayers:
   - official
   - industry
+  - research
   - atlas
 reviewStage: source-checked
 lastSourceCheck: "2026-11-23"
 ---
 
-## Risk mechanism and operational gap
-Fraudsters distribute QR codes or payment links promising cashbacks, refunds, lottery winnings, or marketplace advances. Scanning the QR or opening the link pre-fills an **outgoing payment** to an attacker-controlled VPA or merchant; victims who believe entering a UPI PIN "claims" funds inadvertently authorize a debit. A technical variant tampers with unsigned UPI deep-link parameters (`pa`, `pn`, `am`) to substitute a fraudster's VPA or alter the amount.
+## What it is
+Fraudsters share QR codes or payment links promising cashbacks, refunds, prizes, or advance payments. Scanning the QR or tapping the link pre-fills an **outgoing payment** to an attacker-controlled VPA or merchant, so victims who enter their UPI PIN thinking they are "claiming" money authorize a debit instead. In a technical variant, attackers alter unsigned UPI deep-link parameters (`pa`, `pn`, `am`) to swap the payee or amount.
 
-## Layer 1 — Official regulatory and scheme context
-- **NPCI Fraud Awareness guidance:** Directly browser-verified on Nov 23, 2026, NPCI's public [Fraud Awareness](https://www.npci.org.in/fraud-awareness) guidance (*Fake Cash back links* and *QR Codes* under *Fraud Trends against which users should be vigilant*) warns that scammers circulate fake cashback links or claim a "system error" / "wrong account" requiring a small initial transfer followed by double or larger amounts, and states explicitly that scanning a QR code and entering a UPI PIN is only for **making payments**, never for receiving money. [1]
-- **Authorised Push Payment deception (RBI):** RBI's *Discussion Paper – Exploring safeguards in digital payments to curb frauds* (Apr 9, 2026; non-binding) identifies user manipulation via social engineering as the primary driver of modern digital payment frauds (§§iii, x). [2]
-- **Merchant identity in customer alerts:** Under RBI's *Digital Payment Security Controls Directions, 2026* (`id=13642 §47` Commercial Banks; `id=13624 §47` Payments Banks; `id=13633 §47` SFBs), customer alerts and OTPs for online transactions must identify the **merchant name** (wherever applicable) rather than only the intermediary payment aggregator, aiding payer verification. [3]
-- **Directed warnings & coercion scope:** Under `RBI/2026-27/167` (`Id=13543`, effective Jan 1, 2027 for commercial banks), `§4(15A)` includes approvals granted under deception/duress within *Fraudulent EBT*, and `§4(20C)(iii)` makes clear, directed bank scam warnings operationally consequential. [4]
+## Impact
+- **Customer:** Instant unauthorized-looking loss even though the victim entered their PIN, creating complex dispute cases.
+- **Bank & PSP:** Repeat scam complaints against newly spun-up or compromised payee VPAs and unsigned merchant links.
+- **Merchant & App:** Tampered deep links erode checkout trust when payment amounts or displayed names diverge from orders.
 
-## Layer 2 — Company-reported industry practices
-- **Signed Intent (`company-reported`):** Razorpay documents **Signed Intent** (digitally signing the payment request payload before mobile deep-link redirection) to prevent tampering with transaction amount or payee details during app handoff. [5]
+## Common patterns
+- **Fake cashback or reward QR:** Scammer sends a QR or link claiming cashback/prize credit upon UPI PIN entry.
+- **Test-transfer doubling trick:** Fraudster blames a "system error" or "wrong account", asking for a small initial payment followed by larger transfers to unlock returns.
+- **Tampered payment link:** Attackers rewrite payee address (`pa`) or amount (`am`) fields inside unsigned `upi://pay` links during checkout handoff.
 
-## Layer 4 — Candidate controls, data prerequisites, and research references
-- **Cryptographic intent validation (PAs / merchants / TPAPs):** Prefer Signed Intent / Dynamic QR payloads verified server-side against expected order IDs and amounts; reject or warn on unsigned or tampered deep links.
-- **Payee & direction clarity at scan time (TPAPs):** Display verified payee name, merchant category, and warning prompts when a gallery-imported QR image or external link targets an unverified or high-risk VPA (especially first-time payees).
-- **Data prerequisites:** initiation source (`camera_qr`, `gallery_qr`, `external_intent`, `signed_intent`), payee VPA/MID/MCC, scam/spam report history on payee VPA (`id=13642 §53`), payer-payee graph novelty.
+## What to do (rules and mitigations)
 
-### Research paper leads (ideas for gaps, not ready-to-use rules)
-- **Text & initiation-mode signals (`arXiv:2410.19845v1`):** In Google's empirical UPI scam-detection study on GPay India data, Dahiphale et al. evaluate analyzing initiation modes (`qr_scan`, `app_intent`, `payment_request`), order memo text, payer/payee history, and user spam reports—reporting >88% recall alongside ~30% precision on evaluated splits, underscoring why ambiguous signals require step-up friction or human review rather than blind auto-blocking. [6]
+| Basis | Owner | Action |
+|---|---|---|
+| Regulatory | Banks, NPCI ecosystem | Warn payers clearly that scanning a QR code and entering a UPI PIN is always for paying, never receiving money; show actual merchant names (not only intermediary aggregator names) on online transaction alerts and OTPs. |
+| Regulatory | Commercial banks | Classify deception-induced approvals as fraudulent transactions (effective Jan 1, 2027), and record clear, directed scam warnings shown before confirmation. |
+| Industry practice | PAs, Merchants, Apps | Digitally sign UPI payment links (`Signed Intent`) before app handoff so payee VPA and amount cannot be mutated mid-flow. |
+| Research & academic | Risk engineering teams | Empirical GPay India study reports >88% recall when scoring initiation mode (`qr_scan`, `app_intent`, `payment_request`), memo text, payee history, and spam flags—but ~30% precision on evaluated splits makes hard auto-blocks too noisy without step-up or analyst review. |
+| Atlas guidance | TPAPs, PSPs | Verify Signed Intent / Dynamic QR payloads server-side; surface prominent warnings when gallery-imported QR images or external links pay a new or previously reported VPA. |
 
-## False positives, customer impact, and validation
-- **Legitimate lookalikes:** Genuine merchant cashback offers, dynamic point-of-sale QR codes, gallery-saved utility/kirana QR screenshots, and peer reimbursements.
-- **Validation:** Test unsigned/mutated intent link rejection in QA; measure warning comprehension and false-positive friction rates on gallery-QR retail merchants before tightening blocks.
+## Watch-outs and validation
+- **Legitimate lookalikes:** Genuine merchant cashback campaigns, dynamic POS QR checkouts, gallery-saved utility/kirana QR screenshots, and peer reimbursements.
+- **Signals needed:** Initiation mode (`camera_qr`, `gallery_qr`, `external_intent`, `signed_intent`), payee VPA/MID/MCC, payee scam/spam report history, and payer-payee prior history.
+- **How to validate:** Test rejection of unsigned or mutated `upi://pay` deep links in QA; measure user warning comprehension and false-positive drop-off on legitimate gallery QR retail payments before tightening friction.
 
 ## References and review history
-1. NPCI, [Fraud Awareness](https://www.npci.org.in/fraud-awareness) (*Fraud Trends against which users should be vigilant*), browser-checked Nov 23, 2026.
-2. RBI, [Discussion Paper – Exploring safeguards in digital payments to curb frauds](https://www.rbi.org.in/scriptS/PublicationsView.aspx?id=23810), Apr 9, 2026 (§§iii, x; non-binding), accessed Nov 23, 2026.
-3. RBI, [Commercial Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/scripts/BS_ViewMasDirections.aspx?id=13642), `RBI/DoS/2026-27/411` (§§47, 53), accessed Nov 23, 2026 (parallel `id=13624` PBs, `id=13633` SFBs).
-4. RBI, [Commercial Banks – Responsible Business Conduct Third Amendment Directions, 2026](https://rbi.org.in/Scripts/NotificationUser.aspx?Id=13543&Mode=0), `RBI/2026-27/167` (`§§4(15A), 4(20C)(iii)`), accessed Nov 23, 2026.
-5. Razorpay, [UPI Intent vs Collect: Which Flow Actually Works Better in 2026?](https://razorpay.com/blog/upi-intent-vs-collect-success-rates/), Apr 9, 2026, accessed Nov 23, 2026 (company-reported).
-6. Dahiphale, D. et al. / Google, Inc. (2024), [Enhancing Trust and Safety in Digital Payments: An LLM-Powered Approach](https://arxiv.org/html/2410.19845v1), `arXiv:2410.19845v1`, accessed Nov 23, 2026.
+1. NPCI, [Fraud Awareness](https://www.npci.org.in/fraud-awareness) (*Fake Cash back links* and *QR Codes* under *Fraud Trends against which users should be vigilant*), browser-checked Nov 23, 2026.
+2. RBI, [Discussion Paper – Exploring safeguards in digital payments to curb frauds](https://www.rbi.org.in/scriptS/PublicationsView.aspx?id=23810) (Apr 9, 2026; non-binding consultation) — identifies social-engineering user manipulation as primary digital payment fraud driver (`§§iii, x`), accessed Nov 23, 2026.
+3. RBI, [Commercial Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/scripts/BS_ViewMasDirections.aspx?id=13642), `RBI/DoS/2026-27/411` — merchant name visibility in online transaction alerts/OTPs (`§47`) and VPA/mobile-number monitoring parameters (`§53`), accessed Nov 23, 2026 (parallel `id=13624` PBs, `id=13633` SFBs).
+4. RBI, [Commercial Banks – Responsible Business Conduct Third Amendment Directions, 2026](https://rbi.org.in/Scripts/NotificationUser.aspx?Id=13543&Mode=0), `RBI/2026-27/167` (Jun 24, 2026; effective Jan 1, 2027 for commercial banks excluding SFBs/PBs/RRBs/LABs) — `§§4(15A), 4(20C)(iii)`, accessed Nov 23, 2026.
+5. Razorpay, [UPI Intent vs Collect: Which Flow Actually Works Better in 2026?](https://razorpay.com/blog/upi-intent-vs-collect-success-rates/) (Apr 9, 2026) — company-reported guide documenting `Signed Intent` payload verification, accessed Nov 23, 2026.
+6. Dahiphale, D. et al. / Google, Inc. (2024), [Enhancing Trust and Safety in Digital Payments: An LLM-Powered Approach](https://arxiv.org/html/2410.19845v1), `arXiv:2410.19845v1` — empirical GPay India study (dataset/evaluation constraints prevent treating metrics as universal bank thresholds), accessed Nov 23, 2026.
 
 **Review status:** NPCI Fraud Awareness, RBI, Razorpay, and `arXiv` sources checked 2026-11-23; independent reviewer: `PENDING`.

@@ -23,13 +23,13 @@ Do not duplicate canonical rules from prose—read the live repository files dir
 | Concern | Single Source of Truth |
 |---|---|
 | Allowed `products`, `recordType`, `theme`, `lifecycle`, `actors`, `evidenceLayers`, `reviewStage` | [src/taxonomy.json](../../../src/taxonomy.json) |
-| Frontmatter shape, 4-layer model, 8-section layout | [docs/CONTENT_SCHEMA.md](../../../docs/CONTENT_SCHEMA.md) |
+| Frontmatter shape, 5-layer model, Ready-Reckoner layout | [docs/CONTENT_SCHEMA.md](../../../docs/CONTENT_SCHEMA.md) |
 | Research protocol, precedence, source map, stopping rules | [docs/RESEARCH_PROTOCOL.md](../../../docs/RESEARCH_PROTOCOL.md) |
 | Rights, paraphrasing, third-party limits | [docs/EVIDENCE_LAYERS_AND_RIGHTS.md](../../../docs/EVIDENCE_LAYERS_AND_RIGHTS.md) |
 | Per-record attestation checkboxes (12 items) | [docs/ATTESTATION_TEMPLATE.md](../../../docs/ATTESTATION_TEMPLATE.md) |
 | Verified UPI regulatory & industry registries | [research/upi/PRIMARY_SOURCE_REGISTER.md](../../../research/upi/PRIMARY_SOURCE_REGISTER.md), [research/upi/OPERATOR_EVIDENCE.md](../../../research/upi/OPERATOR_EVIDENCE.md) |
 
-> **Strict layer reminder:** Keep strictly **four** layers (`official`, `industry`, `practitioner`, `atlas`). Academic papers (`arXiv`, journals) belong exclusively under **Layer 4 (`atlas`)** as idea leads for exploring gaps—never under `industry` or `practitioner`.
+> **Strict layer reminder:** Keep strictly **five** layers (`official`, `industry`, `practitioner`, `research`, `atlas`). Academic papers (`arXiv`, journals) belong exclusively under **`research` (`Research & academic`)** with dataset/sample caveats—never under `industry`, `practitioner`, or `atlas`.
 
 ---
 
@@ -38,7 +38,7 @@ Do not duplicate canonical rules from prose—read the live repository files dir
 ### State 1: Adding a new canonical record (`1–5` records max per PR)
 **When:** Creating a new entry under `src/content/docs/<product>/`.
 1. Search existing records and registers first to deduplicate by underlying mechanism (not surface title).
-2. Draft the article using typed YAML frontmatter matching `src/taxonomy.json` and the 8-part layout in `docs/CONTENT_SCHEMA.md` (reference facts first, candidate controls second, plain language, no actionable evasion thresholds).
+2. Draft the article using typed YAML frontmatter matching `src/taxonomy.json` and the Ready-Reckoner layout in `docs/CONTENT_SCHEMA.md` (plain-English overview and reference facts first, layered `Basis | Owner | Action` controls and watch-outs second, merged collapsed bottom drawer, no actionable evasion thresholds).
 3. Open **100%** of cited primary sources and create both paired files:
    - `research/evidence/<RECORD-ID>.md` (exact `Claim ID | Layer | Claim | Source | Exact locator | Scope & effective date | Result` pipe table containing every external URL listed in `## References`).
    - `research/attestations/<RECORD-ID>.md` (copied from `docs/ATTESTATION_TEMPLATE.md`).
@@ -61,7 +61,7 @@ Follow the detailed walkthrough in [references/browser-verification-checklist.md
 1. **Open the exact URL in a real browser** (for agents: invoke the `browser` subagent or inspect via Chrome DevTools; for human contributors: open cleanly in Chrome/Edge/Firefox).
 2. **Catch soft-404s and dead SPA routes:** Never trust a bare HTTP status code. Confirm the visible page title, `<h1>`, and body render actual content instead of an Angular/React `"Page Not Found"` / `"404"` screen. If moved, navigate from the official portal menu to find the live canonical URL.
 3. **Inspect interactive widgets & PDFs visually:** Click role tabs/accordions (e.g., NPCI *NPCI / PSP Bank / UPI App* tabs), search official circular indexes by year/keyword, and open official PDF links directly to verify exact circular number, issue date, effective date, addressee/entity scope, clause numbers, and any addendum/deemed-acceptance rules.
-4. **Confirm supersession before trusting old claims:** Search RBI Notifications (`rbi.org.in`) and NPCI Circulars (`npci.org.in/circulars/upi`) for amendments dated *after* the cited document. If a vendor blog claims a circular rule that is absent from public indexes (e.g., manual VPA mobile restrictions), keep that assertion strictly labeled `company-reported` in Layer 2.
+4. **Confirm supersession before trusting old claims:** Search RBI Notifications (`rbi.org.in`) and NPCI Circulars (`npci.org.in/circulars/upi`) for amendments dated *after* the cited document. If a vendor blog claims a circular rule that is absent from public indexes (e.g., manual VPA mobile restrictions), keep that assertion strictly labeled `company-reported` in `Industry practice` (`industry`).
 5. **Log exact provenance cleanly:** Record `browser-checked on <host> YYYY-MM-DD` (plus exact PDF URL, tab name, clause, and publication date) in `research/evidence/<ID>.md`. Never commit downloaded third-party PDFs into the repo (`LICENSE-CODE` / reuse rights).
 
 ### State 4: Non-public, member-only, login-walled, or CAPTCHA-gated source -> Honest Stop
@@ -110,6 +110,6 @@ npm run build
 
 - **Self-certifying review:** Never fill `Independent reviewer:` with the authoring agent/person or tick boxes `8–10` or `12` in the same PR.
 - **Treating `HTTP 200` as live content:** SPA sites like `npci.org.in` return `HTTP 200` shells for removed URLs—always check DOM text visually in browser mode.
-- **Mixing evidence layers:** Never cite `arXiv` papers as Layer 2 (`Industry`) or Layer 3 (`Practitioner`), and never cite a company blog as a binding NPCI/RBI rule.
+- **Mixing evidence layers:** Never cite `arXiv` papers as `Industry practice` (`industry`), `Community insight` (`practitioner`), `Regulatory` (`official`), or `Atlas guidance` (`atlas`), and never cite a company blog as a binding NPCI/RBI rule.
 - **Committing downloaded primary PDFs:** Always cite canonical issuer URLs and paraphrase original summaries rather than mirroring protected files in git.
 - **Unbounded diffs:** Keep UI component edits (`src/components/*`) separate from content/evidence updates, and keep PRs to `1–5` related records.

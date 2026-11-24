@@ -1,0 +1,771 @@
+---
+interface Props {
+  recordId: string;
+  pageTitle: string;
+  pagePath: string;
+  fallbackIssueUrl: string;
+}
+
+const { recordId, pageTitle, pagePath, fallbackIssueUrl } = Astro.props;
+
+const reportEndpoint = (import.meta.env.PUBLIC_REPORT_ENDPOINT ?? '').trim();
+const turnstileSiteKey = (import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '').trim();
+
+const configJson = JSON.stringify({
+  recordId,
+  pageTitle,
+  pagePath,
+  fallbackIssueUrl,
+  reportEndpoint,
+  turnstileSiteKey,
+}).replace(/</g, '\\u003c');
+
+const REASONS = [
+  'Outdated circular',
+  'Wrong bank / entity scope',
+  'Broken or wrong source',
+  'Unclear / typo',
+] as const;
+---
+
+<div class="atlas-reporter-root not-content" data-pagefind-ignore>
+  <div class="atlas-accuracy-strip atlas-accuracy-strip--bottom" data-atlas-accuracy-bar>
+    <div class="atlas-accuracy-strip__actions">
+      <button type="button" class="atlas-action-btn atlas-accuracy-btn" data-atlas-mark-accurate>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="13"
+          height="13"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span data-accurate-label>Looks accurate</span>
+      </button>
+
+      <button type="button" class="atlas-action-btn atlas-accuracy-btn atlas-accuracy-btn--report" data-atlas-start-report>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="13"
+          height="13"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+          <line x1="4" y1="22" x2="4" y2="15"></line>
+        </svg>
+        <span>Report an error</span>
+      </button>
+    </div>
+  </div>
+
+  <script type="application/json" is:inline data-atlas-reporter-config set:html={configJson}></script>
+
+  <div class="atlas-reporter-overlay not-content" data-atlas-reporter-overlay data-pagefind-ignore>
+    <div class="atlas-report-banner" data-atlas-select-banner role="region" aria-label="Guided error selection" hidden>
+      <div class="atlas-report-banner__text">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+          <line x1="4" y1="22" x2="4" y2="15"></line>
+        </svg>
+        <span>Click any section or drag-highlight the exact line that looks wrong</span>
+      </div>
+      <div class="atlas-report-banner__actions">
+        <button type="button" class="atlas-action-btn" data-atlas-report-whole>Report whole page</button>
+        <button type="button" class="atlas-action-btn" data-atlas-cancel-select>Cancel</button>
+      </div>
+    </div>
+
+    <button type="button" class="atlas-selection-pill" data-atlas-selection-pill hidden>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="12"
+        height="12"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+        <line x1="4" y1="22" x2="4" y2="15"></line>
+      </svg>
+      <span>Report an error</span>
+    </button>
+
+    <div class="atlas-report-backdrop" data-atlas-report-backdrop hidden>
+      <div
+        class="atlas-report-dialog"
+        data-atlas-report-dialog
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="atlas-report-dialog-title"
+      >
+        <div class="atlas-report-dialog__header">
+          <div>
+            <h2 id="atlas-report-dialog-title" class="atlas-report-dialog__title">Report a factual error</h2>
+            <p class="atlas-report-dialog__sub" data-atlas-dialog-sub></p>
+          </div>
+          <button
+            type="button"
+            class="atlas-report-dialog__close"
+            data-atlas-dialog-close
+            aria-label="Close"
+          >
+            &times;
+          </button>
+        </div>
+
+        <form class="atlas-report-form" data-atlas-report-form novalidate>
+          <div class="atlas-report-quote" data-atlas-quote-box hidden>
+            <div class="atlas-report-quote__head">
+              <span>Selected text</span>
+              <button type="button" class="atlas-report-quote__clear" data-atlas-clear-quote>Clear quote</button>
+            </div>
+            <blockquote data-atlas-quote-text></blockquote>
+          </div>
+
+          <div class="atlas-report-field">
+            <span class="atlas-report-label">What looks wrong?</span>
+            <div class="atlas-report-reasons" role="group" aria-label="Error category">
+              {REASONS.map((reason, idx) => (
+                <button
+                  type="button"
+                  class="atlas-reason-chip"
+                  data-atlas-reason={reason}
+                  aria-pressed={idx === 0 ? 'true' : 'false'}
+                >
+                  {reason}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <label class="atlas-report-field">
+            <span class="atlas-report-label">Note (optional)</span>
+            <textarea
+              name="note"
+              rows="3"
+              maxlength="500"
+              class="atlas-report-input"
+              placeholder="Briefly explain what looks wrong or what should change (optional)..."
+            ></textarea>
+          </label>
+
+          <label class="atlas-report-field">
+            <span class="atlas-report-label">Primary RBI / NPCI link (optional)</span>
+            <input
+              type="url"
+              name="sourceUrl"
+              maxlength="300"
+              class="atlas-report-input"
+              placeholder="https://www.rbi.org.in/... or https://www.npci.org.in/..."
+            />
+          </label>
+
+          <input
+            type="text"
+            name="website"
+            tabindex="-1"
+            autocomplete="off"
+            aria-hidden="true"
+            class="atlas-hp-field"
+          />
+
+          {turnstileSiteKey && <div class="atlas-turnstile-wrap" data-atlas-turnstile></div>}
+
+          <div class="atlas-report-dialog__footer">
+            <span class="atlas-report-privacy">Reviewed manually before any live change.</span>
+            <button type="submit" class="atlas-report-submit" data-atlas-submit-btn>Send report</button>
+          </div>
+        </form>
+
+        <div class="atlas-report-result" data-atlas-report-result hidden>
+          <div class="atlas-report-result__status" data-atlas-result-status></div>
+          <pre class="atlas-report-result__preview" data-atlas-result-preview hidden></pre>
+          <div class="atlas-report-result__actions">
+            <a
+              href={fallbackIssueUrl}
+              target="_blank"
+              rel="noreferrer"
+              class="atlas-action-btn atlas-report-fallback-link"
+              data-atlas-fallback-link
+            >
+              Or open pre-filled GitHub Issue &rarr;
+            </a>
+            <button type="button" class="atlas-action-btn" data-atlas-dialog-done>Done</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (() => {
+    if (window.__atlasErrorReporterBound) return;
+    window.__atlasErrorReporterBound = true;
+
+    const EXCLUDED_SELECTOR =
+      '.not-content, .atlas-dossier, .atlas-disclaimer, .atlas-refs-section, .atlas-accuracy-strip, .atlas-reporter-root, .atlas-reporter-overlay';
+    const SELECTABLE_SELECTOR = 'tr, li, p, blockquote, .sl-heading-wrapper';
+    const STORAGE_KEY = 'atlas-accurate:' + window.location.pathname;
+
+    function getConfig() {
+      const el = document.querySelector('script[data-atlas-reporter-config]');
+      if (!el) return null;
+      try {
+        return JSON.parse(el.textContent || '{}');
+      } catch {
+        return null;
+      }
+    }
+
+    function promoteOverlayToBody() {
+      document.querySelectorAll('body > [data-atlas-reporter-overlay]').forEach((stale) => stale.remove());
+      const overlay = document.querySelector('.atlas-reporter-root [data-atlas-reporter-overlay]');
+      if (overlay) {
+        document.body.appendChild(overlay);
+      }
+      return document.querySelector('body > [data-atlas-reporter-overlay]');
+    }
+
+    let overlay = promoteOverlayToBody();
+    const banner = overlay?.querySelector('[data-atlas-select-banner]') ?? null;
+    const selectionPill = overlay?.querySelector('[data-atlas-selection-pill]') ?? null;
+    const backdrop = overlay?.querySelector('[data-atlas-report-backdrop]') ?? null;
+    const dialogSub = overlay?.querySelector('[data-atlas-dialog-sub]') ?? null;
+    const form = overlay?.querySelector('[data-atlas-report-form]') ?? null;
+    const quoteBox = overlay?.querySelector('[data-atlas-quote-box]') ?? null;
+    const quoteTextEl = overlay?.querySelector('[data-atlas-quote-text]') ?? null;
+    const clearQuoteBtn = overlay?.querySelector('[data-atlas-clear-quote]') ?? null;
+    const submitBtn = overlay?.querySelector('[data-atlas-submit-btn]') ?? null;
+    const resultBox = overlay?.querySelector('[data-atlas-report-result]') ?? null;
+    const resultStatus = overlay?.querySelector('[data-atlas-result-status]') ?? null;
+    const resultPreview = overlay?.querySelector('[data-atlas-result-preview]') ?? null;
+    const fallbackLink = overlay?.querySelector('[data-atlas-fallback-link]') ?? null;
+    const turnstileMount = overlay?.querySelector('[data-atlas-turnstile]') ?? null;
+
+    let isSelecting = false;
+    let hoveredTarget = null;
+    let selectedReason = 'Outdated circular';
+    let currentSection = 'Overview';
+    let currentQuote = '';
+    let dialogOpenedAt = 0;
+    let pendingPillContext = null;
+    let turnstileToken = '';
+    let turnstileWidgetId = null;
+    let turnstileScriptLoading = false;
+
+    function syncAccurateButtons(confirmed) {
+      document.querySelectorAll('[data-atlas-mark-accurate]').forEach((btn) => {
+        const label = btn.querySelector('[data-accurate-label]');
+        if (confirmed) {
+          btn.setAttribute('data-confirmed', 'true');
+          if (label) label.textContent = 'Confirmed — thanks';
+        } else {
+          btn.removeAttribute('data-confirmed');
+          if (label) label.textContent = 'Looks accurate';
+        }
+      });
+    }
+
+    try {
+      if (window.sessionStorage.getItem(STORAGE_KEY) === '1') {
+        syncAccurateButtons(true);
+      }
+    } catch {
+      // Ignore storage access restrictions
+    }
+
+    function cleanHeadingText(headingEl) {
+      if (!headingEl) return '';
+      const clone = headingEl.cloneNode(true);
+      if (clone instanceof Element) {
+        clone.querySelectorAll('.sl-anchor-link').forEach((n) => n.remove());
+        return (clone.textContent || '').replace(/\s+/g, ' ').trim();
+      }
+      return (headingEl.textContent || '').replace(/\s+/g, ' ').trim();
+    }
+
+    function findSectionHeading(node) {
+      const contentRoot = document.querySelector('.sl-markdown-content');
+      if (!contentRoot || !(node instanceof Node)) return 'Overview';
+
+      const startEl = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
+      if (!startEl) return 'Overview';
+
+      if (startEl.matches('.sl-heading-wrapper')) {
+        const own = cleanHeadingText(startEl.querySelector('h2, h3'));
+        if (own) return own;
+      }
+
+      let cur = startEl;
+      while (cur && cur !== contentRoot) {
+        let sib = cur.previousElementSibling;
+        while (sib) {
+          if (sib.matches('.sl-heading-wrapper, h2, h3')) {
+            const h = sib.matches('h2, h3') ? sib : sib.querySelector('h2, h3');
+            const label = cleanHeadingText(h);
+            if (label) return label;
+          }
+          const nestedHeading = sib.querySelector?.('h2, h3');
+          if (nestedHeading) {
+            const allHeadings = sib.querySelectorAll('h2, h3');
+            const last = allHeadings[allHeadings.length - 1];
+            const label = cleanHeadingText(last);
+            if (label) return label;
+          }
+          sib = sib.previousElementSibling;
+        }
+        cur = cur.parentElement;
+      }
+
+      return 'Overview';
+    }
+
+    function extractCleanBlockText(el) {
+      if (!(el instanceof Element)) return '';
+      const clone = el.cloneNode(true);
+      if (clone instanceof Element) {
+        clone.querySelectorAll('.sl-anchor-link, .atlas-cite, script, style').forEach((n) => n.remove());
+        return (clone.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 300);
+      }
+      return '';
+    }
+
+    function clearHoveredTarget() {
+      if (hoveredTarget) {
+        hoveredTarget.removeAttribute('data-atlas-hover-target');
+        hoveredTarget = null;
+      }
+    }
+
+    function hideSelectionPill() {
+      pendingPillContext = null;
+      if (selectionPill) {
+        selectionPill.hidden = true;
+      }
+    }
+
+    function enterSelectionMode() {
+      hideSelectionPill();
+      isSelecting = true;
+      document.body.classList.add('atlas-report-selecting');
+      if (banner) banner.hidden = false;
+    }
+
+    function exitSelectionMode() {
+      isSelecting = false;
+      clearHoveredTarget();
+      document.body.classList.remove('atlas-report-selecting');
+      if (banner) banner.hidden = true;
+    }
+
+    function buildPrefilledIssueUrl(cfg, payload) {
+      try {
+        const url = new URL(cfg.fallbackIssueUrl);
+        const recordVal = cfg.recordId
+          ? `${cfg.recordId} — ${cfg.pageTitle} (${cfg.pagePath})`
+          : `${cfg.pageTitle} (${cfg.pagePath})`;
+        const lines = [
+          `Section: ${payload.section}`,
+          `Reason: ${payload.reason}`,
+          payload.quote ? `Quoted text: "${payload.quote}"` : '',
+          payload.note ? `Details: ${payload.note}` : '',
+        ].filter(Boolean);
+
+        url.searchParams.set('record', recordVal);
+        url.searchParams.set('issue_detail', lines.join('\n\n'));
+        if (payload.sourceUrl) {
+          url.searchParams.set('source_url', payload.sourceUrl);
+        }
+        return url.toString();
+      } catch {
+        return cfg.fallbackIssueUrl;
+      }
+    }
+
+    function ensureTurnstile(cfg) {
+      if (!cfg?.turnstileSiteKey || !turnstileMount) return;
+      if (window.turnstile && typeof window.turnstile.render === 'function') {
+        if (turnstileWidgetId === null) {
+          turnstileWidgetId = window.turnstile.render(turnstileMount, {
+            sitekey: cfg.turnstileSiteKey,
+            callback: (token) => {
+              turnstileToken = token || '';
+            },
+            'expired-callback': () => {
+              turnstileToken = '';
+            },
+          });
+        } else if (typeof window.turnstile.reset === 'function') {
+          window.turnstile.reset(turnstileWidgetId);
+          turnstileToken = '';
+        }
+        return;
+      }
+      if (turnstileScriptLoading) return;
+      turnstileScriptLoading = true;
+      const s = document.createElement('script');
+      s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      s.async = true;
+      s.defer = true;
+      s.onload = () => {
+        ensureTurnstile(cfg);
+      };
+      document.head.appendChild(s);
+    }
+
+    function openReportDialog(context) {
+      const cfg = getConfig();
+      if (!backdrop || !form || !resultBox || !cfg) return;
+
+      currentSection = context.section || 'Whole page';
+      currentQuote = (context.quote || '').trim().slice(0, 300);
+      dialogOpenedAt = Date.now();
+      turnstileToken = '';
+
+      if (dialogSub) {
+        const prefix = cfg.recordId || cfg.pageTitle;
+        dialogSub.textContent = `${prefix} · ${currentSection}`;
+      }
+
+      if (quoteBox && quoteTextEl) {
+        if (currentQuote) {
+          quoteTextEl.textContent = `“${currentQuote}”`;
+          quoteBox.hidden = false;
+        } else {
+          quoteTextEl.textContent = '';
+          quoteBox.hidden = true;
+        }
+      }
+
+      form.reset();
+      form.hidden = false;
+      resultBox.hidden = true;
+      if (resultPreview) {
+        resultPreview.hidden = true;
+        resultPreview.textContent = '';
+      }
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send report';
+      }
+
+      selectedReason = 'Outdated circular';
+      overlay?.querySelectorAll('[data-atlas-reason]').forEach((btn, idx) => {
+        btn.setAttribute('aria-pressed', idx === 0 ? 'true' : 'false');
+      });
+
+      backdrop.hidden = false;
+      ensureTurnstile(cfg);
+
+      const noteInput = form.querySelector('textarea[name="note"]');
+      if (noteInput instanceof HTMLTextAreaElement) {
+        window.setTimeout(() => noteInput.focus(), 20);
+      }
+    }
+
+    function closeReportDialog() {
+      if (backdrop) backdrop.hidden = true;
+    }
+
+    function isInsideEligibleContent(node) {
+      const contentRoot = document.querySelector('.sl-markdown-content');
+      if (!contentRoot || !(node instanceof Node)) return false;
+      const el = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
+      if (!el || !contentRoot.contains(el)) return false;
+      return !el.closest(EXCLUDED_SELECTOR);
+    }
+
+    document.addEventListener('pointermove', (event) => {
+      if (!isSelecting) return;
+      const target = event.target;
+      if (!(target instanceof Element) || !isInsideEligibleContent(target)) {
+        clearHoveredTarget();
+        return;
+      }
+      const block = target.closest(SELECTABLE_SELECTOR);
+      if (!block || !isInsideEligibleContent(block)) {
+        clearHoveredTarget();
+        return;
+      }
+      if (hoveredTarget !== block) {
+        clearHoveredTarget();
+        hoveredTarget = block;
+        hoveredTarget.setAttribute('data-atlas-hover-target', 'true');
+      }
+    });
+
+    document.addEventListener('mouseup', (event) => {
+      const target = event.target;
+      if (target instanceof Element && target.closest('[data-atlas-reporter-overlay]')) {
+        return;
+      }
+      const sel = window.getSelection();
+      if (!sel || sel.isCollapsed) {
+        if (!isSelecting) hideSelectionPill();
+        return;
+      }
+      const rawText = sel.toString().replace(/\s+/g, ' ').trim();
+      if (rawText.length < 6 || rawText.length > 300) {
+        if (!isSelecting) hideSelectionPill();
+        return;
+      }
+      const range = sel.rangeCount > 0 ? sel.getRangeAt(0) : null;
+      if (!range || !isInsideEligibleContent(range.commonAncestorContainer)) {
+        if (!isSelecting) hideSelectionPill();
+        return;
+      }
+
+      const section = findSectionHeading(range.commonAncestorContainer);
+      if (isSelecting) {
+        exitSelectionMode();
+        openReportDialog({ section, quote: rawText });
+        sel.removeAllRanges();
+        return;
+      }
+
+      if (selectionPill) {
+        const rect = range.getBoundingClientRect();
+        const left = Math.max(12, Math.min(window.innerWidth - 150, rect.left));
+        const top = Math.max(60, rect.top - 38);
+        selectionPill.style.left = `${left}px`;
+        selectionPill.style.top = `${top}px`;
+        selectionPill.hidden = false;
+        pendingPillContext = { section, quote: rawText };
+      }
+    });
+
+    if (selectionPill) {
+      selectionPill.addEventListener('mousedown', (event) => {
+        event.preventDefault();
+      });
+    }
+
+    document.addEventListener(
+      'click',
+      (event) => {
+        const target = event.target;
+        if (!(target instanceof Element)) return;
+
+        if (isSelecting) {
+          if (target.closest('[data-atlas-select-banner]')) {
+            return;
+          }
+          if (isInsideEligibleContent(target)) {
+            const block = target.closest(SELECTABLE_SELECTOR);
+            if (block && isInsideEligibleContent(block)) {
+              event.preventDefault();
+              event.stopPropagation();
+              const section = findSectionHeading(block);
+              const quote = extractCleanBlockText(block);
+              exitSelectionMode();
+              openReportDialog({ section, quote });
+              return;
+            }
+          }
+        }
+      },
+      true,
+    );
+
+    document.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+
+      if (target.closest('[data-atlas-mark-accurate]')) {
+        syncAccurateButtons(true);
+        try {
+          window.sessionStorage.setItem(STORAGE_KEY, '1');
+        } catch {
+          // Ignore storage error
+        }
+        return;
+      }
+
+      const startBtn = target.closest('[data-atlas-start-report]');
+      if (startBtn) {
+        if (startBtn.tagName === 'A') {
+          event.preventDefault();
+        }
+        enterSelectionMode();
+        return;
+      }
+
+      if (target.closest('[data-atlas-cancel-select]')) {
+        exitSelectionMode();
+        return;
+      }
+
+      if (target.closest('[data-atlas-report-whole]')) {
+        exitSelectionMode();
+        openReportDialog({ section: 'Whole page', quote: '' });
+        return;
+      }
+
+      if (target.closest('[data-atlas-selection-pill]') && pendingPillContext) {
+        const ctx = pendingPillContext;
+        hideSelectionPill();
+        window.getSelection()?.removeAllRanges();
+        openReportDialog(ctx);
+        return;
+      }
+
+      if (
+        target.closest('[data-atlas-dialog-close]') ||
+        target.closest('[data-atlas-dialog-done]') ||
+        target === backdrop
+      ) {
+        closeReportDialog();
+        return;
+      }
+
+      if (target.closest('[data-atlas-clear-quote]')) {
+        currentQuote = '';
+        if (quoteBox) quoteBox.hidden = true;
+        if (quoteTextEl) quoteTextEl.textContent = '';
+        return;
+      }
+
+      const reasonBtn = target.closest('[data-atlas-reason]');
+      if (reasonBtn instanceof HTMLButtonElement) {
+        selectedReason = reasonBtn.dataset.atlasReason || selectedReason;
+        overlay?.querySelectorAll('[data-atlas-reason]').forEach((btn) => {
+          btn.setAttribute('aria-pressed', btn === reasonBtn ? 'true' : 'false');
+        });
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape') return;
+      if (backdrop && !backdrop.hidden) {
+        closeReportDialog();
+      } else if (isSelecting) {
+        exitSelectionMode();
+      } else {
+        hideSelectionPill();
+      }
+    });
+
+    form?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const cfg = getConfig();
+      if (!cfg || !form || !resultBox || !resultStatus) return;
+
+      const formData = new FormData(form);
+      const note = String(formData.get('note') || '').trim().slice(0, 500);
+      const sourceUrl = String(formData.get('sourceUrl') || '').trim().slice(0, 300);
+      const website = String(formData.get('website') || '').trim();
+      const dwellMs = Math.max(0, Date.now() - dialogOpenedAt);
+
+      const payload = {
+        recordId: cfg.recordId,
+        pagePath: cfg.pagePath,
+        pageTitle: cfg.pageTitle,
+        section: currentSection,
+        quote: currentQuote,
+        reason: selectedReason,
+        note,
+        sourceUrl,
+        website,
+        dwellMs,
+        turnstileToken,
+      };
+
+      const prefilledUrl = buildPrefilledIssueUrl(cfg, payload);
+      if (fallbackLink instanceof HTMLAnchorElement) {
+        fallbackLink.href = prefilledUrl;
+      }
+
+      if (cfg.reportEndpoint) {
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Sending...';
+        }
+        try {
+          const res = await fetch(cfg.reportEndpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          form.hidden = true;
+          resultBox.hidden = false;
+
+          if (res.ok) {
+            resultStatus.className = 'atlas-report-result__status is-success';
+            resultStatus.textContent =
+              'Report sent to private maintainer triage. Nothing on the page changes until verified.';
+          } else if (res.status === 429) {
+            resultStatus.className = 'atlas-report-result__status is-warn';
+            resultStatus.textContent =
+              'Rate limit reached for anonymous reports right now. Please submit via GitHub below.';
+          } else {
+            resultStatus.className = 'atlas-report-result__status is-warn';
+            resultStatus.textContent =
+              'Could not reach the reporting service. You can submit directly via GitHub below.';
+          }
+        } catch {
+          form.hidden = true;
+          resultBox.hidden = false;
+          resultStatus.className = 'atlas-report-result__status is-warn';
+          resultStatus.textContent =
+            'Network error while sending report. You can still submit via pre-filled GitHub Issue below.';
+        }
+        return;
+      }
+
+      const isLocal = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
+      if (isLocal) {
+        form.hidden = true;
+        resultBox.hidden = false;
+        resultStatus.className = 'atlas-report-result__status is-success';
+        resultStatus.textContent =
+          'Local preview mode: captured payload ready for your private Cloudflare Worker triage queue (live page untouched).';
+        if (resultPreview) {
+          resultPreview.hidden = false;
+          resultPreview.textContent = [
+            `Record: ${cfg.recordId || cfg.pageTitle}`,
+            `Section: ${currentSection}`,
+            `Reason: ${selectedReason}`,
+            currentQuote ? `Quoted: "${currentQuote}"` : 'Quoted: (whole page)',
+            note ? `Note: ${note}` : 'Note: (none)',
+            sourceUrl ? `Source: ${sourceUrl}` : 'Source: (none)',
+          ].join('\n');
+        }
+        return;
+      }
+
+      window.open(prefilledUrl, '_blank', 'noopener,noreferrer');
+      form.hidden = true;
+      resultBox.hidden = false;
+      resultStatus.className = 'atlas-report-result__status is-success';
+      resultStatus.textContent = 'Opened pre-filled factual correction form on GitHub.';
+    });
+  })();
+</script>

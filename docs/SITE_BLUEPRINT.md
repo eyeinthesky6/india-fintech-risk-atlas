@@ -1,3 +1,5 @@
+> **Active Reference Specification:** Living website deployment and layout blueprint aligned with [ARCHITECTURE_FREEZE.md](ARCHITECTURE_FREEZE.md) and [astro.config.mjs](../astro.config.mjs). Governs GitHub Pages hosting, subpath routing, and template separation.
+
 # Website blueprint — FINAL: GitHub Pages
 
 ## Selected stack

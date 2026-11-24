@@ -1,3 +1,5 @@
+> **Active Reference Specification:** Living regulatory discovery playbook and search guide aligned with [RESEARCH_PROTOCOL.md](RESEARCH_PROTOCOL.md). Documents official regulator sources, proven search query recipes, and the 10-step synthesis pipeline.
+
 # Research discovery and synthesis playbook
 Status: approved process proposal; not a claim that all sources have been audited.
 
@@ -47,6 +49,24 @@ Read PRODUCT_ARCHITECTURE.md, DATA_MODEL.md and RESEARCH_PROTOCOL.md. Inspect ev
 - FAIR principles for findable, accessible, interoperable and reusable data: https://www.go-fair.org/fair-principles/
 - W3C PROV provenance data model: https://www.w3.org/TR/prov-overview/
 These are architectural references only, not endorsements of implementing STIX or RDF.
+
+## Dual-Track Source Finding: Known Sources vs. New Sources
+
+To ensure content update agents reliably find fresh, authentic evidence without drifting into low-quality web sludge, research operates on two distinct tracks:
+
+### Track 1: Automated Detection of New Content on Known Sources (Daily / High-Precision)
+- **Concept:** Institutional regulators and tier-1 payment infrastructure operators publish through stable, permanent endpoints (RSS, press feeds, API indices).
+- **Tooling:**
+  - `scripts/watch-regulators.py` (polls RBI Notifications RSS, RBI Press Releases, PIB Ministry feeds daily at 19:30 IST).
+  - `scripts/watch-practitioners.py` (polls PhonePe Tech Blog, Cashfree Blog, Razorpay Tech Blog, and curated Medium architecture tags).
+- **Novelty Verification:** Every fetched item is checked against `research/upi/PRIMARY_SOURCE_REGISTER.md` and `research/upi/OPERATOR_EVIDENCE.md`. Uncatalogued items matching technical keywords are automatically staged for domain steward review.
+
+### Track 2: Periodic Discovery of Entirely New Sources (Horizon Scanning)
+- **Concept:** Institutional frameworks evolve—regulators launch new portals (e.g. DoT Sanchar Saathi, MHA 1930 / I4C, RBI Sachet), emerging fintechs publish architecture whitepapers, or academic labs publish Indian banking benchmarks on arXiv.
+- **Discovery Mechanics:**
+  1. **Inbound Citation Crawling:** When a newly ingested RBI circular or PhonePe post references an unfamiliar portal, advisory, or committee report, the agent flags the referenced domain as a **Candidate Source Root**.
+  2. **Targeted Search Recipes:** The agent executes date-bounded search recipes (`site:gov.in "UPI" "fraud"`, `site:arxiv.org "UPI" OR "payment fraud"`) to identify new publications outside established feeds.
+  3. **Community & Steward Intake:** Domain stewards and contributors submit new authority endpoints via GitHub Issue Form (`.github/ISSUE_TEMPLATE/new-source.yml`).
 
 ## Stop conditions
 If original primary source is inaccessible, current status is unclear, actor applicability conflicts, or a material claim lacks evidence: mark researching and stop publication. A passing syntax/build check is not evidence of correctness.

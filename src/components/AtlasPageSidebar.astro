@@ -1,0 +1,32 @@
+---
+import TableOfContents from 'virtual:starlight/components/TableOfContents';
+import AtlasGraph from './AtlasGraph.astro';
+
+const { entry } = Astro.locals.starlightRoute;
+---
+
+<aside class="atlas-page-sidebar" aria-label="Page tools and outline">
+  <AtlasGraph currentId={entry.id} />
+
+  {Astro.locals.starlightRoute.toc && (
+    <div class="atlas-toc-wrap">
+      <TableOfContents />
+    </div>
+  )}
+</aside>
+
+<style>
+  .atlas-page-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    padding-top: 0.75rem;
+    max-height: calc(100vh - 4.5rem);
+    overflow-y: auto;
+    margin-top: 0;
+    top: 4.25rem;
+    position: sticky;
+    width: 100%;
+    scrollbar-width: thin;
+  }
+</style>

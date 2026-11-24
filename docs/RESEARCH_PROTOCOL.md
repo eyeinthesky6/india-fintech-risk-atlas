@@ -1,69 +1,128 @@
-# Research, validation and contribution protocol
+# Research, validation, and contribution protocol
 
-## Mission
-Create accurate, accessible, independently attributable explanations of fraud risks and checks for Indian fintech products. This protocol is intended for any AI research agent or human contributor.
+> **Scope & evidence model:** Read [ARCHITECTURE_FREEZE.md](ARCHITECTURE_FREEZE.md), [CONTENT_SCHEMA.md](CONTENT_SCHEMA.md), [OPERATOR_INTELLIGENCE.md](OPERATOR_INTELLIGENCE.md), and [EVIDENCE_LAYERS_AND_RIGHTS.md](EVIDENCE_LAYERS_AND_RIGHTS.md) before drafting or auditing records.
 
-## Per-record workflow
-1. **Scope**: select one product, one lifecycle stage, one risk/control and relevant actor types. Check for duplicate IDs and overlapping records.
-2. **Discover**: start with RBI, NPCI, relevant regulator or scheme operator; then banks, PSPs, payments companies, official engineering blogs, independent research, academic papers and practitioner writing. Record searches and candidate URLs.
-3. **Retrieve**: open the primary document itself, not merely a search snippet. Capture exact title, publisher, date, version, effective date, applicable entities, paragraph/section and URL. Note amendments, draft status and withdrawals.
-4. **Atomize claims**: split prose into discrete factual or normative assertions. Pair each with an exact source locator. Keep opinion separate and labeled.
-5. **Cross-check**: independently verify substantive technical assertions with a second source when feasible. Two articles repeating the same release are not independent. Prioritize original operating documents over marketing pages.
-6. **Draft**: populate DATA_MODEL.md fields and article sections. Discuss legitimate behavior that resembles fraud, privacy/data access constraints and customer harms. Never invent limits, SLAs, thresholds or mandated procedures.
-7. **Audit**: reviewer opens each cited URL and checks the actual passage, legal applicability, effective period, technical accuracy, link validity, duplication and copyright. Record a claim-by-claim evidence ledger.
-8. **Resolve**: unsupported claims are removed or explicitly labeled hypotheses; disagreements are documented. No silent assumption or hallucinated citation.
-9. **Publish gate**: only status=reviewed, valid references, confirmed applicability and a passing static build can merge for publication. Human approves the PR.
-10. **Maintain**: recheck after regulator or scheme circular changes, corrections, material product changes or contributor reports. Record the date and change history.
+## Mission and quality principle
 
-## Source precedence
-1. Current primary regulatory / scheme documents
-2. Official product and technical documentation
-3. Firsthand incident reports and research papers
-4. Independent practitioner studies
-5. Vendor blogs and media reports as secondary context
+Create accurate, accessible, independently verifiable explanations of fraud, AML, and operational risk across Indian financial products. **Reference platform first; candidate solutions come second preference.** Every material assertion must trace to an opened primary document or be explicitly labeled as an industry report, practitioner observation, or Atlas synthesis / research lead.
 
-## Required PR evidence
-- [ ] Exact product/actor applicability stated
-- [ ] All 'must'/'required' claims cite current operative primary source and section
-- [ ] All numerical limits dated, sourced and scoped
-- [ ] Draft/superseded guidance marked correctly
-- [ ] Fraud indicators are not described as proof
-- [ ] False positives and customer impact included
-- [ ] Every link checked and material claims supported
-- [ ] No copied protected text or unsafe evasion instructions
-- [ ] No duplicate record, broken ID or broken cross-link
-- [ ] Reviewer and verified date present
-- [ ] Site build and search smoke check pass
+**Quality principle:** Completeness means clearly bounded, source-backed coverage with visible limitations and blockers—never an assertion that all fraud methods or detection rules are exhausted, and never treating a passing build as proof of truth.
 
-## Agent prompt
-You are a research contributor to India Fintech Risk Atlas. Work on ONE record at a time. Read README.md, docs/DATA_MODEL.md and this protocol before drafting. Prioritize current original RBI/NPCI sources, inspect source documents, distinguish obligations from suggested controls, produce an evidence ledger, and open a PR. Do not invent citations, thresholds or dates. If evidence is inadequate, mark the record researching and report the gap. Never merge or publish autonomously.
+## Five-layer evidence rules
 
-## Quality principle
-Completeness means clearly bounded coverage with verified claims—not an assertion that all possible fraud controls are known.
+Organize and cite sources strictly across **five layers** (`official`, `industry`, `practitioner`, `research`, `atlas`):
+- **Regulatory (`official`):** Verifiable regulatory/scheme mandates and official guidance, scoped precisely to entity class and effective period.
+- **Industry practice (`industry`):** Company-reported engineering docs and practices; **not** regulatory mandates or proof of ecosystem-wide adoption.
+- **Community insight (`practitioner`):** Named human professionals' dated firsthand operational observations (author, stated role/organization, date, URL, concise original paraphrase; no employer endorsement implied).
+- **Research & academic (`research`):** Published **academic/research paper leads (`arXiv`, etc.)**. Kept strictly in their own layer—separate from `Industry practice`, `Community insight`, and `Atlas guidance`—because academic papers are typically narrow and short-objective-focused (useful for exploring gaps rather than ready-to-use production rules); always state dataset, period, and sample caveats.
+- **Atlas guidance (`atlas`):** Atlas editorial synthesis, operational gap framing, candidate gap controls, telemetry prerequisites, and validation hypotheses. Never present Atlas synthesis as a binding obligation or advisory service.
+- **No scraping infrastructure:** Fetch/read only publicly accessible URLs directly; document access blockers (`HTTP 403`, paywalls) honestly rather than bypassing access controls or inventing claims.
 
+## Smallest work unit & agent contract
 
-## Hosting decision — finalized 2026-11-20
-**Authoritative deployment:** GitHub Pages for `eyeinthesky6/india-fintech-risk-atlas`. **Build:** Astro + Starlight + Pagefind via GitHub Actions. **Content:** GitHub Markdown/YAML and PR review. **Backend/database/domain:** none required. Expected project URL: `https://eyeinthesky6.github.io/india-fintech-risk-atlas/` once enabled. Astro must configure `site: 'https://eyeinthesky6.github.io'` and `base: '/india-fintech-risk-atlas'`; use GitHub Actions Pages deployment, not Jekyll branch processing. Site output is generated; contributors do not edit templates. Cloudflare Pages and VitePress are alternatives only, not the selected deployment. This is a documentation decision, not confirmation that Pages has been enabled or deployed.
+**Goal:** One bounded research unit per PR—one product + one topic/record, or at most five closely related records. Never run an unreviewed category-wide rewrite in a single pass.
 
+Lifecycle progression: `discover → extract → draft → source-check → independent review → publish`.
 
-## Evidence integrity gate — added 2026-11-21
-A citation is not a verified claim. Every normative or material claim needs a claim ID and an evidence ledger entry containing: claim text, record ID, exact source URL, publisher, document version/date, section or page, short supporting passage locator, entity applicability, effective period, source retrieval date, researcher identity, independent reviewer identity, review outcome and unresolved contradictions. Store the ledger under `research/evidence/<record-id>.md`. Do not copy lengthy protected passages.
+1. Check [CONTENT_SCHEMA.md](CONTENT_SCHEMA.md), [RELEASE_STATUS.md](RELEASE_STATUS.md), existing records, and `research/upi/` registers to avoid duplicates and clarify actor applicability/exclusions.
+2. Search original RBI/NPCI/statutory sources first, then operator engineering docs, dated practitioner observations, and (under `research`) open-access academic papers.
+3. Open every primary source directly (never cite search snippets). Extract exact claims and locators into the Markdown pipe table in `research/evidence/<RECORD-ID>.md`.
+4. Draft or update the article under `src/content/docs/<product>/` using typed YAML frontmatter matching `src/content.config.ts` and the Ready-Reckoner layout in [CONTENT_SCHEMA.md](CONTENT_SCHEMA.md).
+5. Update `research/attestations/<RECORD-ID>.md` strictly from `docs/ATTESTATION_TEMPLATE.md`. Unchecked boxes are expected and valid for `draft` and `source-checked` work; **never** check boxes 8–10 or 12 without an independent reviewer.
+6. Separate independent reviewer re-opens every cited URL, verifies scope/dates/context, marks outcomes in `research/evidence/<RECORD-ID>.md`, and signs the attestation. **Researcher and reviewer must never be the same agent or pass.**
+7. Open a PR with the PR template checklist, disclose blockers, and wait for human review. Never merge or deploy autonomously.
 
-### Mandatory independent checks
-- Researcher extracts source-backed claims and drafts the article.
-- Reviewer independently opens the original source, verifies its text and context, checks scope, dates and supersession, and marks each claim supported / partial / unsupported / contradictory.
-- Deterministic CI checks IDs, missing required fields, reference targets, duplicate canonical IDs, internal links and evidence ledger presence. A passing CI is **not** a truth certification.
-- Regulatory 'must' statements require 100% primary-source review; critical claims cannot be sampled. For lower-risk technical commentary, sample review is allowed only after each cited claim has a recorded source, with sample size and observed error rate disclosed.
-- If any material claim is unsupported, conflicting or unreviewed, the record remains draft and cannot be labeled verified.
-- Editor spot-checks a risk-based sample of reviewed claims directly against original documents; reviewer and researcher must not be the same agent run.
+**Publication policy:** Draft and `source-checked` records may remain in clearly labeled research preview branches/draft PRs. Promoting a record to `reviewed` or `published` requires all 12 attestation checkboxes completed, zero `PENDING`/`unverified`/`blocked` ledger rows, a distinct named independent reviewer, and human merge approval.
 
-### Audit trail and reproducibility
-Keep source retrieval log, evidence ledger, author/reviewer, commit SHA, review date and decision. Do not ask a model 'did you verify everything?' as evidence. Require verifiable locators and independent source opening. A model's self-reported tool usage is insufficient; where feasible, preserve tool-derived URL and retrieval metadata.
+## Unified 10-step research & synthesis pipeline
 
-### Review frequency
-Use evidence-based stopping, not arbitrary three-pass consensus. Reverify on RBI/NPCI changes, broken links, substantive corrections, new contradicting evidence or scheduled content review. An independent human subject-matter review is appropriate for ambiguous or high-impact regulatory interpretation.
+1. **Scope & deduplicate:** Select product, lifecycle stage(s), risk/control record, and target actors; check existing `UPI-*` / canonical IDs.
+2. **Discover candidates:** Search RBI, NPCI, and Indian sector regulators first; then PSP/bank/PA documentation, dated practitioners, and open-access studies (`arXiv`, Google Scholar, SSRN) for `Research & academic` leads.
+3. **Retrieve originals:** Open full source PDFs/HTML pages directly. Record title, publisher, circular/notification number, document date, version, effective period, actor scope, section/clause, and URL.
+4. **Extract & atomize claims:** Split prose into discrete claims using the source extraction sheet below and log each claim in `research/evidence/<RECORD-ID>.md`'s 7-column Markdown table (`Claim ID | Layer | Claim | Source | Exact locator | Scope & effective date | Result`).
+5. **Cross-check:** Verify substantive technical assertions with a second independent source where feasible (two blogs quoting the same press release do not count as independent corroboration). Deduplicate by underlying mechanism, not surface title.
+6. **Draft record:** Write original Ready-Reckoner Markdown per `docs/CONTENT_SCHEMA.md`, putting plain-English explanations and verified reference facts first and colour-keyed `Basis | Owner | Action` controls, data prerequisites, and `Research & academic` leads alongside watch-outs, false positives, customer harm, and validation trade-offs without disclosing exploitable evasion thresholds.
+7. **Self-attest honestly:** Set frontmatter `reviewStage` and attestation `Stage:` consistently (`draft` if any source is blocked/incomplete; `source-checked` only when every cited claim's primary source has been opened and recorded with `Independent reviewer: PENDING`).
+8. **Independent audit & editor spot-checks:** Separate reviewer independently re-opens each cited URL, verifies exact passages, legal applicability, effective dates, supersession, link validity, duplication, and copyright, and logs `supported` / `partially-supported` / `unsupported` / `conflicting`. An editor additionally spot-checks a risk-based sample of reviewed claims directly against primary documents.
+9. **Resolve discrepancies:** Remove unsupported claims or downgrade them to visibly labeled hypotheses; preserve genuine contradictions cleanly.
+10. **Publish gate & ongoing maintenance:** Re-verify records when RBI/NPCI circulars supersede prior rules, external links break (monitored weekly by `.github/workflows/external-links.yml`), material corrections arrive, or product mechanics shift.
 
-### Source methodology references
-W3C PROV overview: https://www.w3.org/TR/prov-overview/ — attribution and provenance.
-NIST AI RMF GenAI profile: https://nvlpubs.nist.gov/nistpubs/AI/NIST.AI.600-1.pdf — verification of AI-generated citations and sources.
-Google ClaimReview: https://developers.google.com/search/docs/appearance/structured-data/factcheck — transparency pattern, not a substitute for verification.
+## Source precedence & India source map
+
+**Source precedence:**
+1. Current primary statutory, regulatory, and scheme documents (RBI, NPCI, Parliament/GoI, FIU-IND, SEBI, IRDAI, CERT-In).
+2. Official product, API, and security documentation (banks, PSPs, PAs, card networks).
+3. Firsthand operational incident postmortems and dated practitioner observations (`Industry practice` / `Community insight`).
+4. Vendor case studies and media reports (secondary context only; mark `vendor-reported`).
+5. Academic papers and open benchmarks (cited strictly under **`Research & academic` (`research`)** as candidate gap ideas/evaluations, never `Industry practice`, `Community insight`, or `Atlas guidance`).
+
+**India source map:**
+- **RBI:** Master Directions, circulars, FAQs, annual reports, payments oversight, discussion papers — `https://www.rbi.org.in/`
+- **NPCI:** UPI product documentation, procedural circulars, UDIR/dispute scheme specs, fraud awareness — `https://www.npci.org.in/` *(note: direct automated fetches may face HTTP 403 WAF blocks requiring authorized browser audit)*
+- **FIU-IND:** AML/CFT typologies and reporting guidance — `https://fiuindia.gov.in/`
+- **SEBI:** Broker/intermediary cybersecurity & investor protection — `https://www.sebi.gov.in/`
+- **IRDAI:** Insurance payment/distribution controls — `https://irdai.gov.in/`
+- **MeitY / CERT-In:** Advisories and cyber incident directives — `https://www.cert-in.org.in/`
+- **Government / parliamentary / courts:** PIB releases, committee reports, public rulings.
+- **Industry operators:** Banks, PSPs, PAs, card networks, bureaus (secondary technical evidence only).
+- **Research & academic (`research`) leads:** arXiv, Google Scholar, SSRN, ACM/IEEE (explicitly state dataset/sample biases and narrow study scope).
+
+**Search recipes (date-bounded; log queries and rejected candidates):**
+- `site:rbi.org.in "UPI" "fraud" "direction" OR "circular"`
+- `site:npci.org.in "UPI" "dispute" OR "risk" OR "security"`
+- `site:rbi.org.in "digital payment security controls" "velocity"`
+- `"UPI" "mule account" India bank research`
+- `"payment aggregator" "transaction laundering" India`
+- `"digital lending" "identity fraud" India study`
+- `site:sebi.gov.in "unauthorized trading" cybersecurity`
+- `site:cert-in.org.in "financial" "phishing" advisory`
+- Search named operator engineering blogs + specific failure mode, then corroborate.
+
+**Source extraction columns (single canonical format):**
+`source_id | publisher | exact title | canonical URL | source class | document date | version | effective period | scope/actor | section | extracted claim summary | confidence reason | contradictory source | last checked | reuse/license note`
+
+## Evidence integrity gate, independent checks & stop conditions
+
+- **100% check on regulatory mandates:** Every `must`/`required` statutory or regulatory statement requires full primary-source verification (no sampling). Lower-risk technical commentary may be sampled only after each claim has a recorded source and locator, with sample size and error rate disclosed.
+- **Ledger format & no `PENDING`/blocked promotion:** Every record keeps `Researcher:`, `Independent reviewer:`, `Publication status:`, and the 7-column Markdown table (`Claim ID | Layer | Claim | Source | Exact locator | Scope & effective date | Result`) in `research/evidence/<RECORD-ID>.md`. Any record with a `PENDING`, `unverified`, or `blocked` cell stays `draft`; it reaches `source-checked` only when 100% of cited claims are opened cleanly (with `Independent reviewer: PENDING`).
+- **Audit trail & reproducibility:** Preserve retrieval dates, exact section locators, researcher/reviewer identities, commit SHAs, and review decisions. Do not treat a model's self-reported verification summary in place of explicit URLs and locators.
+- **Evidence-based stopping & SME escalation:** Use evidence-based stopping rather than arbitrary three-pass consensus; bring in an independent human subject-matter expert for ambiguous or high-impact regulatory interpretation.
+- **Stop conditions:** If a primary source is inaccessible (`403`/paywall), applicability/effective status is ambiguous, or a material claim lacks evidence, stop promotion, document the blocker accurately in the evidence ledger and frontmatter `blockerNote`, and keep `reviewStage: draft`.
+
+## Hard vs. soft gates & local hook setup
+
+- **Hard gates (automated CI & pre-commit):** Run once per clone: `git config core.hooksPath .githooks`. Note that local Git hooks can be bypassed with `git commit --no-verify`, which is why **server-side branch protection on `main` is mandatory** alongside CI so neither `--no-verify` nor web/API commits can skip validation.
+  - [check-attestations.py](../scripts/check-attestations.py): checks unique `recordId`, typed frontmatter `reviewStage`, exact `frontmatter.reviewStage == attestation.Stage`, 12 attestation checkboxes, Researcher != Independent reviewer guards, `PENDING` reviewer box protections, non-blocked claims for `source-checked`/`reviewed`/`published`, valid `lastSourceCheck`, non-deprecated citation URLs, and that every external URL in `## References` appears in `research/evidence/<ID>.md`.
+  - [verify-citations.py](../scripts/verify-citations.py): runs online/offline citation checks, soft-404 and retired-URL detection, `90`-day (`official`) / `180`-day freshness SLAs, and builds the manual in-browser computer-use fallback queue (guided by [.agents/skills/atlas-content-update/SKILL.md](../.agents/skills/atlas-content-update/SKILL.md)).
+  - [validate.yml](../.github/workflows/validate.yml): runs attestation check (`--all`), offline citation/deprecation parity (`verify-citations.py --offline --all`), reproducible `npm ci && npm run build` (`starlight-links-validator`), Pagefind `.pf_filter` assertion, and HTML link/base-path checks.
+- **Soft gates (human / independent reviewer):** Whether the primary text genuinely supports the wording, scope, effective dates, exceptions, and risk trade-offs.
+
+## Required PR evidence checklist
+
+- [ ] Exact product/actor applicability and exclusions stated
+- [ ] All normative requirements cite current operative primary source and exact section
+- [ ] Numerical limits/timelines dated, sourced, and entity-scoped
+- [ ] Draft, consultation (`non-binding`), and superseded guidance marked clearly
+- [ ] Fraud indicators distinguished from proof of fraud
+- [ ] False positives, customer friction, and data-access limits documented
+- [ ] Academic papers classified strictly under `Research & academic` (`research`) with narrow-study caveats
+- [ ] Every URL checked and external `## References` match `research/evidence/<RECORD-ID>.md`
+- [ ] No copied protected text or actionable evasion thresholds
+- [ ] No duplicate canonical IDs or broken cross-links
+- [ ] `research/attestations/<RECORD-ID>.md` matches frontmatter stage (`Independent reviewer` left `PENDING` until separately reviewed) and `npm run build` / Pagefind filter checks pass
+
+## Agent prompts
+
+### Contributor / researcher prompt
+> You are a research contributor to India Fintech Risk Atlas. Work on **one** bounded unit (`1–5` records) at a time. Remember the Atlas is a **reference platform first** (candidate solutions second). Read `README.md`, `docs/ARCHITECTURE_FREEZE.md`, `docs/CONTENT_SCHEMA.md`, `docs/OPERATOR_INTELLIGENCE.md`, `docs/EVIDENCE_LAYERS_AND_RIGHTS.md`, `docs/RESEARCH_PROTOCOL.md`, and `.agents/skills/atlas-content-update/SKILL.md` before drafting. Prioritize current primary RBI/NPCI sources, open original documents (never snippets; use manual browser computer-use verification when automated HTTP fails or hits SPA portals), separate evidence strictly across 5 layers (`Regulatory`, `Industry practice`, `Community insight`, `Research & academic`, and `Atlas guidance`—keeping academic papers in `research` with dataset/sample caveats), write plain-English Ready-Reckoner records, produce `research/evidence/<ID>.md` and `research/attestations/<ID>.md`, ensure frontmatter `reviewStage` matches attestation `Stage`, run `scripts/verify-citations.py` and `scripts/check-attestations.py --all`, and open a PR disclosing blockers. Never invent citations, thresholds, or dates, and never self-certify independent review.
+
+### Independent audit agent prompt
+> Read `docs/ARCHITECTURE_FREEZE.md`, `docs/CONTENT_SCHEMA.md`, `docs/RESEARCH_PROTOCOL.md`, `docs/EVIDENCE_LAYERS_AND_RIGHTS.md`, and `.agents/skills/atlas-content-update/SKILL.md`. Inspect every changed claim (including reader reports filed via `.github/ISSUE_TEMPLATE/factual-correction.yml`) and its primary source directly (switching to manual browser verification whenever automated fetches fail or hit SPA shells). For each assertion record `supported` / `partially-supported` / `unsupported` / `conflicting`, exact locator, actor scope, and effective date. Check for fabricated/misattributed sources, invalid or stale links, legal overreach across actor classes, academic papers misclassified as Industry practice, Community insight, or Atlas guidance proof, copied protected text, duplicate records, and missing false positives. Do not rewrite evidence to force a pass and never review work from your own drafting run. Report blockers cleanly in ledger files and PR review comments.
+
+## Source & provenance methodology references
+
+- **W3C PROV overview:** https://www.w3.org/TR/prov-overview/ — attribution and provenance modeling.
+- **NIST AI RMF GenAI Profile:** https://nvlpubs.nist.gov/nistpubs/AI/NIST.AI.600-1.pdf — verification discipline for AI-assisted research/citations.
+- **Google ClaimReview:** https://developers.google.com/search/docs/appearance/structured-data/factcheck — transparency pattern (not a substitute for verification).
+- **OASIS STIX 2.1:** https://docs.oasis-open.org/cti/stix/v2.1/stix-v2.1.html — entity/relationship provenance precedent (architectural reference only).
+- **FAIR principles:** https://www.go-fair.org/fair-principles/ — findable, accessible, interoperable, reusable research artifacts.

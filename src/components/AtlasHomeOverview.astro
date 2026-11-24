@@ -1,0 +1,543 @@
+---
+import { getAtlasGraphData } from '../lib/atlas-graph';
+import {
+  UPI_THEMES,
+  getBasePath,
+  getUpiRecords,
+  splitUpiRecordsByStage,
+  taxonomy,
+  taxonomyLabel,
+} from '../lib/upi-records';
+
+const base = getBasePath();
+const records = await getUpiRecords();
+const summary = splitUpiRecordsByStage(records);
+const graph = await getAtlasGraphData();
+
+const THEME_DESCRIPTIONS: Record<string, string> = {
+  overview: 'System architecture, participant roles across banks, PSPs, TPAPs, and PAs.',
+  'social-engineering': 'P2P collect scams, QR/cashback manipulation, and fake grievance callers.',
+  'identity-auth': 'Device binding, remote-access app risk, dynamic 2FA, and auth probing.',
+  'monitoring-mules-merchants': 'Velocity bursts, parameterized EFRM, mule funnels, and PA vetting.',
+  'reconciliation-disputes-protection': 'Webhook idempotency, T+1/T+5 auto-reversals, ODR, and NCRP recovery.',
+  policy: 'Open regulatory consultations and unsettled industry risk trade-offs.',
+};
+
+const EVIDENCE_LAYERS = [
+  {
+    cls: 'atlas-ledger__row--1',
+    title: taxonomyLabel(taxonomy.evidenceLayers, 'official'),
+    kind: 'Binding',
+    detail: 'RBI Master Directions, circulars, NPCI operating rules, and statutory mandates.',
+  },
+  {
+    cls: 'atlas-ledger__row--2',
+    title: taxonomyLabel(taxonomy.evidenceLayers, 'industry'),
+    kind: 'Company-reported',
+    detail: 'Publicly documented integration patterns from payment aggregators and processors.',
+  },
+  {
+    cls: 'atlas-ledger__row--3',
+    title: taxonomyLabel(taxonomy.evidenceLayers, 'practitioner'),
+    kind: 'Operator-observed',
+    detail: 'Named, independently verified operator observations (omitted when none exist yet).',
+  },
+  {
+    cls: 'atlas-ledger__row--4',
+    title: taxonomyLabel(taxonomy.evidenceLayers, 'research'),
+    kind: 'Empirical studies',
+    detail: 'Peer-reviewed and open-access research papers (e.g. arXiv, RBIH) with dataset scope caveats.',
+  },
+  {
+    cls: 'atlas-ledger__row--5',
+    title: taxonomyLabel(taxonomy.evidenceLayers, 'atlas'),
+    kind: 'Controls & checks',
+    detail: 'Candidate workflows, required telemetry signals, false-positive watch-outs, and validation tests.',
+  },
+];
+---
+
+<div class="atlas-home not-content">
+  <div class="container-section">
+    <div class="container-wrapper">
+      <div class="container container-padding">
+        <div class="atlas-kpi-bar" aria-label="Live Atlas coverage summary">
+          <a href={`${base}/upi/coverage/`} class="atlas-kpi-cell">
+            <span class="atlas-kpi-value">{summary.total} UPI records</span>
+            <span class="atlas-kpi-meta">
+              {summary.sourceChecked.length} source-checked &middot; {summary.drafts.length} source blocker
+            </span>
+          </a>
+
+          <a href={`${base}/upi/sources/`} class="atlas-kpi-cell">
+            <span class="atlas-kpi-value">{graph.sourceEdges.length} citation links</span>
+            <span class="atlas-kpi-meta">Across {graph.nodes.length} indexed Atlas nodes</span>
+          </a>
+
+          <a href={`${base}/evidence-policy/`} class="atlas-kpi-cell">
+            <span class="atlas-kpi-value">5 evidence layers</span>
+            <span class="atlas-kpi-meta">Regulatory &middot; Industry &middot; Community &middot; Research &middot; Guidance</span>
+          </a>
+
+          <a href={`${base}/methodology/`} class="atlas-kpi-cell">
+            <span class="atlas-kpi-value">Research preview</span>
+            <span class="atlas-kpi-meta">Independent second-reviewer sign-off pending</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-section">
+    <div class="container-wrapper">
+      <div class="container container-padding">
+        <div class="atlas-home-head">
+          <h2>How evidence is separated</h2>
+          <p>
+            Every record separates binding mandates, company docs, operator notes, academic research, and Atlas guidance using five color-keyed layers.
+          </p>
+        </div>
+
+        <div class="atlas-ledger" role="list" aria-label="Five-layer evidence model">
+          {EVIDENCE_LAYERS.map((item) => (
+            <div class:list={['atlas-ledger__row', item.cls]} role="listitem">
+              <div class="atlas-ledger__name">
+                <span class="atlas-ledger__dot" aria-hidden="true"></span>
+                <span class="atlas-ledger__title">{item.title}</span>
+              </div>
+              <span class="atlas-ledger__kind">{item.kind}</span>
+              <span class="atlas-ledger__desc">{item.detail}</span>
+            </div>
+          ))}
+        </div>
+
+        <p class="atlas-ledger-note">
+          Pages only show layers backed by verified public sources &mdash; unverified layers are left out rather than padded.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-section">
+    <div class="container-wrapper">
+      <div class="container container-padding">
+        <div class="atlas-home-head">
+          <h2>Explore UPI risk areas</h2>
+          <p>Jump straight into canonical fraud patterns, controls, and reconciliation guides.</p>
+        </div>
+
+        <div class="atlas-themes-grid">
+          {UPI_THEMES.map((theme) => {
+            const items = records.filter((entry) => entry.data.theme === theme.id);
+            if (items.length === 0) return null;
+            return (
+              <div class="atlas-theme-card">
+                <div class="atlas-theme-card__head">
+                  <h3>{theme.label}</h3>
+                  <span class="atlas-theme-count">{items.length}</span>
+                </div>
+                <p class="atlas-theme-desc">{THEME_DESCRIPTIONS[theme.id] ?? ''}</p>
+                <ul class="atlas-theme-links">
+                  {items.map((entry) => (
+                    <li>
+                      <a href={`${base}/${entry.id}/`}>
+                        <code>{entry.data.recordId}</code>
+                        <span>{entry.data.title}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-section">
+    <div class="container-wrapper">
+      <div class="container container-padding">
+        <div class="atlas-home-head">
+          <h2>Practical starting points</h2>
+          <p>Use the playbook to turn records into engineering checks, or inspect primary citations.</p>
+        </div>
+
+        <div class="atlas-start-grid">
+          <a href={`${base}/upi/risk-stack-playbook/`} class="atlas-start-card">
+            <h3>Risk-stack playbook</h3>
+            <p>Five-step engineering workflow across prevention, detection, triage, and validation.</p>
+          </a>
+          <a href={`${base}/upi/sources/`} class="atlas-start-card">
+            <h3>UPI source register</h3>
+            <p>Verified RBI Master Directions, NPCI circulars, industry docs, and arXiv leads.</p>
+          </a>
+          <a href={`${base}/upi/coverage/`} class="atlas-start-card">
+            <h3>Coverage &amp; review status</h3>
+            <p>Per-record verification state, review status, and open source blockers.</p>
+          </a>
+          <a href={`${base}/contribute/`} class="atlas-start-card">
+            <h3>Methodology &amp; contribute</h3>
+            <p>Evidence attribution standards, verification checks, and GitHub PR workflow.</p>
+          </a>
+        </div>
+
+        <p class="atlas-home-notice">
+          <strong>Disclaimer:</strong> India Fintech Risk Atlas is a publicly sourced compendium maintained on a
+          best-effort basis and does not offer legal, regulatory, or compliance advice. Users must independently
+          source-check and validate all facts before taking any material action. India Fintech Risk Atlas is not
+          responsible for any outcomes&mdash;good or bad&mdash;arising from decisions taken based on content on this
+          platform. See <a href={`${base}/upi/coverage/`}>coverage &amp; blockers</a> and{' '}
+          <a href={`${base}/licensing/`}>licensing</a>.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .atlas-home {
+    padding-bottom: 1.5rem;
+  }
+
+  .atlas-kpi-bar {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card);
+    overflow: hidden;
+  }
+
+  .atlas-kpi-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.72rem 0.9rem;
+    text-decoration: none;
+    border-right: 1px solid var(--border);
+    transition: background-color 0.15s ease;
+  }
+
+  .atlas-kpi-cell:last-child {
+    border-right: none;
+  }
+
+  .atlas-kpi-cell:hover {
+    background: var(--accent);
+  }
+
+  .atlas-kpi-value {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--foreground-light);
+  }
+
+  .atlas-kpi-meta {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--muted-foreground);
+    line-height: 1.35;
+  }
+
+  @media (max-width: 900px) {
+    .atlas-kpi-bar {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .atlas-kpi-cell:nth-child(2) {
+      border-right: none;
+    }
+
+    .atlas-kpi-cell:nth-child(-n + 2) {
+      border-bottom: 1px solid var(--border);
+    }
+  }
+
+  @media (max-width: 520px) {
+    .atlas-kpi-bar {
+      grid-template-columns: 1fr;
+    }
+
+    .atlas-kpi-cell {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .atlas-kpi-cell:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .atlas-home-head {
+    margin-bottom: 0.75rem;
+  }
+
+  .atlas-home-head h2 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--foreground-light);
+    letter-spacing: -0.015em;
+  }
+
+  .atlas-home-head p {
+    margin: 0.25rem 0 0;
+    font-size: 0.8125rem;
+    font-weight: 400;
+    color: var(--muted-foreground);
+    max-width: 54rem;
+    line-height: 1.5;
+  }
+
+  .atlas-ledger {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card);
+    overflow: hidden;
+  }
+
+  .atlas-ledger__row {
+    display: grid;
+    grid-template-columns: 225px 135px minmax(0, 1fr);
+    align-items: baseline;
+    gap: 0.4rem 1rem;
+    padding: 0.65rem 0.9rem;
+    border-left: 3px solid var(--atlas-l4, #475569);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .atlas-ledger__row:last-child {
+    border-bottom: none;
+  }
+
+  .atlas-ledger__row--1 {
+    border-left-color: var(--atlas-l1, #1d4ed8);
+  }
+
+  .atlas-ledger__row--2 {
+    border-left-color: var(--atlas-l2, #0f766e);
+  }
+
+  .atlas-ledger__row--3 {
+    border-left-color: var(--atlas-l3, #b45309);
+  }
+
+  .atlas-ledger__row--4 {
+    border-left-color: var(--atlas-l4, #7c3aed);
+  }
+
+  .atlas-ledger__row--5 {
+    border-left-color: var(--atlas-l5, #475569);
+  }
+
+  .atlas-ledger__name {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .atlas-ledger__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    flex-shrink: 0;
+    background: var(--atlas-l5, #475569);
+  }
+
+  .atlas-ledger__row--1 .atlas-ledger__dot {
+    background: var(--atlas-l1, #1d4ed8);
+  }
+
+  .atlas-ledger__row--2 .atlas-ledger__dot {
+    background: var(--atlas-l2, #0f766e);
+  }
+
+  .atlas-ledger__row--3 .atlas-ledger__dot {
+    background: var(--atlas-l3, #b45309);
+  }
+
+  .atlas-ledger__row--4 .atlas-ledger__dot {
+    background: var(--atlas-l4, #7c3aed);
+  }
+
+  .atlas-ledger__row--5 .atlas-ledger__dot {
+    background: var(--atlas-l5, #475569);
+  }
+
+  .atlas-ledger__title {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--foreground-light);
+  }
+
+  .atlas-ledger__kind {
+    font-family: var(--sl-font-mono);
+    font-size: 0.72rem;
+    font-weight: 400;
+    color: var(--muted-foreground);
+  }
+
+  .atlas-ledger__desc {
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: var(--foreground);
+    line-height: 1.45;
+  }
+
+  @media (max-width: 780px) {
+    .atlas-ledger__row {
+      grid-template-columns: 1fr;
+      gap: 0.18rem;
+    }
+  }
+
+  .atlas-ledger-note {
+    margin: 0.55rem 0 0;
+    font-size: 0.78rem;
+    font-weight: 400;
+    color: var(--muted-foreground);
+  }
+
+  .atlas-themes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    gap: 0.8rem;
+  }
+
+  .atlas-theme-card {
+    padding: 0.85rem 0.95rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card);
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .atlas-theme-card__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .atlas-theme-card__head h3 {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--foreground-light);
+  }
+
+  .atlas-theme-count {
+    font-family: var(--sl-font-mono);
+    font-size: 0.72rem;
+    font-weight: 400;
+    color: var(--muted-foreground);
+  }
+
+  .atlas-theme-desc {
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 400;
+    color: var(--muted-foreground);
+    line-height: 1.4;
+  }
+
+  .atlas-theme-links {
+    list-style: none;
+    margin: 0.2rem 0 0;
+    padding: 0.45rem 0 0;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .atlas-theme-links a {
+    display: flex;
+    align-items: baseline;
+    gap: 0.45rem;
+    font-size: 0.78rem;
+    font-weight: 400;
+    line-height: 1.35;
+    color: var(--foreground);
+    text-decoration: none;
+  }
+
+  .atlas-theme-links a:hover span {
+    color: var(--foreground-light);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .atlas-theme-links code {
+    flex-shrink: 0;
+    font-family: var(--sl-font-mono);
+    font-size: 0.68rem;
+    font-weight: 400;
+    color: var(--muted-foreground);
+    background: var(--muted);
+    border-radius: 3px;
+    padding: 0.04rem 0.28rem;
+  }
+
+  .atlas-start-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.8rem;
+  }
+
+  .atlas-start-card {
+    padding: 0.8rem 0.95rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card);
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+  }
+
+  .atlas-start-card:hover {
+    border-color: var(--foreground-light);
+    background: var(--accent);
+  }
+
+  .atlas-start-card h3 {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--foreground-light);
+  }
+
+  .atlas-start-card p {
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 400;
+    color: var(--muted-foreground);
+    line-height: 1.45;
+  }
+
+  .atlas-home-notice {
+    margin: 1rem 0 0;
+    padding: 0.65rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--muted-foreground);
+  }
+
+  .atlas-home-notice strong {
+    font-weight: 600;
+    color: var(--foreground-light);
+  }
+
+  .atlas-home-notice a {
+    color: var(--foreground-light);
+    text-underline-offset: 3px;
+  }
+</style>

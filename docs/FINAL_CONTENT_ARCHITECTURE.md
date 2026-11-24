@@ -1,3 +1,5 @@
+> **Active Reference Specification:** Living content architecture decision record aligned with [ARCHITECTURE_FREEZE.md](ARCHITECTURE_FREEZE.md). Documents GitHub as source of truth, Starlight rendering, and the maintained-vs-generated separation.
+
 # Final content architecture — decision record
 Date: 2026-11-20
 Status: finalized hosting and content architecture; website implementation not yet authorized

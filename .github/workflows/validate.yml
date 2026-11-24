@@ -1,0 +1,75 @@
+name: Validate site
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  attestations:
+    name: Content attestation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Check declarations, frontmatter parity, and evidence ledgers
+        run: python3 scripts/check-attestations.py --all
+      - name: Check citation parity, deprecated URLs, and freshness metadata
+        run: python3 scripts/verify-citations.py --offline --all
+  build:
+    name: Site build & link check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - name: Verify build output, Pagefind filters, and HTML internal links
+        run: |
+          test -f dist/index.html
+          test -f dist/pagefind/pagefind.js
+          test -f dist/upi/index.html
+          test -f dist/upi/coverage/index.html
+          python3 - <<'EOF'
+          import pathlib, re, sys, urllib.parse
+          dist = pathlib.Path("dist")
+          base = "/india-fintech-risk-atlas"
+          filters = sorted((dist / "pagefind" / "filter").glob("*.pf_filter"))
+          if not filters:
+              print("ERROR: Pagefind indexed 0 filters.", file=sys.stderr)
+              sys.exit(1)
+          print(f"Pagefind indexed {len(filters)} filter key(s).")
+          errors = []
+          for html in sorted(dist.rglob("*.html")):
+              txt = html.read_text(encoding="utf-8", errors="ignore")
+              for m in re.finditer(r'href="([^"]+)"', txt):
+                  href = m.group(1)
+                  if href.startswith(("http://", "https://", "mailto:", "tel:", "#", "data:")):
+                      continue
+                  path = urllib.parse.urlsplit(href).path
+                  if not path:
+                      continue
+                  if path.startswith("/"):
+                      if path != base and not path.startswith(base + "/"):
+                          errors.append(f"{html.relative_to(dist)}: missing base prefix in {href}")
+                          continue
+                      rel = path[len(base):].lstrip("/")
+                      ok = (dist / "index.html").is_file() if not rel else ((dist / rel).is_file() or (dist / rel / "index.html").is_file())
+                      if not ok:
+                          errors.append(f"{html.relative_to(dist)}: broken root link {href}")
+                  else:
+                      cand = (html.parent / path).resolve()
+                      try:
+                          cand.relative_to(dist.resolve())
+                          ok = cand.is_file() or (cand / "index.html").is_file()
+                      except ValueError:
+                          ok = False
+                      if not ok:
+                          errors.append(f"{html.relative_to(dist)}: broken rel link {href}")
+          if errors:
+              print("\n".join(errors), file=sys.stderr)
+              sys.exit(1)
+          print("All built HTML internal links resolved cleanly.")
+          EOF

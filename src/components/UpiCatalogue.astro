@@ -1,0 +1,64 @@
+---
+import {
+  UPI_THEMES,
+  formatRecordStatus,
+  getBasePath,
+  getUpiRecords,
+  splitUpiRecordsByStage,
+  taxonomy,
+  taxonomyLabel,
+} from '../lib/upi-records';
+
+const base = getBasePath();
+const records = await getUpiRecords();
+const summary = splitUpiRecordsByStage(records);
+---
+
+<p>
+  <strong>{summary.total} indexed UPI records</strong>:{' '}
+  <strong>{summary.sourceChecked.length}</strong> source-checked drafts,{' '}
+  <strong>{summary.drafts.length}</strong>{' '}
+  {summary.drafts.length === 1
+    ? 'draft with non-public source blocker'
+    : 'drafts with non-public source blockers'}, and{' '}
+  <strong>{summary.reviewed.length}</strong> independently reviewed/published.
+</p>
+
+{UPI_THEMES.map((theme) => {
+  const items = records.filter((entry) => entry.data.theme === theme.id);
+  if (items.length === 0) return null;
+  return (
+    <section>
+      <h3>{theme.label}</h3>
+      <div class="atlas-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Record</th>
+              <th>Type</th>
+              <th>Verification status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((entry) => (
+              <tr>
+                <td><code>{entry.data.recordId}</code></td>
+                <td><a href={`${base}/${entry.id}/`}>{entry.data.title}</a></td>
+                <td>{taxonomyLabel(taxonomy.recordTypes, entry.data.recordType)}</td>
+                <td>{formatRecordStatus(entry)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+})}
+
+<style>
+  .atlas-table-wrap {
+    overflow-x: auto;
+    max-width: 100%;
+  }
+</style>

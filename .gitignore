@@ -1,0 +1,60 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Production & Build outputs
+dist/
+.astro/
+
+# Python cache & virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+build/
+develop-eggs/
+dist-py/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Testing & Linting
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local reports & temp outputs from watcher scripts
+report.json
+report.md
+triage-report.md
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Serena AST project cache
+.serena/

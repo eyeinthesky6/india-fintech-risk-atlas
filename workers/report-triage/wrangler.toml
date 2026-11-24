@@ -1,0 +1,18 @@
+name = "atlas-report-triage"
+main = "src/worker.js"
+compatibility_date = "2026-01-01"
+
+[vars]
+# Comma-separated browser origins permitted to submit reports
+ALLOWED_ORIGINS = "https://eyeinthesky6.github.io"
+# Target private repository for incoming anonymous triage (owner/repo)
+TRIAGE_GITHUB_REPO = "eyeinthesky6/atlas-triage-private"
+# Abuse circuit breakers
+HOURLY_IP_CAP = "3"
+DAILY_GLOBAL_CAP = "30"
+
+# Create a Workers KV namespace (`npx wrangler kv namespace create RATE_LIMIT_KV`)
+# and uncomment below to persist per-IP hourly and daily global caps:
+# [[kv_namespaces]]
+# binding = "RATE_LIMIT_KV"
+# id = "YOUR_KV_NAMESPACE_ID"

@@ -1,0 +1,27 @@
+---
+title: Coverage and verification status
+description: What the UPI compendium includes, which records are source-checked, and what release blockers remain.
+---
+
+import UpiCoverageSummary from '../../../components/UpiCoverageSummary.astro';
+
+## Included in the research collection
+
+- **Canonical UPI topic entries** spanning scheme architecture, social engineering (collect, QR/cashback, fake support), identity/access/authentication (ATO/device binding, untrusted apps/remote access, MFA, failed auth), monitoring/mules/merchants (outbound velocity, EFRM governance, mule-account funnels, merchant/PA onboarding), reconciliation/disputes/protection (order status & webhooks, interbank settlement exceptions, ODR/disputes, customer liability & protection), and policy consultation (RBI April 2026 Discussion Paper).
+- **Engineering & reference pages:** [Risk-stack playbook](/india-fintech-risk-atlas/upi/risk-stack-playbook/), [Operator practices & empirical research](/india-fintech-risk-atlas/upi/operator-insights/), [UPI source register](/india-fintech-risk-atlas/upi/sources/), and [UPI glossary](/india-fintech-risk-atlas/upi/glossary/).
+
+## Current verification status (audited 2026-11-24)
+
+<UpiCoverageSummary />
+
+## Remaining release blockers & resolved milestones
+
+- **Independent second-reviewer verification** for all canonical records (`Independent reviewer: PENDING`). Designated human Domain Stewards certify baseline records under the [Delta-Review Model](https://github.com/eyeinthesky6/india-fintech-risk-atlas/blob/main/docs/TOPIC_STEWARDSHIP_AND_DELTA_REVIEW.md).
+- **Member circular confirmation (`UPI-008`):** **RESOLVED (2026-11-24).** Confirmed as an official Information Security (IS) series circular distributed under the UPI IS Compliance Framework; corroborated across CERT-In empaneled auditor advisories and member bank circular mirrors. `UPI-008` promoted to `source-checked`.
+- **Verified Indian practitioner observations:** **RESOLVED (2026-11-24).** Automated engineering feed watcher (`scripts/watch-practitioners.py`) active; verified production architectures from PhonePe (TStore transaction persistence, real-time fraud models, module sandboxing, Clockwork reconciliation) and Cashfree ingested under Layer 2.
+- **Overlapping draft PR hygiene:** **RESOLVED (2026-11-24).** Obsolete PRs #1, #2, #4, #5 closed on GitHub.
+- **Repository visibility, GitHub Pages activation, and branch protection:** Pending repository public toggle and PR #6 merge.
+
+The presence of an article—or a passing static build—is **not** evidence of independent review. Do not present draft entries as verified compliance guidance.
+
+[Review the release status and evidence audit](https://github.com/eyeinthesky6/india-fintech-risk-atlas/blob/main/docs/RELEASE_STATUS.md).

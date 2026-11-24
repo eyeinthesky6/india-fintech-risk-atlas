@@ -4,7 +4,7 @@ Record IDs:
 Stage (draft / source-checked / reviewed):
 
 ## Research attestation
-- [ ] I read SECTION_WORKFLOW.md and RESEARCH_PROTOCOL.md
+- [ ] I read docs/RESEARCH_PROTOCOL.md and docs/CONTENT_SCHEMA.md
 - [ ] I linked the evidence ledger and record attestation(s)
 - [ ] I identified unsupported claims and open blockers
 - [ ] I did not self-certify independent review

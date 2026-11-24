@@ -1,3 +1,5 @@
+> **Active Reference Specification:** Living reference architecture and benchmark analysis aligned with [ARCHITECTURE_FREEZE.md](ARCHITECTURE_FREEZE.md). Documents structural lessons from Sigma, MITRE ATT&CK, OpenCTI, AUSTRAC, and synthetic capacity targets.
+
 # Architecture research — decision before implementation
 Date: 2026-11-20 | Status: research recommendation, not implementation approval
 

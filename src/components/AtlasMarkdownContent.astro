@@ -1,0 +1,414 @@
+---
+import Default from '@astrojs/starlight/components/MarkdownContent.astro';
+import AtlasErrorReporter from './AtlasErrorReporter.astro';
+import { getBasePath, taxonomy, taxonomyLabel } from '../lib/upi-records';
+import { normalizeDocSlug } from '../lib/atlas-graph';
+import { transformAtlasContentHtml } from '../lib/format-atlas-html';
+
+const { entry } = Astro.locals.starlightRoute;
+const data = entry.data;
+const base = getBasePath();
+const slug = normalizeDocSlug(entry.id);
+const isUpiPage = slug === 'upi' || slug.startsWith('upi/');
+const pagePath = slug ? `${base}/${slug}/` : `${base}/`;
+const stage = data.reviewStage ?? 'draft';
+const stageLabel = taxonomyLabel(taxonomy.reviewStages, stage);
+const recordTypeLabel = taxonomyLabel(taxonomy.recordTypes, data.recordType);
+
+const LAYER_ORDER = [
+  { id: 'official', label: 'Regulatory', cls: 'is-l1' },
+  { id: 'industry', label: 'Industry practice', cls: 'is-l2' },
+  { id: 'practitioner', label: 'Community insight', cls: 'is-l3' },
+  { id: 'research', label: 'Research & academic', cls: 'is-l4' },
+  { id: 'atlas', label: 'Atlas guidance', cls: 'is-l5' },
+] as const;
+
+const issueTitlePrefix = data.recordId ? `[Correction] ${data.recordId}: ${data.title}` : `[Correction] ${data.title}`;
+const reportErrorUrl = `https://github.com/eyeinthesky6/india-fintech-risk-atlas/issues/new?template=factual-correction.yml&title=${encodeURIComponent(issueTitlePrefix)}`;
+
+const isSplash = data.template === 'splash';
+const renderedHtml = isSplash ? '' : transformAtlasContentHtml(await Astro.slots.render('default'));
+const isReviewed = stage === 'published' || stage === 'reviewed';
+const isSourceChecked = stage === 'source-checked';
+const statusModifier = isReviewed
+  ? 'atlas-dossier__status--reviewed'
+  : isSourceChecked
+    ? 'atlas-dossier__status--checked'
+    : 'atlas-dossier__status--draft';
+---
+
+<div class="markdown-wrapper">
+  <Default>
+    {isSplash ? <slot /> : <Fragment set:html={renderedHtml} />}
+
+    {!isSplash && (
+      <AtlasErrorReporter
+        recordId={data.recordId ?? ''}
+        pageTitle={data.title}
+        pagePath={pagePath}
+        fallbackIssueUrl={reportErrorUrl}
+      />
+    )}
+
+    {data.recordId && (
+      <section class="atlas-dossier not-content" aria-label="Record verification and metadata">
+        <div class:list={['atlas-dossier__status', statusModifier]}>
+          <span class="atlas-dossier__status-text">
+            <span class="atlas-status-dot" aria-hidden="true"></span>
+            {isReviewed ? (
+              <span>
+                <strong>Independently reviewed</strong> &middot; Primary sources and claims signed off
+              </span>
+            ) : isSourceChecked ? (
+              <span>
+                <strong>Source-checked draft</strong> &middot; Verified {data.lastSourceCheck ?? '2026-11-23'} &middot; Independent review pending
+              </span>
+            ) : (
+              <span>
+                <strong>Draft</strong> &middot; {data.blockerNote ?? 'Primary source verification or independent review is incomplete.'}
+              </span>
+            )}
+          </span>
+          <a href={`${base}/upi/coverage/`} class="atlas-dossier__coverage-link">
+            {isSourceChecked || isReviewed ? 'Coverage →' : 'Blockers →'}
+          </a>
+        </div>
+
+        <dl class="atlas-dossier__grid">
+          <div class="atlas-dossier__row">
+            <dt>Record</dt>
+            <dd>
+              <span class="atlas-dossier__id">{data.recordId}</span>
+              {data.recordType && (
+                <>
+                  <span class="atlas-sep" aria-hidden="true">&middot;</span>
+                  <span data-pagefind-filter={`record_type:${recordTypeLabel}`}>{recordTypeLabel}</span>
+                </>
+              )}
+              <span class="atlas-sep" aria-hidden="true">&middot;</span>
+              <span data-pagefind-filter={`stage:${stageLabel}`}>{stageLabel}</span>
+              {data.products?.map((product) => {
+                const label = taxonomyLabel(taxonomy.products, product);
+                return (
+                  <>
+                    <span class="atlas-sep" aria-hidden="true">&middot;</span>
+                    <span data-pagefind-filter={`product:${label}`}>{label}</span>
+                  </>
+                );
+              })}
+            </dd>
+          </div>
+
+          {data.lifecycle && data.lifecycle.length > 0 && (
+            <div class="atlas-dossier__row">
+              <dt>Lifecycle</dt>
+              <dd>
+                {data.lifecycle.map((item, idx) => {
+                  const label = taxonomyLabel(taxonomy.lifecycle, item);
+                  return (
+                    <>
+                      {idx > 0 && <span class="atlas-sep" aria-hidden="true">&middot;</span>}
+                      <span data-pagefind-filter={`lifecycle:${label}`}>{label}</span>
+                    </>
+                  );
+                })}
+              </dd>
+            </div>
+          )}
+
+          {data.actors && data.actors.length > 0 && (
+            <div class="atlas-dossier__row">
+              <dt>Actors</dt>
+              <dd>
+                {data.actors.map((actor, idx) => {
+                  const label = taxonomyLabel(taxonomy.actors, actor);
+                  return (
+                    <>
+                      {idx > 0 && <span class="atlas-sep" aria-hidden="true">&middot;</span>}
+                      <span data-pagefind-filter={`actor:${label}`}>{label}</span>
+                    </>
+                  );
+                })}
+              </dd>
+            </div>
+          )}
+
+          <div class="atlas-dossier__row">
+            <dt>Evidence</dt>
+            <dd class="atlas-dossier__layers">
+              {LAYER_ORDER.map((layer) => {
+                const present = Boolean(data.evidenceLayers?.includes(layer.id));
+                const filterLabel = taxonomyLabel(taxonomy.evidenceLayers, layer.id);
+                return present ? (
+                  <span
+                    class:list={['atlas-dossier__layer', 'is-present', layer.cls]}
+                    data-pagefind-filter={`evidence_layer:${filterLabel}`}
+                  >
+                    <span class="atlas-layer-dot" aria-hidden="true"></span>
+                    <span>{layer.label}</span>
+                  </span>
+                ) : (
+                  <span
+                    class="atlas-dossier__layer is-absent"
+                    title="No verified public source promoted here yet"
+                  >
+                    <span>{layer.label} &mdash;</span>
+                  </span>
+                );
+              })}
+            </dd>
+          </div>
+        </dl>
+      </section>
+    )}
+
+    {!isSplash && (
+      <aside class="atlas-disclaimer not-content" aria-label="Disclaimer" data-pagefind-ignore>
+        <strong>Disclaimer:</strong> India Fintech Risk Atlas is a publicly sourced compendium maintained on a
+        best-effort basis and does not offer legal, regulatory, or compliance advice. Users must independently
+        source-check and validate all facts before taking any material action. India Fintech Risk Atlas is not
+        responsible for any outcomes&mdash;good or bad&mdash;arising from decisions taken based on content on this platform.{' '}
+        Spot an error?{' '}
+        <a
+          href={reportErrorUrl}
+          target="_blank"
+          rel="noreferrer"
+          class="atlas-disclaimer__report"
+          data-atlas-start-report=""
+        >
+          Report a factual error &rarr;
+        </a>
+      </aside>
+    )}
+  </Default>
+</div>
+
+<script is:inline>
+  (() => {
+    if (window.__atlasRefsAutoOpenBound) return;
+    window.__atlasRefsAutoOpenBound = true;
+
+    function openRefsIfTargeted(hash) {
+      if (!hash) return;
+      if (hash.startsWith('#ref') || hash === '#evidence-boundaries') {
+        document.querySelectorAll('details.atlas-refs-details').forEach((d) => {
+          d.open = true;
+        });
+      }
+    }
+
+    document.addEventListener(
+      'click',
+      (event) => {
+        const target = event.target;
+        if (!(target instanceof Element)) return;
+        const link = target.closest('a[href^="#"]');
+        if (link) {
+          openRefsIfTargeted(link.getAttribute('href') || '');
+        }
+      },
+      true,
+    );
+
+    window.addEventListener('hashchange', () => openRefsIfTargeted(window.location.hash));
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => openRefsIfTargeted(window.location.hash), { once: true });
+    } else {
+      openRefsIfTargeted(window.location.hash);
+    }
+  })();
+</script>
+
+<style>
+  .atlas-dossier {
+    margin: 1rem 0 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card);
+    overflow: hidden;
+    font-size: 0.78rem;
+    line-height: 1.45;
+  }
+
+  .atlas-dossier__status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.45rem 0.75rem;
+    padding: 0.48rem 0.85rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--foreground);
+  }
+
+  .atlas-dossier__status--checked {
+    background: color-mix(in oklab, var(--atlas-l1, #1d4ed8) 6%, var(--card));
+  }
+
+  .atlas-dossier__status--draft {
+    background: color-mix(in oklab, var(--atlas-l3, #b45309) 7%, var(--card));
+  }
+
+  .atlas-dossier__status--reviewed {
+    background: color-mix(in oklab, var(--atlas-l2, #0f766e) 6%, var(--card));
+  }
+
+  .atlas-dossier__status-text {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.45rem;
+    min-width: 0;
+  }
+
+  .atlas-dossier__status-text strong {
+    font-weight: 600;
+    color: var(--foreground-light);
+  }
+
+  .atlas-status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    flex-shrink: 0;
+    transform: translateY(-1px);
+    background: var(--atlas-l1, #1d4ed8);
+  }
+
+  .atlas-dossier__status--draft .atlas-status-dot {
+    background: var(--atlas-l3, #b45309);
+  }
+
+  .atlas-dossier__status--reviewed .atlas-status-dot {
+    background: var(--atlas-l2, #0f766e);
+  }
+
+  .atlas-dossier__coverage-link {
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--foreground-light);
+    text-decoration: none;
+  }
+
+  .atlas-dossier__coverage-link:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .atlas-dossier__grid {
+    margin: 0;
+    padding: 0.55rem 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.32rem;
+  }
+
+  .atlas-dossier__row {
+    display: grid;
+    grid-template-columns: 74px minmax(0, 1fr);
+    gap: 0.5rem;
+    align-items: baseline;
+  }
+
+  .atlas-dossier__row dt {
+    margin: 0;
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: var(--muted-foreground);
+  }
+
+  .atlas-dossier__row dd {
+    margin: 0;
+    color: var(--foreground);
+    font-weight: 400;
+    overflow-wrap: anywhere;
+  }
+
+  .atlas-dossier__id {
+    font-family: var(--sl-font-mono);
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: var(--foreground-light);
+  }
+
+  .atlas-sep {
+    margin: 0 0.35rem;
+    color: var(--muted-foreground);
+  }
+
+  .atlas-dossier__layers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.85rem;
+    align-items: center;
+  }
+
+  .atlas-dossier__layer {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.75rem;
+  }
+
+  .atlas-dossier__layer.is-present {
+    font-weight: 600;
+    color: var(--foreground-light);
+  }
+
+  .atlas-dossier__layer.is-absent {
+    font-weight: 400;
+    color: var(--muted-foreground);
+    opacity: 0.58;
+  }
+
+  .atlas-layer-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    flex-shrink: 0;
+  }
+
+  .atlas-dossier__layer.is-l1 .atlas-layer-dot {
+    background: var(--atlas-l1, #1d4ed8);
+  }
+
+  .atlas-dossier__layer.is-l2 .atlas-layer-dot {
+    background: var(--atlas-l2, #0f766e);
+  }
+
+  .atlas-dossier__layer.is-l3 .atlas-layer-dot {
+    background: var(--atlas-l3, #b45309);
+  }
+
+  .atlas-dossier__layer.is-l4 .atlas-layer-dot {
+    background: var(--atlas-l4, #7c3aed);
+  }
+
+  .atlas-dossier__layer.is-l5 .atlas-layer-dot {
+    background: var(--atlas-l5, #475569);
+  }
+
+  .atlas-disclaimer {
+    margin-top: 1rem;
+    padding: 0.65rem 0.85rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--muted);
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: var(--muted-foreground);
+  }
+
+  .atlas-disclaimer strong {
+    font-weight: 600;
+    color: var(--foreground-light);
+  }
+
+  .atlas-disclaimer__report {
+    color: var(--foreground-light);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    white-space: nowrap;
+  }
+</style>

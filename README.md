@@ -14,6 +14,7 @@ Static documentation site built with **Astro 7 + Starlight 0.43 + Pagefind** via
 - [Content schema](docs/CONTENT_SCHEMA.md) & [Data model](docs/DATA_MODEL.md) — shared taxonomy ([src/taxonomy.json](src/taxonomy.json)), frontmatter shape, and 5-layer Ready-Reckoner layout
 - [Research protocol](docs/RESEARCH_PROTOCOL.md) & [Discovery playbook](docs/RESEARCH_DISCOVERY_PLAN.md) — official source map, search query recipes, and 10-step synthesis pipeline
 - [Contributor & agent workflow](docs/SECTION_WORKFLOW.md) — single bounded work unit per PR, Hard vs. Soft gates, and agent contract
+- [Domain stewardship & delta-review](docs/TOPIC_STEWARDSHIP_AND_DELTA_REVIEW.md) — 5 topic steward families, baseline certification vs. incremental diff review
 - [Agent router & contributor guide](AGENTS.md) — BYO-agent instructions, validation commands, and proof checks
 - [Reference architectures & benchmarks](docs/ARCHITECTURE_RESEARCH.md) — lessons from Sigma, MITRE ATT&CK, OpenCTI, and synthetic scale targets
 - [Site blueprint & deployment](docs/SITE_BLUEPRINT.md) — GitHub Pages configuration, routing, and template separation
@@ -29,7 +30,7 @@ Every material claim traces to an opened primary source or is explicitly labeled
 ## Current state
 UPI v1 release candidate (`release/upi-v1-freeze`, PR `#6`):
 - **Website & search:** Astro 7 / Starlight 0.43 static build validated across 29 pages with zero broken internal links (`starlight-links-validator`) and Pagefind indexing across 6 metadata filters (`record_type`, `stage`, `product`, `lifecycle`, `actor`, `evidence_layer`).
-- **Evidence coverage:** 16 UPI entries (`UPI-OVERVIEW`, `UPI-001`–`UPI-007`, `UPI-009`–`UPI-016`) are `source-checked` against directly opened RBI/GoI/browser-verified NPCI/industry/`arXiv` originals; 1 entry (`UPI-008`) remains `draft` because `NPCI/2025-26/IS/003` is not listed on public `npci.org.in` circular indexes. All 17 entries remain **unpublished drafts with `Independent reviewer: PENDING`**, and the repository is not yet deployed to GitHub Pages.
+- **Evidence coverage:** All 17 UPI entries (`UPI-OVERVIEW` and `UPI-001`–`UPI-016`) are **`source-checked`** against directly opened RBI, PIB, browser-verified NPCI pages, operating circulars, and confirmed member circulars (including `NPCI/2025-26/IS/003`). All 17 entries currently have baseline research verified with **`Independent reviewer: PENDING`** across designated Domain Steward areas, and the repository is not yet deployed to GitHub Pages.
 
 ## Local development & verification
 Run once per fresh clone so local commits trigger the same attestation gate as CI (`.githooks/pre-commit` automatically selects `python3` or `python` >= 3.8 on Windows/POSIX):

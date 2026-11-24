@@ -19,6 +19,7 @@ Before drafting, editing, or validating content, read the canonical living speci
 | **Evidence & Research Protocol** | [docs/RESEARCH_PROTOCOL.md](docs/RESEARCH_PROTOCOL.md) — 12-rule evidence integrity protocol, entity-scope boundaries. |
 | **Source Discovery & Search** | [docs/RESEARCH_DISCOVERY_PLAN.md](docs/RESEARCH_DISCOVERY_PLAN.md) — Official source map, search query recipes, 10-step synthesis pipeline. |
 | **Contributor Workflow & Gates** | [docs/SECTION_WORKFLOW.md](docs/SECTION_WORKFLOW.md) — Single-work-unit rule, Hard vs. Soft gates, agent contract. |
+| **Domain Stewardship & Review** | [docs/TOPIC_STEWARDSHIP_AND_DELTA_REVIEW.md](docs/TOPIC_STEWARDSHIP_AND_DELTA_REVIEW.md) — 5 topic steward families, baseline certification vs. delta-review. |
 | **Website Blueprint & Routing** | [docs/SITE_BLUEPRINT.md](docs/SITE_BLUEPRINT.md) — GitHub Pages configuration, `/india-fintech-risk-atlas/` base path. |
 | **Browser Verification Skill** | [.agents/skills/atlas-content-update/SKILL.md](.agents/skills/atlas-content-update/SKILL.md) — In-browser computer-use verification for WAF/Cloudflare/SPA pages. |
 | **Release Status & Audit** | [docs/RELEASE_STATUS.md](docs/RELEASE_STATUS.md) — Live audit of the 17 UPI topic records, PR #6 readiness, and blockers. |

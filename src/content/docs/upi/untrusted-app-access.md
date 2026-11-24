@@ -17,8 +17,8 @@ actors:
 evidenceLayers:
   - official
   - atlas
-reviewStage: draft
-blockerNote: "Official npci.org.in/fraud-awareness verified via browser on 2026-11-23; NPCI/2025-26/IS/003 is not listed on public npci.org.in/circulars/upi or /circulars/others (provisional bank mirror used); independent review pending."
+reviewStage: source-checked
+blockerNote: ""
 lastSourceCheck: "2026-11-23"
 ---
 

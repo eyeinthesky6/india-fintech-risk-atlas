@@ -1,8 +1,8 @@
 name: Regulatory Watcher
 on:
   schedule:
-    # Twice daily: 04:00 UTC (09:30 IST) & 12:00 UTC (17:30 IST)
-    - cron: '0 4,12 * * *'
+    # Once daily at 14:00 UTC (19:30 IST), right after regulators publish their evening circulars
+    - cron: '0 14 * * *'
   workflow_dispatch:
 
 permissions:

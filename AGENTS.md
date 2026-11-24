@@ -23,6 +23,7 @@ Before drafting, editing, or validating content, read the canonical living speci
 | **Website Blueprint & Routing** | [docs/SITE_BLUEPRINT.md](docs/SITE_BLUEPRINT.md) — GitHub Pages configuration, `/india-fintech-risk-atlas/` base path. |
 | **Browser Verification Skill** | [.agents/skills/atlas-content-update/SKILL.md](.agents/skills/atlas-content-update/SKILL.md) — In-browser computer-use verification for WAF/Cloudflare/SPA pages. |
 | **Release Status & Audit** | [docs/RELEASE_STATUS.md](docs/RELEASE_STATUS.md) — Live audit of the 17 UPI topic records, PR #6 readiness, and blockers. |
+| **Product Expansion Task Board** | [docs/PRODUCT_EXPANSION_TASKBOARD.md](docs/PRODUCT_EXPANSION_TASKBOARD.md) — Live task board & turnkey agent execution contract for Cards, PA/PG, and Lending expansion. |
 
 ---
 

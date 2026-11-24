@@ -22,6 +22,7 @@ Static documentation site built with **Astro 7 + Starlight 0.43 + Pagefind** via
 - [Operator intelligence guide](docs/OPERATOR_INTELLIGENCE.md) — field observations, failure gaps, and validation methods
 - [Content update skill](.agents/skills/atlas-content-update/SKILL.md) — contributor workflow including browser computer-use fallback when HTTP fails
 - [Release status & audit](docs/RELEASE_STATUS.md) — UPI v1 readiness, blockers, and CI status
+- [Product expansion task board](docs/PRODUCT_EXPANSION_TASKBOARD.md) — live execution board and turnkey agent contract for Cards, PA/PG, and Digital Lending
 - [UPI documentation entry point](src/content/docs/upi/index.mdx) — auto-generated UPI catalogue and playbooks
 
 ## Editorial rules

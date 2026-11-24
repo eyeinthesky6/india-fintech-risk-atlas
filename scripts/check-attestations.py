@@ -16,6 +16,7 @@ DEPRECATED_REF_URL_RES = [
     re.compile(r'https?://(?:www\.)?npci\.org\.in/what-we-do/upi/', re.I),
 ]
 EXEMPT = {
+    'src/content/docs/404.md',
     'src/content/docs/index.mdx',
     'src/content/docs/methodology.md',
     'src/content/docs/contribute.md',

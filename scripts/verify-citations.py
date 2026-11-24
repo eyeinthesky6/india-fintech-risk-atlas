@@ -26,6 +26,7 @@ URL_RE = re.compile(r'https?://[^\s\)\]>"]+')
 SOFT_404_RE = re.compile(r'\b(?:404|page\s+not\s+found|error\s+404|cannot\s+be\s+found)\b', re.I)
 
 EXEMPT = {
+    'src/content/docs/404.md',
     'src/content/docs/index.mdx',
     'src/content/docs/methodology.md',
     'src/content/docs/contribute.md',

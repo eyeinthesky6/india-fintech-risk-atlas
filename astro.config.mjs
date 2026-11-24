@@ -19,6 +19,7 @@ export default defineConfig({
         label: 'Start here',
         items: [
           { label: 'Overview', link: '/' },
+          { label: 'Explore the Atlas', slug: 'explore' },
           { label: 'Methodology', slug: 'methodology' },
           { label: 'Evidence policy', slug: 'evidence-policy' },
           { label: 'Licensing', slug: 'licensing' },

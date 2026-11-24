@@ -49,6 +49,12 @@ Before drafting, editing, or validating content, read the canonical living speci
    - **STRICT RULE:** An authoring or audit agent **CAN NEVER** tick the independent reviewer boxes (`8–10, 12` in attestations) or self-certify review.
 6. **Git Identity:**
    - Git author and committer must resolve to `Jai <95236332+eyeinthesky6@users.noreply.github.com>`.
+7. **Anti-Skimming Mandate (Action-or-Verification Rule):**
+   - Agents are strictly forbidden from skimming, giving generic chat summaries, or completing runs without tangible git progress.
+   - Every agent invocation MUST produce one of two verifiable Git artifacts:
+     - *Outcome A (Additive Content):* Creates a newly drafted topic record, or appends concrete rows/sections to `## What to do`, `## Common patterns`, or `## Watch-outs` with paired evidence.
+     - *Outcome B (Verification Audit):* Directly opens and reads cited primary sources, verifies section locators against recent circular amendments, updates `lastSourceCheck: "YYYY-MM-DD"`, and updates the corresponding rows in `research/evidence/<ID>.md`.
+   - Citing from search snippets without opening the underlying document and recording the exact chapter/section locator (e.g. `Ch. III §53`) is strictly prohibited.
 
 ---
 

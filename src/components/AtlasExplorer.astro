@@ -1,0 +1,75 @@
+---
+import { getCollection } from 'astro:content';
+import { getBasePath, taxonomy, formatRecordStatus } from '../lib/upi-records';
+const base = getBasePath();
+const records = (await getCollection('docs', e => Boolean(e.data.recordId))).sort((a,b) => a.data.title.localeCompare(b.data.title));
+const facets = [
+  {key:'product',label:'Product',values:taxonomy.products},
+  {key:'actor',label:'Actor / entity',values:taxonomy.actors},
+  {key:'theme',label:'Topic',values:taxonomy.themes},
+  {key:'lifecycle',label:'Lifecycle',values:taxonomy.lifecycle},
+  {key:'type',label:'Record type',values:taxonomy.recordTypes},
+  {key:'evidence',label:'Evidence layer',values:taxonomy.evidenceLayers},
+  {key:'stage',label:'Review status',values:taxonomy.reviewStages},
+];
+---
+<p>Browse from any starting point. All filters are optional. Topic and actor associations are discovery metadata, not legal applicability decisions. Department, authority and verified regulatory-change filters will be added when structured evidence is available.</p>
+
+<div id="atlas-explorer">
+  <form id="atlas-filters">
+    <div class="filters">
+      {facets.map(f => <fieldset><legend>{f.label}</legend><div class="options">{Object.entries(f.values).map(([key,label]) => <label><input type="checkbox" name={f.key} value={key}/> {label}</label>)}</div></fieldset>)}
+    </div>
+    <button type="reset">Clear filters</button>
+  </form>
+  <p id="atlas-count" aria-live="polite">{records.length} records</p>
+  <div id="atlas-results">
+    {records.map(e => <article data-record data-product={e.data.products?.join(' ') ?? ''} data-actor={e.data.actors?.join(' ') ?? ''} data-theme={e.data.theme ?? ''} data-lifecycle={e.data.lifecycle?.join(' ') ?? ''} data-type={e.data.recordType ?? ''} data-evidence={e.data.evidenceLayers?.join(' ') ?? ''} data-stage={e.data.reviewStage ?? 'draft'}>
+      <h3><a href={`${base}/${e.id}/`}>{e.data.title}</a></h3>
+      <p>{e.data.description}</p>
+      <small>{formatRecordStatus(e)}</small>
+    </article>)}
+  </div>
+  <p id="atlas-empty" hidden>No matching records in current coverage. Clear filters or broaden your selection.</p>
+  <noscript>Filtering requires JavaScript. All records are listed above.</noscript>
+</div>
+<script>
+  const form = document.querySelector<HTMLFormElement>('#atlas-filters');
+  if (form) {
+    const rows = Array.from(document.querySelectorAll<HTMLElement>('#atlas-results [data-record]'));
+    const count = document.querySelector('#atlas-count');
+    const empty = document.querySelector<HTMLElement>('#atlas-empty');
+    const inputs = Array.from(form.querySelectorAll<HTMLInputElement>('input[type=checkbox]'));
+    const params = new URLSearchParams(location.search);
+    for (const input of inputs) input.checked = params.getAll(input.name).includes(input.value);
+    function apply() {
+      const selected = new Map<string,string[]>();
+      for (const input of inputs) if (input.checked) selected.set(input.name,[...(selected.get(input.name) ?? []),input.value]);
+      let n = 0;
+      for (const row of rows) {
+        const match = [...selected].every(([key,values]) => values.some(v => (row.dataset[key] ?? '').split(' ').includes(v)));
+        row.hidden = !match;
+        if (match) n++;
+      }
+      if (count) count.textContent = n + ' of ' + rows.length + ' records';
+      if (empty) empty.hidden = n !== 0;
+      const url = new URL(location.href);
+      for (const key of new Set(inputs.map(i => i.name))) url.searchParams.delete(key);
+      for (const [key,values] of selected) for (const value of values) url.searchParams.append(key,value);
+      history.replaceState(history.state,'',url);
+    }
+    form.addEventListener('change',apply);
+    form.addEventListener('submit',event => event.preventDefault());
+    form.addEventListener('reset',() => queueMicrotask(apply));
+    apply();
+  }
+</script>
+<style>
+  .filters { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,13rem),1fr)); gap:0.75rem; }
+  fieldset { min-width:0; border:1px solid var(--sl-color-gray-5); padding:0.6rem; }
+  legend { font-weight:600; }
+  .options { display:grid; gap:0.25rem; }
+  label { font-size:var(--sl-text-sm); }
+  article { border-block-end:1px solid var(--sl-color-gray-5); padding-block:0.8rem; }
+  [hidden] { display:none !important; }
+</style>

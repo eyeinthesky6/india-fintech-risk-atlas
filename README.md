@@ -10,16 +10,21 @@ Static documentation site built with **Astro 7 + Starlight 0.43 + Pagefind** via
 
 ## Start here
 - [Architecture freeze](docs/ARCHITECTURE_FREEZE.md) — governing v1 technical and product decisions
-- [Content schema & data model](docs/CONTENT_SCHEMA.md) — shared taxonomy ([src/taxonomy.json](src/taxonomy.json)), frontmatter, and 4-layer ledger rules
-- [Research & verification protocol](docs/RESEARCH_PROTOCOL.md) — discovery, evidence ledgers, gates, and agent prompts
-- [Evidence layers & rights](docs/EVIDENCE_LAYERS_AND_RIGHTS.md) — attribution, licensing, and source quality labels
+- [Product architecture & personas](docs/PRODUCT_ARCHITECTURE.md) — 5 user personas, canonical entities, cross-product ID reuse, and search facets
+- [Content schema](docs/CONTENT_SCHEMA.md) & [Data model](docs/DATA_MODEL.md) — shared taxonomy ([src/taxonomy.json](src/taxonomy.json)), frontmatter shape, and 5-layer Ready-Reckoner layout
+- [Research protocol](docs/RESEARCH_PROTOCOL.md) & [Discovery playbook](docs/RESEARCH_DISCOVERY_PLAN.md) — official source map, search query recipes, and 10-step synthesis pipeline
+- [Contributor & agent workflow](docs/SECTION_WORKFLOW.md) — single bounded work unit per PR, Hard vs. Soft gates, and agent contract
+- [Agent router & contributor guide](AGENTS.md) — BYO-agent instructions, validation commands, and proof checks
+- [Reference architectures & benchmarks](docs/ARCHITECTURE_RESEARCH.md) — lessons from Sigma, MITRE ATT&CK, OpenCTI, and synthetic scale targets
+- [Site blueprint & deployment](docs/SITE_BLUEPRINT.md) — GitHub Pages configuration, routing, and template separation
+- [Evidence layers & rights](docs/EVIDENCE_LAYERS_AND_RIGHTS.md) — attribution, licensing, and 5-layer quality labels
 - [Operator intelligence guide](docs/OPERATOR_INTELLIGENCE.md) — field observations, failure gaps, and validation methods
-- [Content update & verification skill](.agents/skills/atlas-content-update/SKILL.md) — contributor/agent workflow including manual in-browser computer-use fallback when HTTP fails
+- [Content update skill](.agents/skills/atlas-content-update/SKILL.md) — contributor workflow including browser computer-use fallback when HTTP fails
 - [Release status & audit](docs/RELEASE_STATUS.md) — UPI v1 readiness, blockers, and CI status
 - [UPI documentation entry point](src/content/docs/upi/index.mdx) — auto-generated UPI catalogue and playbooks
 
 ## Editorial rules
-Every material claim traces to an opened primary source or is explicitly labeled across four layers (`Official`, `Industry`, `Practitioner`, or `Atlas & research paper leads`). A legal requirement is mandatory only for the entity scope and effective period verified in the primary document. Academic papers belong strictly under Layer 4 as candidate ideas for gaps, not ready-to-use rules or industry/practitioner proof. Avoid sensitive operational evasion thresholds. New contributions require review and attestation checks.
+Every material claim traces to an opened primary source or is explicitly labeled across strictly **five layers** (`Regulatory` / `official`, `Industry practice` / `industry`, `Community insight` / `practitioner`, `Research & academic` / `research`, or `Atlas guidance` / `atlas`). A legal requirement is mandatory only for the entity scope and effective period verified in the primary document. Academic papers belong strictly under `Research & academic` as candidate ideas for gaps, not ready-to-use rules or company proof. Avoid sensitive operational evasion thresholds. New contributions require review and attestation checks.
 
 ## Current state
 UPI v1 release candidate (`release/upi-v1-freeze`, PR `#6`):

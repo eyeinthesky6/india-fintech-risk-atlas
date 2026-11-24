@@ -6,30 +6,34 @@
 ---
 
 ## 🎯 Purpose & Agent Autonomy Rule
-This task board is designed for **100% turnkey agent execution**. Any agent opening this repository can pick the next pending topic, execute the entire end-to-end research and content cycle, verify all machine gates, and submit a complete, merge-ready pull request without guesswork or human handholding.
+This task board is designed for **turnkey agent execution**. Any agent opening this repository can pick the next pending topic, execute the entire end-to-end research and content cycle, verify all machine gates, and submit a merge-ready pull request without guesswork or human handholding.
+
+> [!IMPORTANT]
+> **Editorial Invariant: Never Label Content as "100% Done" or "100% Complete".**  
+> In living financial risk reference platforms, content is never "finished." Fraud techniques and regulatory circulars continuously evolve. A checked topic `[x]` means its 6 sections are fully populated (non-blank) with source-checked evidence and merged to `main`, but it remains a living draft permanently open for regulatory updates, operational edge cases, and domain expert review.
 
 ---
 
 ## 🚦 Live Task Board: Product Tracks & Topic Status
 
-### 🟢 Track 1: UPI Rail (`upi`) — Baseline v1 (100% COMPLETE & MERGED)
-- [x] `UPI-OVERVIEW`: UPI Ecosystem & Scheme Clearing Architecture
-- [x] `UPI-001`: Unusual outbound payment velocity
-- [x] `UPI-002`: Mule account funnel & dormancy-to-burst movement
-- [x] `UPI-003`: Account takeover, SIM-swap & session binding
-- [x] `UPI-004`: Collect request deception (P2P/P2M spoofing)
-- [x] `UPI-005`: Payment status reconciliation & webhook idempotency
-- [x] `UPI-006`: Dynamic/static QR & cashback reversal deception
-- [x] `UPI-007`: Fake bank support impersonation & remote tools
-- [x] `UPI-008`: Untrusted app access, screen overlays & RASP
-- [x] `UPI-009`: Authentication context & biometrics
-- [x] `UPI-010`: Enterprise transaction velocity & EFRM staffing
-- [x] `UPI-011`: Failed authentication PIN retry limits & lockouts
-- [x] `UPI-012`: Merchant onboarding & shell merchant laundering
-- [x] `UPI-013`: Online dispute resolution (UDIR) & chargebacks
-- [x] `UPI-014`: Settlement batch delays & URCS exceptions
-- [x] `UPI-015`: Customer zero/limited liability reporting
-- [x] `UPI-016`: RBI Discussion Paper on future fraud safeguards
+### 🟢 Track 1: UPI Rail (`upi`) — Baseline Populated & Merged (Living Drafts)
+- [x] `UPI-OVERVIEW`: UPI Ecosystem & Scheme Clearing Architecture (Baseline populated; non-blank)
+- [x] `UPI-001`: Unusual outbound payment velocity (Baseline populated; non-blank)
+- [x] `UPI-002`: Mule account funnel & dormancy-to-burst movement (Baseline populated; non-blank)
+- [x] `UPI-003`: Account takeover, SIM-swap & session binding (Baseline populated; non-blank)
+- [x] `UPI-004`: Collect request deception (P2P/P2M spoofing) (Baseline populated; non-blank)
+- [x] `UPI-005`: Payment status reconciliation & webhook idempotency (Baseline populated; non-blank)
+- [x] `UPI-006`: Dynamic/static QR & cashback reversal deception (Baseline populated; non-blank)
+- [x] `UPI-007`: Fake bank support impersonation & remote tools (Baseline populated; non-blank)
+- [x] `UPI-008`: Untrusted app access, screen overlays & RASP (Baseline populated; non-blank)
+- [x] `UPI-009`: Authentication context & biometrics (Baseline populated; non-blank)
+- [x] `UPI-010`: Enterprise transaction velocity & EFRM staffing (Baseline populated; non-blank)
+- [x] `UPI-011`: Failed authentication PIN retry limits & lockouts (Baseline populated; non-blank)
+- [x] `UPI-012`: Merchant onboarding & shell merchant laundering (Baseline populated; non-blank)
+- [x] `UPI-013`: Online dispute resolution (UDIR) & chargebacks (Baseline populated; non-blank)
+- [x] `UPI-014`: Settlement batch delays & URCS exceptions (Baseline populated; non-blank)
+- [x] `UPI-015`: Customer zero/limited liability reporting (Baseline populated; non-blank)
+- [x] `UPI-016`: RBI Discussion Paper on future fraud safeguards (Baseline populated; non-blank)
 
 ---
 

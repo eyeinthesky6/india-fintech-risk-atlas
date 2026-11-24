@@ -1,7 +1,9 @@
-# Public Data Intelligence Roadmap: Open Data for Indian Fintech Risk & Reliability
+# Exploratory Discussion: Public Data Intelligence (Distinct Product Line Analysis)
 
-**Status:** Proposed product direction & research specification.  
-**Mission:** Transform fragmented, disparate public disclosures into the definitive open data and risk intelligence layer for Indian payments, serving both the general public and fintech risk practitioners with zero proprietary lock-in.
+> **Scope & product boundary notice:** This document records an exploratory discussion regarding a potential separate data/analytics-based product. It is **NOT** part of the India Fintech Risk Atlas core content architecture, which remains strictly a static, content-based editorial reference platform.
+
+**Status:** Exploratory research note & concept study (separate product track).  
+**Context:** Examining how publicly available datasets in India could power a distinct analytical tool alongside the editorial knowledge base.
 
 ---
 

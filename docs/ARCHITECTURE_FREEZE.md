@@ -39,7 +39,6 @@ One record or closely related section per agent work unit. Researcher collects s
   1. Add **role-based persona filtering** to dynamically slice Ready-Reckoner `What to do` matrices by operator license (`TPAP`, `PSP Bank`, `Remitter Bank`, `Payment Aggregator`).
   2. Provide downloadable and client-side **readiness & self-audit gap checklists** for fintech teams pre-auditing against RBI/NPCI rules.
   3. Publish static machine-readable exports (`llms.txt` and build-time JSON catalogue) plus an official **read-only Model Context Protocol (MCP) server** backed by those static artifacts (zero runtime database) so external AI agents (ChatGPT, Claude, Codex, Antigravity, IDE assistants) can query verified records, exact citations, entity scopes, and `reviewStage` trust status cleanly.
-  4. Develop the **public data intelligence layer** ([docs/PUBLIC_DATA_INTELLIGENCE_ROADMAP.md](PUBLIC_DATA_INTELLIGENCE_ROADMAP.md)) curating open NPCI decline metrics, parliamentary fraud statistics, and an interactive customer liability calculator.
 - A private repository cannot be assumed eligible for free GitHub Pages; check repository plan/visibility before public deployment.
 - Superseded pre-freeze design memos and pre-consolidation drafts are preserved in `docs/archive/`; active schema, workflow, and status rules live in `docs/CONTENT_SCHEMA.md`, `docs/RESEARCH_PROTOCOL.md`, and `docs/RELEASE_STATUS.md`. **This freeze record governs new work.**
 

@@ -57,3 +57,14 @@ jobs:
               --title "$TITLE" \
               --body-file report.md
           fi
+
+      - name: Send Telegram Alert for New Circulars
+        if: steps.watcher.outputs.has_new == 'true'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python3 scripts/notify-telegram.py \
+            --title "⚠️ New Regulatory Publication Detected" \
+            --message "Daily watcher detected ${{ steps.watcher.outputs.new_count }} new circular(s) from RBI / PIB." \
+            --url "https://github.com/${{ github.repository }}/issues"

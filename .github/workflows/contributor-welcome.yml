@@ -12,6 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     if: "!github.event.issue.pull_request"
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
       - name: Welcome Domain Expert Applicant
         if: "contains(github.event.issue.labels.*.name, 'domain-expert')"
         uses: actions/github-script@v7
@@ -66,3 +69,13 @@ jobs:
               issue_number: context.issue.number,
               body: comment
             });
+
+      - name: Send Telegram Alert for New Signup
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python3 scripts/notify-telegram.py \
+            --title "👤 New Application: ${{ github.event.issue.title }}" \
+            --message "A new expert or contributor application was submitted. Issue #${{ github.event.issue.number }}." \
+            --url "${{ github.event.issue.html_url }}"

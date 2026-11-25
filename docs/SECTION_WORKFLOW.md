@@ -36,7 +36,10 @@ python scripts/verify-citations.py --offline --all
 # 4. Check for newly gazetted regulator circulars
 python scripts/watch-regulators.py
 
-# 5. Build and validate all links
+# 5. Run MCP integration tests, fast-check property tests & dataset audit
+npm test
+
+# 6. Build static site, sync MCP/llms.txt datasets & validate all links
 npm run build
 ```
 

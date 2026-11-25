@@ -75,10 +75,13 @@ python scripts/verify-citations.py --offline --all
 # 4. Run daily regulatory feed watcher (RBI / PIB RSS)
 python scripts/watch-regulators.py
 
-# 5. Build static site & validate all internal links and Pagefind filters
+# 5. Run MCP integration tests, fast-check property tests & dataset audit
+npm test
+
+# 6. Build static site, sync MCP/llms.txt datasets & validate all internal links
 npm run build
 
-# 6. Preview site locally (subpath: /india-fintech-risk-atlas/)
+# 7. Preview site locally (subpath: /india-fintech-risk-atlas/)
 npx astro preview --host 127.0.0.1 --port 4321
 ```
 

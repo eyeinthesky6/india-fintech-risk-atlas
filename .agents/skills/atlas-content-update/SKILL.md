@@ -78,7 +78,7 @@ Contributors and agents maintain quality through five connected layers rather th
 
 | Layer | Mechanism | What It Prevents | Cadence |
 |---|---|---|---|
-| **1. Schema & taxonomy lock** | `src/taxonomy.json` + Astro/Zod `src/content.config.ts` | Invented labels, broken filter chips, missing metadata | Every build (`npm run build`) |
+| **1. Schema, taxonomy & MCP dataset lock** | `src/taxonomy.json` + Astro/Zod `src/content.config.ts` + `scripts/build-atlas-data.js` + `npm test` | Invented labels, broken filter chips, missing metadata, dataset drift, broken MCP schemas | Every build & test (`npm test && npm run build`) |
 | **2. Parity & attestation gate** | `scripts/check-attestations.py` (pre-commit + PR CI) | Unchecked URLs, invalid `lastSourceCheck`, missing ledgers, reviewer self-certification | Every commit & PR |
 | **3. Tiered citation & deprecation triage** | `scripts/verify-citations.py` | Soft-404s, retired `/what-we-do/upi/*` URLs, blind `HTTP 403` ignores | Pre-PR & weekly CI |
 | **4. Freshness SLA & event triggers** | `90`-day SLA (`official` layer) / `180`-day SLA (non-official) + circular-supersession checks | Quietly outdated regulatory rules or broken vendor links | Weekly Monday CI summary (`.github/workflows/external-links.yml`) + event-driven refreshes |
@@ -95,14 +95,27 @@ From the repository root:
 python scripts/check-attestations.py --all
 
 # 2. Online citation & deprecation check (queued WAF/SPA URLs print cleanly for browser check)
-python scripts/verify-citations.py --files src/content/docs/upi/<changed-file>.md
+python scripts/verify-citations.py --files src/content/docs/<product>/<changed-file>.md
 
 # 3. Repo-wide offline freshness & ledger parity check
 python scripts/verify-citations.py --offline --all
 
-# 4. Production build, Pagefind filters, and Starlight internal link validation
+# 4. MCP Server 12-tool integration, property fuzzing & dataset audit
+npm test
+
+# 5. Production build, Pagefind filters, and Starlight internal link validation
 npm run build
 ```
+
+---
+
+## Agent Self-Audit via Local MCP Tools
+
+Before concluding content updates, agents can query the local MCP server (`india-fintech-risk-atlas-mcp`) to self-audit their work:
+- `get_persona_controls`: Verify that candidate controls are recognized by the alias matching engine for the relevant actor (`remitter-bank`, `psp-bank`, `payment-aggregator`, `tpap`, `merchant`).
+- `generate_gap_checklist`: Confirm the new record appears properly in the generated gap checklist matrix.
+- `get_clean_markdown`: Verify the plain-markdown export is clean with UI tags stripped and canonical source URL appended.
+- `explore_knowledge_graph`: Check that theme and co-cited circular nodes are properly wired in the graph.
 
 ---
 

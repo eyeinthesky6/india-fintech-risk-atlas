@@ -11,6 +11,7 @@ Usage:
 """
 
 import argparse
+import html
 import json
 import os
 import sys
@@ -21,9 +22,12 @@ import urllib.error
 def send_telegram_notification(token: str, chat_id: str, title: str, message: str, url: str | None = None) -> bool:
     endpoint = f"https://api.telegram.org/bot{token}/sendMessage"
 
-    formatted_text = f"<b>🏛️ India Fintech Risk Atlas</b>\n\n<b>{title}</b>\n\n{message}"
+    safe_title = html.escape(title)
+    safe_message = html.escape(message.replace("\\n", "\n"))
+    formatted_text = f"<b>🏛️ India Fintech Risk Atlas</b>\n\n<b>{safe_title}</b>\n\n{safe_message}"
     if url:
-        formatted_text += f'\n\n🔗 <a href="{url}">View on Live Website</a>'
+        safe_url = html.escape(url, quote=True)
+        formatted_text += f'\n\n🔗 <a href="{safe_url}">View on Live Website</a>'
 
     payload = {
         "chat_id": chat_id,

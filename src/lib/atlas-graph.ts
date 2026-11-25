@@ -57,6 +57,8 @@ const SOURCE_MATCHERS: Array<[RegExp, string]> = [
   [/[?&]id=23810\b/i, 'RBI Fraud Discussion Paper'],
   [/[?&]id=13089\b/i, 'RBI PB RBC 2025'],
   [/[?&]id=11040\b/i, 'RBI Liability 2017'],
+  [/[?&]id=12300\b/i, 'RBI Card MD 2022'],
+  [/[?&]id=12152\b/i, 'RBI CoFT 2021'],
   [/PRID=2260277\b/i, 'PIB MuleHunter MoU'],
   [/npci\.org\.in\/fraud-awareness/i, 'NPCI Fraud Awareness'],
   [/npci\.org\.in\/faqs\/upi/i, 'NPCI UPI FAQs'],

@@ -52,8 +52,8 @@ async function sha256Hex(value) {
   return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-async function verifyTurnstile(token, remoteIp, secretKey) {
-  if (!secretKey) return true;
+async function verifyTurnstile(token, remoteIp, secretKey, allowInsecureDev) {
+  if (!secretKey) return allowInsecureDev === 'true';
   if (!token || typeof token !== 'string') return false;
 
   const form = new URLSearchParams();
@@ -71,7 +71,9 @@ async function verifyTurnstile(token, remoteIp, secretKey) {
 }
 
 async function checkAndIncrementLimits(env, clientIp) {
-  if (!env.RATE_LIMIT_KV) return { allowed: true };
+  if (!env.RATE_LIMIT_KV) {
+    return { allowed: String(env.ALLOW_INSECURE_DEV || '') === 'true', misconfigured: true };
+  }
 
   const hourlyCap = Number(env.HOURLY_IP_CAP || 3);
   const dailyCap = Number(env.DAILY_GLOBAL_CAP || 30);
@@ -184,6 +186,7 @@ export default {
       payload.turnstileToken,
       clientIp,
       String(env.TURNSTILE_SECRET_KEY || ''),
+      String(env.ALLOW_INSECURE_DEV || ''),
     );
     if (!turnstileOk) {
       return jsonResponse({ error: 'Anti-bot verification failed' }, 403, origin);
@@ -191,7 +194,11 @@ export default {
 
     const limitResult = await checkAndIncrementLimits(env, clientIp || 'unknown');
     if (!limitResult.allowed) {
-      return jsonResponse({ error: 'Rate limit exceeded' }, 429, origin);
+      return jsonResponse(
+        { error: limitResult.misconfigured ? 'Rate limiter not configured' : 'Rate limit exceeded' },
+        limitResult.misconfigured ? 500 : 429,
+        origin,
+      );
     }
 
     const triageRepo = String(env.TRIAGE_GITHUB_REPO || '').trim();

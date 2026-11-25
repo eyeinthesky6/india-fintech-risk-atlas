@@ -10,6 +10,7 @@ from urllib.parse import quote
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTENT = 'src/content/docs/'
+RESEARCH = 'research/'
 GENERATED = {
     'public/atlas-records.json', 'mcp/data/atlas-records.json',
     'public/llms.txt', 'public/llms-full.txt',
@@ -99,18 +100,16 @@ def describe_article(path, state, previous, current, site_url, include_excerpt):
     return line, link
 
 
-def area(path):
+def code_area(path):
     prefix = path.split('/', 1)[0]
     return {
-        'mcp': 'MCP tools or data export',
-        'scripts': 'Build or research tools',
-        'src': 'Site navigation, layout or metadata',
+        'mcp': 'MCP tools and export code',
+        'scripts': 'Build and research tools',
+        'src': 'Website code and metadata',
         'workers': 'Correction reporting code',
         '.github': 'GitHub workflows or forms',
-        'research': 'Research evidence or attestations',
-        'docs': 'Project documentation',
         'public': 'Site assets',
-    }.get(prefix, 'Project setup')
+    }.get(prefix, 'Project configuration')
 
 
 def deployment(args):
@@ -138,6 +137,14 @@ def deployment(args):
     links = []
     pages = [(state, path) for state, path in changes
              if path.startswith(CONTENT) and path.endswith(('.md', '.mdx'))]
+    evidence_files = [path for _, path in changes if path.startswith(RESEARCH)]
+    project_docs = [path for _, path in changes if path.startswith('docs/')
+                    or ('/' not in path and path.endswith('.md')) or path.startswith('mcp/README')]
+    excluded = GENERATED | set(evidence_files) | set(project_docs) | {path for _, path in pages}
+    code = sorted({code_area(path) for _, path in changes if path not in excluded})
+
+    if pages or evidence_files:
+        lines.append('\nContent changes')
     pages.sort(key=lambda entry: PurePosixPath(entry[1]).stem in GUIDES)
     excerpts = 0
     for state, path in pages[:5]:
@@ -148,12 +155,15 @@ def deployment(args):
             links.append(link)
     if len(pages) > 5:
         lines.append(f'• {len(pages) - 5} more page changes in the diff')
-    other = sorted({area(path) for _, path in changes if not path.startswith(CONTENT) and path not in GENERATED})
-    if other:
-        lines.append('• ' + ('Also updated ' if pages else 'Updated ') + ', '.join(other))
-        log = git('log', '--no-merges', '-n', '3', '--format=%s',
-                  f'{previous}..{current}' if previous else current).splitlines()
-        lines.extend(f'  – {shorten(subject, 120)}' for subject in dict.fromkeys(log) if subject)
+    if evidence_files:
+        names = sorted({PurePosixPath(path).stem for path in evidence_files})
+        listed = ', '.join(shorten(name, 60) for name in names[:3])
+        remaining = f' and {len(names) - 3} more' if len(names) > 3 else ''
+        lines.append(f'• Research evidence and review records — {listed}{remaining}')
+    if code:
+        lines.extend(['\nCode changes', *(f'• {area}' for area in code)])
+    if project_docs:
+        lines.extend(['\nProject documentation', f'• {len(project_docs)} files changed'])
     if len(lines) == 1:
         lines.append('No source changes in this deployment.' if not changes else 'Regenerated the public data exports.')
     url = args.repo_url.rstrip('/')

@@ -1,3 +1,4 @@
+import { buildRelationships } from './atlas-relationships.js';
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { getBasePath, taxonomy, taxonomyLabel } from './upi-records';
 
@@ -108,19 +109,6 @@ function extractSourceLabels(body: string | undefined): string[] {
   return Array.from(labels);
 }
 
-function extractInternalLinks(body: string | undefined, base: string): string[] {
-  if (!body) return [];
-  const escapedBase = base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const re = new RegExp(`${escapedBase}/([a-z0-9/-]*)/?`, 'gi');
-  const slugs = new Set<string>();
-  let match: RegExpExecArray | null;
-  while ((match = re.exec(body)) !== null) {
-    const candidate = normalizeDocSlug(match[1]);
-    if (candidate) slugs.add(candidate);
-  }
-  return Array.from(slugs);
-}
-
 let cachedGraph: Promise<AtlasGraphData> | null = null;
 
 export async function getAtlasGraphData(): Promise<AtlasGraphData> {
@@ -184,89 +172,8 @@ async function buildAtlasGraphData(): Promise<AtlasGraphData> {
     return a.recordId.localeCompare(b.recordId);
   });
 
-  // 1. Direct internal links + backlinks map
-  const outlinksBySlug: Record<string, string[]> = {};
-  const backlinksBySlug: Record<string, string[]> = {};
-  const directEdgeMap = new Map<string, AtlasGraphEdge>();
-
-  for (const node of nodes) {
-    const targets = extractInternalLinks(rawBodyBySlug.get(node.slug), base).filter(
-      (targetSlug) => targetSlug !== node.slug && nodeBySlug.has(targetSlug),
-    );
-    outlinksBySlug[node.slug] = targets;
-    for (const targetSlug of targets) {
-      backlinksBySlug[targetSlug] ??= [];
-      if (!backlinksBySlug[targetSlug].includes(node.slug)) {
-        backlinksBySlug[targetSlug].push(node.slug);
-      }
-      const [a, b] = node.slug < targetSlug ? [node.slug, targetSlug] : [targetSlug, node.slug];
-      const key = `${a}::${b}`;
-      if (!directEdgeMap.has(key)) {
-        directEdgeMap.set(key, {
-          source: a,
-          target: b,
-          kind: 'direct-link',
-          labels: ['Direct cross-link'],
-        });
-      }
-    }
-  }
-
-  // 2. Shared primary-source edges between canonical records
-  const canonicalNodes = nodes.filter((n) => !n.isHub);
-  const sourceEdges: AtlasGraphEdge[] = [];
-  for (let i = 0; i < canonicalNodes.length; i++) {
-    for (let j = i + 1; j < canonicalNodes.length; j++) {
-      const a = canonicalNodes[i];
-      const b = canonicalNodes[j];
-      const shared = a.sourceLabels.filter((s) => b.sourceLabels.includes(s));
-      if (shared.length > 0) {
-        sourceEdges.push({
-          source: a.slug,
-          target: b.slug,
-          kind: 'shared-source',
-          labels: shared,
-        });
-      }
-    }
-  }
-
-  // 3. Same-theme edges (clique within each theme + connect theme anchors to `upi` hub if present)
-  const themeEdges: AtlasGraphEdge[] = [];
-  const byTheme = new Map<string, AtlasGraphNode[]>();
-  for (const node of canonicalNodes) {
-    byTheme.set(node.theme, [...(byTheme.get(node.theme) ?? []), node]);
-  }
-  for (const [themeId, group] of byTheme.entries()) {
-    const label = taxonomyLabel(taxonomy.themes, themeId) || themeId;
-    for (let i = 0; i < group.length; i++) {
-      for (let j = i + 1; j < group.length; j++) {
-        themeEdges.push({
-          source: group[i].slug,
-          target: group[j].slug,
-          kind: 'theme',
-          labels: [label],
-        });
-      }
-    }
-    if (nodeBySlug.has('upi') && group.length > 0) {
-      themeEdges.push({
-        source: 'upi',
-        target: group[0].slug,
-        kind: 'theme',
-        labels: [label],
-      });
-    }
-  }
-
-  return {
-    nodes,
-    sourceEdges,
-    themeEdges,
-    directEdges: Array.from(directEdgeMap.values()),
-    backlinksBySlug,
-    outlinksBySlug,
-  };
+  const relationships = buildRelationships(nodes.map(n => ({ ...n, body: rawBodyBySlug.get(n.slug) })), base);
+  return { nodes, ...relationships } as AtlasGraphData;
 }
 
 export interface NeighborSummary {

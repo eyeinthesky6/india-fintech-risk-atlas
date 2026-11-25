@@ -1,7 +1,7 @@
 # India Fintech Risk Atlas — UPI v1 release status & audit
 
-**Branch & PR:** `release/upi-v1-freeze` (PR `#6`).  
-**Publication verdict:** Technically validated release candidate — **NOT independently second-reviewer certified and NOT yet deployed publicly to GitHub Pages**.
+**Historical release branch & PR:** `release/upi-v1-freeze` (PR `#6`).  
+**Publication verdict:** Public [research preview](https://eyeinthesky6.github.io/india-fintech-risk-atlas/) — **NOT independently second-reviewer certified**. Technical results below are historical audit results, not a fresh CI run.
 
 ---
 
@@ -13,7 +13,7 @@
 
 ## Evidence verification & source retrieval (2026-11-23 audit)
 
-- **`17` `source-checked` drafts (`Independent reviewer: PENDING`):** `UPI-OVERVIEW`, `UPI-001`–`UPI-016`. Every cited source is directly opened and verified across 13 RBI directions/circulars/discussion paper (`id=13642`, `13624`, `13633`, `Id=13751`, `Id=12898`, `Id=13543`, `id=13089`, `id=11040`, `id=13641`, `id=12896`, `Id=11693`, `Id=11946`, `id=23810`), PIB release (`PRID=2260277`), browser-verified canonical `npci.org.in` pages and PDFs (`/product/upi`, `/about-upi`, `/roles-responsibilities`, `/faqs/upi`, `/complaint-register`, `/fraud-awareness`, `UPI_Settlement_Process_256f73e1df.pdf`, `OC 220`, `222A`, `OC 235`), member circular `NPCI/2025-26/IS/003` (corroborated across member bank circular mirrors and CERT-In empaneled auditor advisories), Razorpay/Cashfree/Stripe docs, and 3 `arXiv` preprints (`2610.21314v1`, `2410.19845v1`, `2607.17586v1`).
+- **`17` `source-checked` drafts (`Independent reviewer: PENDING`):** `UPI-OVERVIEW`, `UPI-001`–`UPI-016`. The historical audit recorded direct retrieval for sources across 13 RBI directions/circulars/discussion paper (`id=13642`, `13624`, `13633`, `Id=13751`, `Id=12898`, `Id=13543`, `id=13089`, `id=11040`, `id=13641`, `id=12896`, `Id=11693`, `Id=11946`, `id=23810`), PIB release (`PRID=2260277`), browser-verified canonical `npci.org.in` pages and PDFs (`/product/upi`, `/about-upi`, `/roles-responsibilities`, `/faqs/upi`, `/complaint-register`, `/fraud-awareness`, `UPI_Settlement_Process_256f73e1df.pdf`, `OC 220`, `222A`, `OC 235`), member circular `NPCI/2025-26/IS/003` (indirect exception: original not inspected; corroborated across member bank circular mirrors and CERT-In empaneled auditor advisories), Razorpay/Cashfree/Stripe docs, and 3 `arXiv` preprints (`2610.21314v1`, `2410.19845v1`, `2607.17586v1`).
 - **`0` `draft` records remaining:** `UPI-008` promoted to `source-checked` following multi-channel member-circular confirmation.
 - **`0` `reviewed` / `published` records:** Independent second-reviewer verification has not yet occurred on any record.
 
@@ -29,12 +29,12 @@
 ## Ordered release blockers & no-go rules
 
 1. **Independent second-reviewer verification (Domain Steward Model):** Transitioning from blank-slate monolithic re-auditing to designated human **Domain Stewards & Section Supporters** ([docs/TOPIC_STEWARDSHIP_AND_DELTA_REVIEW.md](TOPIC_STEWARDSHIP_AND_DELTA_REVIEW.md)). Stewards certify baseline records, while subsequent regulatory updates only require delta-verification of the specific diff rather than resetting the entire page.
-2. **Official confirmation of `NPCI/2025-26/IS/003` (`UPI-008`):** **RESOLVED (2026-11-24).** Confirmed as an official Information Security (IS) series member circular distributed to PSPs, ASPs, and TPAPs under the UPI IS Compliance Framework; corroborated across CERT-In empaneled auditor advisories (Certcube Labs, Baker Tilly), mobile security vendor documentation (Zimperium, DoveRunner), and member bank circular mirrors (RSCB). `UPI-008` promoted to `source-checked`.
-3. **Named Indian practitioner observations:** **RESOLVED (2026-11-24).** Automated engineering feed watcher (`scripts/watch-practitioners.py`) and scheduled GitHub Action (`.github/workflows/practitioner-watcher.yml`) implemented. Discovered and auto-ingested verified engineering publications from PhonePe (TStore transaction persistence & idempotency `OP-007`/`OP-008`, Real-time fraud detection `OP-013`, Module sandboxing & security isolation `OP-009`/`OP-011`/`OP-012`, Clockwork reconciliation `OP-010`) and Cashfree (UPI International checkout, refunds & settlements `OP-014`/`OP-015`) into `research/upi/OPERATOR_EVIDENCE.md` under Layer 2.
-4. **Repository visibility, Pages activation & branch protection:** Review rights/plan before making repo public, configure GitHub Pages (`Source: GitHub Actions`), enable branch protection requiring `Content attestation` and `Site build & link check` on `main`, and verify the live deployed URL post-merge.
+2. **Original-source verification of `NPCI/2025-26/IS/003` (`UPI-008`):** **OPEN — indirectly corroborated (2026-11-24).** Reported as an official Information Security (IS) series member circular distributed to PSPs, ASPs, and TPAPs under the UPI IS Compliance Framework; corroborated across CERT-In empaneled auditor advisories (Certcube Labs, Baker Tilly), mobile security vendor documentation (Zimperium, DoveRunner), and member bank circular mirrors (RSCB). `UPI-008` was promoted to `source-checked`; original inspection and exact claim-level verification remain outstanding.
+3. **Company-reported Indian engineering practices:** Expanded (2026-11-24); separate named practitioner evidence remains open. Automated engineering feed watcher (`scripts/watch-practitioners.py`) and scheduled GitHub Action (`.github/workflows/practitioner-watcher.yml`) implemented. Discovered and auto-ingested verified engineering publications from PhonePe (TStore transaction persistence & idempotency `OP-007`/`OP-008`, Real-time fraud detection `OP-013`, Module sandboxing & security isolation `OP-009`/`OP-011`/`OP-012`, Clockwork reconciliation `OP-010`) and Cashfree (UPI International checkout, refunds & settlements `OP-014`/`OP-015`) into `research/upi/OPERATOR_EVIDENCE.md` under Layer 2.
+4. **Repository visibility, Pages activation & branch protection:** Public research preview is available. Verify branch protection requiring `Content attestation` and `Site build & link check` on `main`; do not infer protection from deployment.
 5. **Overlapping draft PR hygiene:** **RESOLVED (2026-11-24).** Superseded draft PRs `#1`, `#2`, `#4`, and `#5` closed on GitHub with comment pointers to consolidation PR `#6`. Clean PR queue maintained.
 
-**No-go rules:** Never tick independent reviewer boxes without an actual separate review; never label `draft` or `source-checked` records as `reviewed`/`published`; never merge PR `#6` as a verified compliance guide before blockers 1–2 are resolved; never claim a live Pages URL without observing deployment.
+**No-go rules:** Never tick independent reviewer boxes without an actual separate review; never label `draft` or `source-checked` records as `reviewed`/`published`; never represent the public preview as a verified compliance guide before blockers 1–2 are resolved; never claim a live Pages URL without observing deployment.
 
 ## Post-launch roadmap (v2 — once live)
 

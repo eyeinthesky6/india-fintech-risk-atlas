@@ -57,6 +57,7 @@ function normalizeBasis(raw) {
   const canonical = ['Regulatory', 'Industry practice', 'Community insight', 'Research & academic', 'Atlas guidance'];
   const exact = canonical.find(b => b.toLowerCase() === text.toLowerCase());
   if (exact) return exact;
+  if (/^Regulatory\s*\(consultation\)$/i.test(text)) return 'Regulatory';
   // These are explicit regulator-labelled rows, not a finding of binding legal force.
   if (/^RBI\b/i.test(text)) return 'Regulatory';
   return text;
@@ -74,6 +75,7 @@ function parseTableRows(markdown) {
       rows.push({
         basis: normalizeBasis(cells[0]),
         basisRaw: cells[0],
+        regulatoryStatus: /consultation|proposal/i.test(cells[0]) ? 'proposal' : 'not-determined',
         owner: cells[1].replace(/\*/g, '').trim(),
         action: cells[2],
       });

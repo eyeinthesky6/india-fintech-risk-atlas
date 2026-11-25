@@ -133,6 +133,8 @@ All records follow this unified **Ready-Reckoner** layout, keeping plain-English
 5. **Related records** *(where helpful)*.
 6. **Sources, legal scope & review history** *(bottom collapsed `<details>` drawer built under `## References and review history`)*: Entity-class scope caveats, `Independent reviewer` state, `Researcher`, `Last source check`, and numbered external citations `[1]..[N]` (`id="ref-N"`) verified against `research/evidence/<RECORD-ID>.md`. The page component (`AtlasMarkdownContent.astro`) renders the Record Dossier (`5 evidence layers`) and best-effort legal disclaimer with **Report a factual error** link below the main content.
 
+Keep claim-to-source links in the Markdown and evidence ledger. The website hides numbered citation markers in the article body and displays their sources in the collapsed drawer. The article outline still links to the drawer.
+
 Use only real citations from the page's verified sources; never fabricate company practices or academic claims to fill rows.
 
 ## Cross-product reuse and v2 migration

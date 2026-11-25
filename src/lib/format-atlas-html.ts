@@ -70,18 +70,26 @@ function addReferenceAnchors(refsHtml: string): { html: string; maxRef: number }
   return { html, maxRef };
 }
 
-function linkInlineCitations(html: string, maxRef: number): string {
-  if (maxRef <= 0) return html;
+function formatInlineCitations(html: string, maxRef: number, hideMarkers: boolean): string {
+  if (maxRef <= 0 && !hideMarkers) return html;
   const tokenRe = /(<code\b[\s\S]*?<\/code>|<pre\b[\s\S]*?<\/pre>|<a\b[\s\S]*?<\/a>|<[^>]+>)/gi;
   return html
     .split(tokenRe)
     .map((part) => {
-      if (!part || part.startsWith('<')) {
+      if (part.startsWith('<')) {
+        if (hideMarkers) {
+          const link = /^<a\b[^>]*\shref=(["'])#ref-\d+\1[^>]*>([\s\S]*?)<\/a>$/i.exec(part);
+          if (link) {
+            const label = link[2].replace(/<[^>]+>/g, '').trim();
+            return /^(?:\[\d+\]|\d+|(?:Reference|Source)\s+\d+)$/i.test(label) ? '' : link[2];
+          }
+        }
         return part;
       }
       return part.replace(/\[(\d{1,2})\]/g, (match, numStr: string) => {
         const n = Number(numStr);
         if (n >= 1 && n <= maxRef) {
+          if (hideMarkers) return '';
           return `<a href="#ref-${n}" class="atlas-cite" aria-label="Reference ${n}">${n}</a>`;
         }
         return match;
@@ -157,12 +165,12 @@ function formatH2Chunk(wrapperHtml: string, bodyHtml: string): { html: string; i
   return { html: `${wrapperHtml}${bodyHtml}`, isRefs: false, maxRef: 0 };
 }
 
-export function transformAtlasContentHtml(html: string): string {
+export function transformAtlasContentHtml(html: string, { hideInlineCitations = false } = {}): string {
   const withEnhancedHtml = enhanceBasisCells(wrapBareTables(html));
   const matches = [...withEnhancedHtml.matchAll(H2_WRAPPER_RE)];
 
   if (matches.length === 0) {
-    return withEnhancedHtml;
+    return formatInlineCitations(withEnhancedHtml, 0, hideInlineCitations);
   }
 
   const chunks: Array<{ html: string; isRefs: boolean }> = [
@@ -183,6 +191,6 @@ export function transformAtlasContentHtml(html: string): string {
   }
 
   return chunks
-    .map((chunk) => (chunk.isRefs ? chunk.html : linkInlineCitations(chunk.html, maxRef)))
+    .map((chunk) => (chunk.isRefs ? chunk.html : formatInlineCitations(chunk.html, maxRef, hideInlineCitations)))
     .join('');
 }

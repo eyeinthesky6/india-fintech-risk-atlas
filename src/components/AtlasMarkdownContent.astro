@@ -26,7 +26,9 @@ const issueTitlePrefix = data.recordId ? `[Correction] ${data.recordId}: ${data.
 const reportErrorUrl = `https://github.com/eyeinthesky6/india-fintech-risk-atlas/issues/new?template=factual-correction.yml&title=${encodeURIComponent(issueTitlePrefix)}`;
 
 const isSplash = data.template === 'splash';
-const renderedHtml = isSplash ? '' : transformAtlasContentHtml(await Astro.slots.render('default'));
+const renderedHtml = isSplash ? '' : transformAtlasContentHtml(await Astro.slots.render('default'), {
+  hideInlineCitations: Boolean(data.recordId),
+});
 const isReviewed = stage === 'published' || stage === 'reviewed';
 const isSourceChecked = stage === 'source-checked';
 const statusModifier = isReviewed

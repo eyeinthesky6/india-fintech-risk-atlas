@@ -537,6 +537,8 @@ export function createAtlasMcpServer(snapshotPath) {
                 topic_title: r.title,
                 url: r.url,
                 basis: c.basis,
+                basis_raw: c.basisRaw ?? c.basis,
+                regulatory_status: c.regulatoryStatus ?? 'not-determined',
                 owner: c.owner,
                 action: c.action,
               });
@@ -579,6 +581,8 @@ export function createAtlasMcpServer(snapshotPath) {
               record_id: r.recordId,
               topic: r.title,
               basis: c.basis,
+                basis_raw: c.basisRaw ?? c.basis,
+                regulatory_status: c.regulatoryStatus ?? 'not-determined',
               owner: c.owner,
               requirement: c.action,
               status: 'NOT_AUDITED',
@@ -604,7 +608,7 @@ export function createAtlasMcpServer(snapshotPath) {
           '| Check | Record | Basis | Entity Scope | Action Requirement | Implementation Status | Evidence / Notes |',
           '|---|---|---|---|---|---|---|',
           ...checklistItems.map(
-            (item) => `| [ ] | \`${item.record_id}\` | **${item.basis}** | ${item.owner} | ${item.requirement.replace(/\|/g, '\\|')} | Pending | |`,
+            (item) => `| [ ] | \`${item.record_id}\` | **${item.basis}** (${item.regulatory_status}) | ${item.owner} | ${item.requirement.replace(/\|/g, '\\|')} | Pending | |`,
           ),
         ];
 

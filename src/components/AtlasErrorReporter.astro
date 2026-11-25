@@ -8,8 +8,12 @@ interface Props {
 
 const { recordId, pageTitle, pagePath, fallbackIssueUrl } = Astro.props;
 
-const reportEndpoint = (import.meta.env.PUBLIC_REPORT_ENDPOINT ?? '').trim();
-const turnstileSiteKey = (import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '').trim();
+const reportEndpoint = (
+  import.meta.env.PUBLIC_REPORT_ENDPOINT ?? 'https://atlas-report-triage.6edroid.workers.dev'
+).trim();
+const turnstileSiteKey = (
+  import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '0x4AAAAAAGR2zrzv8i4jINZt'
+).trim();
 
 const configJson = JSON.stringify({
   recordId,

@@ -1,4 +1,4 @@
-const ALLOWED_PATH_RE = /^(?:\/india-fintech-risk-atlas)?\/upi\/(?:[a-z0-9-]+\/)?$/i;
+const ALLOWED_PATH_RE = /^(?:\/india-fintech-risk-atlas)?\/(?:upi|cards|payment-aggregator|digital-lending|evidence-policy|methodology|contribute|licensing)(?:\/[a-z0-9-]+)?\/?$/i;
 const ALLOWED_REASONS = new Set([
   'Outdated circular',
   'Wrong bank / entity scope',

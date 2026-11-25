@@ -4,10 +4,7 @@ import taxonomy from '../taxonomy.json';
 export { taxonomy };
 export type UpiDocEntry = CollectionEntry<'docs'>;
 
-export const UPI_THEMES = Object.entries(taxonomy.themes).map(([id, label]) => ({
-  id,
-  label,
-}));
+export const UPI_THEMES = Object.entries(taxonomy.themes).map(([id, label]) => ({ id, label }));
 
 const UPI_ORDER = [
   'UPI-OVERVIEW',
@@ -68,9 +65,8 @@ export function splitUpiRecordsByStage(records: UpiDocEntry[]) {
 
 export function formatRecordStatus(entry: UpiDocEntry): string {
   const stage = entry.data.reviewStage ?? 'draft';
-  if (stage === 'published') return 'Published (independently reviewed)';
-  if (stage === 'reviewed') return 'Independently reviewed';
-  if (stage === 'source-checked') return 'Source-checked draft (independent review pending)';
+  if (stage === 'published' || stage === 'reviewed') return taxonomy.reviewStages[stage];
+  if (stage === 'source-checked') return 'Source-checked draft (human check pending)';
   return entry.data.blockerNote
     ? `Draft (${entry.data.blockerNote})`
     : 'Research draft (independent review pending)';

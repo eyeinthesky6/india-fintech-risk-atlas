@@ -8,14 +8,14 @@ This standalone Cloudflare Worker lets readers on the public GitHub Pages site f
 - **No public spam:** Issues are created in a *private* repo (`eyeinthesky6/atlas-triage-private`), never the public Atlas repo.
 - **Least-privilege token:** Uses a fine-grained GitHub PAT scoped **only** to `Issues: Write` on that single private repo.
 - **Turnstile + honeypot + dwell check:** Blocks bots cleanly without annoying real readers.
-- **Hashed rate limits (`RATE_LIMIT_KV`):** Caps anonymous reports to 3 per hashed IP per hour and 30 per day site-wide (`429` falls back to GitHub login link).
+- **Hashed rate limits (`REPORT_RATE_LIMITER`):** A SQLite-backed Durable Object checks and increments both quotas atomically. The defaults are 3 reports per hashed IP per UTC hour and 30 site-wide per UTC day.
 - **Strict payload sanitization:** Caps sizes (`8 KB` body, `300` char quote, `500` char note), requires valid Atlas UPI paths and `https://` source links, strips HTML/Markdown image embeds, and wraps reader text in plain-text fences.
 
 ## 5-step deployment (free tier)
 
 1. **Create a private triage repo** on GitHub (e.g., `eyeinthesky6/atlas-triage-private`).
 2. **Mint a fine-grained PAT** limited solely to that private repo with `Issues: Read and write`.
-3. **Create a Turnstile widget + KV namespace** in Cloudflare (free tier), then fill `ALLOWED_ORIGINS`, `TRIAGE_GITHUB_REPO`, and `[[kv_namespaces]]` in `wrangler.toml`.
+3. **Create a Turnstile widget** and configure `ALLOWED_ORIGINS` and `TRIAGE_GITHUB_REPO` in `wrangler.toml`. Wrangler creates the limiter from the checked-in Durable Object migration when deploying.
 4. **Store secrets & deploy:**
    ```bash
    cd workers/report-triage
@@ -27,3 +27,5 @@ This standalone Cloudflare Worker lets readers on the public GitHub Pages site f
 5. **Wire the Astro Pages build** by setting two public GitHub Actions variables (not secrets):
    - `PUBLIC_REPORT_ENDPOINT=https://atlas-report-triage.<your-subdomain>.workers.dev`
    - `PUBLIC_TURNSTILE_SITE_KEY=<your-turnstile-site-key>`
+
+On localhost the website previews the correction draft unless an explicit report endpoint is set. Validate configuration with `wrangler deploy --dry-run` before a Worker release.

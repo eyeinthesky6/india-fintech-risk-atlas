@@ -44,7 +44,9 @@ npm run build
 ```
 
 ## Publication policy
-Draft work can merge only to a non-published research area or remain in a draft PR. Content promoted to `reviewed` or `published` requires every checklist item complete, evidence ledger, distinct named reviewer and human merge approval. Do not automatically publish draft research pages.
+The Atlas is a public research reference. Draft and source-checked records may appear in the site, search and machine exports with their review stage and source blockers. Keep provisional claims labeled alongside their citations and outside compliance checklists. The five evidence layers distinguish attributed material from Atlas suggestions.
+
+The public **Human checked** label requires the existing `reviewed` or `published` stage, a complete evidence ledger and checklist, an attestation by a distinct human reviewer, and human merge approval. Use a stable reviewer identifier in the attestation and keep the link to the person's identity with maintainers. The site and exports show the status without a reviewer name. Readers should consult the original source for authoritative wording and applicability.
 
 ## Current source scope
 Before research, read `docs/ARCHITECTURE_FREEZE.md`, `docs/OPERATOR_INTELLIGENCE.md`, `docs/EVIDENCE_LAYERS_AND_RIGHTS.md`, and `docs/CONTENT_SCHEMA.md`. Collect strictly across the 5 frozen evidence layers (`Regulatory`, `Industry practice`, `Community insight`, `Research & academic`, and `Atlas guidance`). A draft may be incomplete; never self-certify independent verification.

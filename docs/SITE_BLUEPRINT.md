@@ -27,4 +27,4 @@ Contributors edit only `data/` and permitted research records. Agents draft PRs;
 GitHub Pages has published-site and bandwidth soft limits; monitor actual site output and traffic. Link to original PDFs rather than committing copies. Test synthetic 500, 2,000 and 5,000 records for build duration, search index size and browser performance. Generated pages do not require hand maintenance.
 
 ## Gate before implementation
-Reconcile legacy sample `content/upi/UPI-001.md` with normalized entity IDs; verify Starlight search/filter behavior and GitHub Pages subpath deployment with a minimal proof. Then publish reviewed UPI content. No site has yet been deployed.
+GitHub Pages serves the public research preview. PR validation checks the project subpath, search index and internal links, and the Pages workflow publishes the static build after merge. The [research preview policy](SECTION_WORKFLOW.md#publication-policy) governs public evidence labels and human checks.

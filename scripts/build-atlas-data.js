@@ -1,6 +1,11 @@
 import { buildRelationships, sourceKeys } from '../src/lib/atlas-relationships.js';
+import { markdownLinks } from '../src/lib/atlas-markdown.js';
+import { siteBase, siteUrl } from '../src/site-config.js';
 import { renderLlmIndex } from '../mcp/src/llms-index.js';
 import fs from 'node:fs';
+import { createHash } from 'node:crypto';
+import { fromMarkdown } from 'mdast-util-from-markdown';
+import { parse as parseYaml } from 'yaml';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -13,44 +18,17 @@ const DOCS_DIR = path.join(ROOT_DIR, 'src', 'content', 'docs');
 const EVIDENCE_DIR = path.join(ROOT_DIR, 'research', 'evidence');
 
 const taxonomy = JSON.parse(fs.readFileSync(TAXONOMY_PATH, 'utf8'));
+const ownerRoles = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'src', 'control-owner-roles.json'), 'utf8'));
 
 
 function parseFrontmatter(raw) {
-  const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  const match = raw.match(/^---\n([\s\S]*?)\n---(?:\n|$)/);
   if (!match) return { meta: {}, body: raw.trim() };
-  const yamlBlock = match[1];
-  const body = raw.slice(match[0].length).trim();
-  const meta = {};
+  return { meta: parseYaml(match[1]) ?? {}, body: raw.slice(match[0].length).trim() };
+}
 
-  let currentKey = null;
-  let isArray = false;
-
-  yamlBlock.split(/\r?\n/).forEach((line) => {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith('#')) return;
-
-    if (trimmed.startsWith('- ') && currentKey && isArray) {
-      meta[currentKey].push(trimmed.slice(2).trim().replace(/^['"]|['"]$/g, ''));
-      return;
-    }
-
-    const kvMatch = line.match(/^([a-zA-Z0-9_]+):\s*(.*)$/);
-    if (kvMatch) {
-      const key = kvMatch[1];
-      const val = kvMatch[2].trim();
-      if (!val) {
-        currentKey = key;
-        isArray = true;
-        meta[key] = [];
-      } else {
-        currentKey = key;
-        isArray = false;
-        meta[key] = val.replace(/^['"]|['"]$/g, '');
-      }
-    }
-  });
-
-  return { meta, body };
+function linksIn(markdown) {
+  return markdownLinks(markdown).filter((link) => /^https?:\/\//i.test(link.url));
 }
 
 function normalizeBasis(raw) {
@@ -63,22 +41,30 @@ function normalizeBasis(raw) {
   if (/^RBI\b/i.test(text)) return 'Regulatory';
   return text;
 }
-function parseTableRows(markdown) {
+function parseTableRows(markdown, recordId) {
   const lines = markdown.split(/\r?\n/).filter((l) => l.trim().startsWith('|') && !l.includes('---'));
   if (lines.length < 2) return [];
   const rows = [];
   for (let i = 1; i < lines.length; i++) {
     const cells = lines[i]
-      .split('|')
+      .split(/(?<!\\)\|/g)
       .slice(1, -1)
-      .map((c) => c.trim());
+      .map((c) => c.trim().replace(/\\\|/g, '|'));
     if (cells.length >= 3) {
+      const owner = cells[1].replace(/\*/g, '').trim();
+      const action = cells[2];
+      const basis = normalizeBasis(cells[0]);
+      const ownerIds = Object.hasOwn(ownerRoles, owner) ? ownerRoles[owner] : [];
+      const signature = createHash('sha256').update(JSON.stringify([basis, owner, action])).digest('hex').slice(0, 12);
       rows.push({
-        basis: normalizeBasis(cells[0]),
+        id: `CTRL-${recordId}-${signature}`,
+        basis,
         basisRaw: cells[0],
         regulatoryStatus: /consultation|proposal/i.test(cells[0]) ? 'proposal' : 'not-determined',
-        owner: cells[1].replace(/\*/g, '').trim(),
-        action: cells[2],
+        owner,
+        ownerIds,
+        action,
+        referenceNumbers: [...new Set([...action.matchAll(/#ref-(\d+)/g)].map((match) => Number(match[1])))],
       });
     }
   }
@@ -86,24 +72,17 @@ function parseTableRows(markdown) {
 }
 
 function parseReferences(markdown) {
-  const refs = [];
-  const lines = markdown.split(/\r?\n/);
-  for (const line of lines) {
-    const trimmed = line.trim();
-    const match = trimmed.match(/^(\d+)\.\s+(.*)$/);
-    if (match) {
-      const num = parseInt(match[1], 10);
-      const text = match[2];
-      const urlMatch = text.match(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/);
-      refs.push({
-        number: num,
-        raw: text,
-        title: urlMatch ? urlMatch[1] : '',
-        url: urlMatch ? urlMatch[2] : '',
-      });
+  const references = [];
+  for (const list of fromMarkdown(markdown).children) {
+    if (list.type !== 'list' || !list.ordered) continue;
+    for (const [index, item] of list.children.entries()) {
+      const raw = markdown.slice(item.position.start.offset, item.position.end.offset).replace(/^\d+[.)]\s+/, '');
+      const number = Number(markdown.slice(item.position.start.offset).match(/^\d+/)?.[0] ?? list.start + index);
+      const extracted = linksIn(raw);
+      references.push(...extracted.map((link) => ({ number, raw, ...link })));
     }
   }
-  return refs;
+  return references;
 }
 
 function parseEvidenceLedger(recordId) {
@@ -116,17 +95,18 @@ function parseEvidenceLedger(recordId) {
   const claims = [];
   for (let i = 1; i < lines.length; i++) {
     const cells = lines[i]
-      .split('|')
+      .split(/(?<!\\)\|/g)
       .slice(1, -1)
-      .map((c) => c.trim());
+      .map((c) => c.trim().replace(/\\\|/g, '|'));
     if (cells.length >= 7) {
-      const urlMatch = cells[3].match(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/);
+      const sources = linksIn(cells[3]);
       claims.push({
         claimId: cells[0].replace(/`/g, ''),
         layer: cells[1],
         claim: cells[2],
-        sourceName: urlMatch ? urlMatch[1] : cells[3],
-        sourceUrl: urlMatch ? urlMatch[2] : '',
+        sourceName: sources[0]?.title ?? cells[3],
+        sourceUrl: sources[0]?.url ?? '',
+        sources,
         locator: cells[4],
         scope: cells[5],
         result: cells[6],
@@ -166,7 +146,7 @@ function buildRecord(fileRelPath) {
       headingLower.includes('key proposals and trade-offs')
     ) {
       sections['what_to_do'] = secBody;
-      whatToDoControls = parseTableRows(secBody);
+      whatToDoControls = parseTableRows(secBody, meta.recordId);
     } else if (headingLower.startsWith('what it') || headingLower.includes('what it covers')) {
       sections['what_it_is'] = secBody;
     } else if (
@@ -201,7 +181,7 @@ function buildRecord(fileRelPath) {
     title: meta.title || '',
     description: meta.description || '',
     slug,
-    url: `https://eyeinthesky6.github.io/india-fintech-risk-atlas/${slug}/`,
+    url: `${siteUrl}${slug}/`,
     product: meta.products ? meta.products[0] : product,
     products: meta.products || [product],
     recordType: meta.recordType || 'topic',
@@ -211,18 +191,24 @@ function buildRecord(fileRelPath) {
     actors: meta.actors || [],
     evidenceLayers: meta.evidenceLayers || [],
     reviewStage: meta.reviewStage || 'draft',
+    humanChecked: ['reviewed', 'published'].includes(meta.reviewStage),
     blockerNote: meta.blockerNote || '',
     lastSourceCheck: meta.lastSourceCheck || null,
     sourceLabels,
     sections,
     controls: whatToDoControls,
-    references,
+    references: references.map((ref) => ({
+      ...ref,
+      evidence: evidenceLedger
+        .filter((claim) => claim.sources.some((source) => source.url === ref.url))
+        .map(({ claimId, layer, locator, scope, result }) => ({ claimId, layer, locator, scope, result })),
+    })),
     evidenceLedger,
     fullMarkdown: raw,
   };
 }
 
-function buildGuideDocs() {
+function buildGuideDocs(records) {
   const guideFiles = [
     { slug: 'methodology', rel: 'methodology.md', title: 'Methodology' },
     { slug: 'evidence-policy', rel: 'evidence-policy.md', title: 'Evidence and attribution policy' },
@@ -233,32 +219,39 @@ function buildGuideDocs() {
     { slug: 'upi/glossary', rel: path.join('upi', 'glossary.md'), title: 'UPI Risk Glossary' },
     { slug: 'upi/sources', rel: path.join('upi', 'sources.md'), title: 'Verified Primary Sources Register' },
     { slug: 'upi/coverage', rel: path.join('upi', 'coverage.mdx'), title: 'Coverage & Review Status' },
-    { slug: 'upi/upi-ecosystem', rel: path.join('upi', 'upi-ecosystem.md'), title: 'UPI Ecosystem' },
   ];
 
   return guideFiles.map((g) => {
     const absPath = path.join(DOCS_DIR, g.rel);
-    let body = '';
-    let description = '';
-    if (fs.existsSync(absPath)) {
-      const raw = fs.readFileSync(absPath, 'utf8').replace(/\r\n/g, '\n');
-      const parsed = parseFrontmatter(raw);
-      body = parsed.body;
-      description = parsed.meta.description || '';
+    const raw = fs.readFileSync(absPath, 'utf8').replace(/\r\n/g, '\n');
+    const { meta, body } = parseFrontmatter(raw);
+    let content = body;
+    if (g.slug === 'upi/coverage') {
+      const stages = Object.entries(taxonomy.reviewStages)
+        .map(([stage, label]) => [label, records.filter((record) => record.products.includes('upi') && record.reviewStage === stage)]);
+      const summary = ['| Review stage | Records |', '| --- | --- |'];
+      for (const label of new Set(stages.map(([name]) => name))) {
+        const entries = stages.filter(([name]) => name === label).flatMap(([, group]) => group);
+        summary.push(`| ${label} | ${entries.map((entry) => entry.recordId).join(', ') || 'None'} |`);
+      }
+      content = body
+        .replace(/^import UpiCoverageSummary[^\n]*\n/m, '')
+        .replace('<UpiCoverageSummary />', summary.join('\n'))
+        .trim();
     }
     return {
       slug: g.slug,
       title: g.title,
-      description,
-      url: `https://eyeinthesky6.github.io/india-fintech-risk-atlas/${g.slug}/`,
-      content: body,
+      description: meta.description || '',
+      url: `${siteUrl}${g.slug}/`,
+      content,
     };
   });
 }
 
 function buildKnowledgeGraph(records) {
   const nodes = records.map(r => ({id:r.slug, slug:r.slug, recordId:r.recordId,title:r.title,theme:r.theme,themeLabel:r.themeLabel,actors:r.actors,sourceLabels:r.sourceLabels}));
-  const edges = buildRelationships(records.map(r => ({...r,body:r.fullMarkdown})), '/india-fintech-risk-atlas');
+  const edges = buildRelationships(records.map(r => ({...r,body:r.fullMarkdown})), siteBase);
   const ids = new Map(nodes.map(n=>[n.slug,n.recordId]));
   const neighbors = (list, slug) => list.filter(e=>e.source===slug || e.target===slug).map(e=>ids.get(e.source===slug?e.target:e.source));
   const connections = Object.fromEntries(nodes.map(n=>{
@@ -288,7 +281,7 @@ function reuseGenerationDate(dataset, existingPath) {
   }
 }
 
-export function generateAllData() {
+function generateAllData() {
   function discoverRecords(dir = DOCS_DIR) {
     return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
       const abs = path.join(dir, entry.name);
@@ -312,15 +305,15 @@ export function generateAllData() {
     if (ids.has(record.recordId)) throw new Error(`Duplicate record ID: ${record.recordId}`);
     ids.add(record.recordId);
   }
-  const guideDocs = buildGuideDocs();
+  const guideDocs = buildGuideDocs(records);
   const knowledgeGraph = buildKnowledgeGraph(records);
 
   const dataset = {
     metadata: {
       title: 'India Fintech Risk Atlas',
-      version: '1.1.0',
+      version: '1.2.0',
       generatedAt: new Date().toISOString(),
-      baseUrl: 'https://eyeinthesky6.github.io/india-fintech-risk-atlas/',
+      baseUrl: siteUrl,
       totalRecords: records.length,
       coveredProducts: [...new Set(records.flatMap((r) => r.products))].sort(),
       publicationStatus: 'research-preview',
@@ -364,7 +357,7 @@ export function generateAllData() {
       `# ${r.recordId}: ${r.title}`,
       `URL: ${r.url}`,
       `Description: ${r.description}`,
-      `Product: ${r.product} | Type: ${r.recordType} | Review Stage: ${r.reviewStage} | Last Source Check: ${r.lastSourceCheck}`,
+      `Product: ${r.product} | Type: ${r.recordType} | Review Stage: ${taxonomy.reviewStages[r.reviewStage]} | Last Source Check: ${r.lastSourceCheck ?? 'unknown'}`,
       ...(r.blockerNote ? [`Source blocker: ${r.blockerNote}`] : []),
       `Actors: ${r.actors.join(', ')} | Evidence Layers: ${r.evidenceLayers.join(', ')}`,
       '',

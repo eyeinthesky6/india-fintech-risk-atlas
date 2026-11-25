@@ -80,7 +80,7 @@ async function runMcpAudit() {
     if (!Array.isArray(parsed.controls) || parsed.controls.length === 0) {
       defects.push(`Persona controls returned 0 controls for actor: ${actor}`);
     } else {
-      console.log(`✓ Persona controls for "${actor}": found ${parsed.controls.length} obligations`);
+      console.log(`✓ Persona controls for "${actor}": found ${parsed.controls.length} scoped rows`);
     }
 
     // Also test gap checklist for actor
@@ -96,7 +96,7 @@ async function runMcpAudit() {
     defects.forEach((d, i) => console.error(`  ${i + 1}. ${d}`));
     process.exit(1);
   } else {
-    console.log('\n✅ COMPREHENSIVE MCP AUDIT COMPLETE: 0 DEFECTS DETECTED ACROSS ALL RECORDS, GUIDES, AND PERSONAS!');
+    console.log('\nRecord, guide and persona response checks passed.');
     process.exit(0);
   }
 }

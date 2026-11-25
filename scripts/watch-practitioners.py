@@ -9,20 +9,18 @@ engineering, reconciliation, fraud prevention, and UPI telemetry insights.
 Features:
 - Polls curated engineering RSS/Atom feeds
 - Cleans and deduplicates URLs against research/upi/OPERATOR_EVIDENCE.md
-- Routes matched posts to canonical risk atlas records (UPI-001 through UPI-017)
-- Supports --auto-add to automatically append newly discovered candidate observations to OPERATOR_EVIDENCE.md
+- Routes matched posts to canonical risk atlas records (UPI topic records)
 - Generates markdown triage reports for manual domain steward review or CI workflows
 """
 
 import sys
 import re
 import os
-import json
 import argparse
-import urllib.request
 import urllib.parse
-import xml.etree.ElementTree as ET
 from datetime import datetime
+
+from atlas_feeds import poll_feeds, write_reports
 
 # Curated RSS/Atom feeds of Indian fintech engineering blogs & practitioner platforms
 ENGINEERING_FEEDS = [
@@ -137,64 +135,6 @@ def load_registered_urls():
     return registered
 
 
-def get_max_op_id():
-    """Finds the highest existing OP-xxx ID in OPERATOR_EVIDENCE.md."""
-    if not os.path.exists(EVIDENCE_FILE):
-        return 0
-    with open(EVIDENCE_FILE, "r", encoding="utf-8") as f:
-        content = f.read()
-    ids = [int(m) for m in re.findall(r"OP-(\d+)", content)]
-    return max(ids) if ids else 0
-
-
-def fetch_feed(feed_info, timeout=15):
-    """Fetches and parses an RSS or Atom feed."""
-    items = []
-    req = urllib.request.Request(
-        feed_info["url"],
-        headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) India-Fintech-Risk-Atlas/1.0"},
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            data = resp.read()
-            root = ET.fromstring(data)
-            elements = root.findall(".//item")
-            if len(elements) == 0:
-                elements = root.findall(".//{http://www.w3.org/2005/Atom}entry")
-
-            for elem in elements:
-                title_elem = elem.find("title") if elem.find("title") is not None else elem.find("{http://www.w3.org/2005/Atom}title")
-                link_elem = elem.find("link") if elem.find("link") is not None else elem.find("{http://www.w3.org/2005/Atom}link")
-                pubdate_elem = elem.find("pubDate") if elem.find("pubDate") is not None else elem.find("{http://www.w3.org/2005/Atom}updated")
-                desc_elem = elem.find("description") if elem.find("description") is not None else elem.find("{http://www.w3.org/2005/Atom}summary")
-
-                title = title_elem.text.strip() if title_elem is not None and title_elem.text else ""
-                if link_elem is not None:
-                    link = link_elem.text.strip() if link_elem.text else link_elem.get("href", "").strip()
-                else:
-                    link = ""
-
-                pubdate = pubdate_elem.text.strip() if pubdate_elem is not None and pubdate_elem.text else ""
-                desc = desc_elem.text.strip() if desc_elem is not None and desc_elem.text else ""
-
-                if not title or not link:
-                    continue
-
-                items.append({
-                    "title": title,
-                    "link": clean_url(link),
-                    "pubDate": pubdate,
-                    "description": desc,
-                    "company": feed_info["company"],
-                    "feed": feed_info["name"],
-                    "default_layer": feed_info["default_layer"],
-                })
-    except Exception as e:
-        print(f"Notice: Feed {feed_info['name']} ({feed_info['url']}) error: {e}", file=sys.stderr)
-
-    return items
-
-
 def route_to_candidate_topic(text):
     """Routes matched text to candidate Risk Atlas UPI record."""
     for pattern, record_id, topic_name in TOPIC_ROUTING:
@@ -261,116 +201,23 @@ def format_markdown_table(new_items):
     return "\n".join(lines)
 
 
-def auto_add_to_evidence(new_items):
-    """Automatically appends discovered practitioner items into OPERATOR_EVIDENCE.md."""
-    if not new_items:
-        print("No new items to auto-add.")
-        return 0
-
-    if not os.path.exists(EVIDENCE_FILE):
-        print(f"Error: {EVIDENCE_FILE} not found.", file=sys.stderr)
-        return 0
-
-    max_id = get_max_op_id()
-    added_count = 0
-
-    # Build new rows
-    new_rows = []
-    for item in new_items:
-        max_id += 1
-        op_id = f"OP-{max_id:03d}"
-        pub_date = item.get("pubDate", "")
-        # Shorten date if possible
-        date_str = ""
-        if pub_date:
-            try:
-                # e.g., Sat, 01 Feb 2025 00:00:00 GMT -> Feb 2025
-                date_str = f" ({pub_date.split()[2]} {pub_date.split()[3]})"
-            except Exception:
-                date_str = ""
-
-        doc_link = f"[{item['title']}]({item['link']}){date_str}"
-        layer_str = f"Industry (`company-reported`; {item['company']} tech)" if item["default_layer"] == "industry" else f"Practitioner (`community`; {item['company']})"
-        keywords_str = ", ".join(item["matched_keywords"])
-        claims = f"Documents {item['company']} engineering patterns for {item['topic_name'].lower()} (matched signals: {keywords_str}). Target record: `{item['candidate_record']}`"
-        limitations = f"Automated feed ingestion from {item['feed']}; domain steward verification pending"
-
-        row = f"| `{op_id}` | {item['company']}, {doc_link} | {layer_str} | {claims} | {limitations} |"
-        new_rows.append((op_id, row, item))
-        added_count += 1
-
-    with open(EVIDENCE_FILE, "r", encoding="utf-8") as f:
-        content = f.read()
-
-    # Find the end of Section 1 table
-    # Section 1 starts with '## 1. Company-reported engineering & product practices (Layer 2)'
-    sec1_marker = "## 1. Company-reported engineering & product practices (Layer 2)"
-    sec2_marker = "## 2. Academic & research paper leads"
-
-    if sec1_marker in content and sec2_marker in content:
-        parts = content.split(sec2_marker)
-        sec1_content = parts[0].rstrip()
-        # Append the new rows to sec1_content
-        for op_id, row, item in new_rows:
-            sec1_content += f"\n{row}"
-            print(f"Auto-added `{op_id}`: {item['title']} -> {item['candidate_record']}")
-        
-        new_full_content = sec1_content + "\n\n" + sec2_marker + parts[1]
-        with open(EVIDENCE_FILE, "w", encoding="utf-8") as f:
-            f.write(new_full_content)
-        print(f"\nSuccessfully auto-added {added_count} items to {EVIDENCE_FILE}")
-    else:
-        # Fallback append
-        with open(EVIDENCE_FILE, "a", encoding="utf-8") as f:
-            f.write("\n\n### Discovered Practitioner Intake\n\n")
-            for op_id, row, item in new_rows:
-                f.write(f"{row}\n")
-        print(f"Appended {added_count} items to {EVIDENCE_FILE}")
-
-    return added_count
-
-
 def main():
-    parser = argparse.ArgumentParser(description="Watch fintech engineering feeds for practitioner observations.")
+    parser = argparse.ArgumentParser(description="Poll the Atlas source feeds for research candidates.")
     parser.add_argument("--json", action="store_true", help="Output results as JSON")
-    parser.add_argument("--output", "-o", type=str, help="Save report to file")
-    parser.add_argument("--auto-add", action="store_true", help="Automatically append discovered items to OPERATOR_EVIDENCE.md")
+    parser.add_argument("--output", "-o", help="Write the primary report to a file")
+    parser.add_argument("--markdown-output", help="Also write Markdown from the same feed poll")
     args = parser.parse_args()
 
-    registered_urls = load_registered_urls()
-
-    all_items = []
-    for feed in ENGINEERING_FEEDS:
-        items = fetch_feed(feed)
-        all_items.extend(items)
-
-    relevant = filter_relevant_posts(all_items, registered_urls)
-    new_items = [it for it in relevant if not it["is_registered"]]
-
-    if args.auto_add and new_items:
-        auto_add_to_evidence(new_items)
-        # Reload registered URLs after auto-add
-        registered_urls = load_registered_urls()
-        new_items = [it for it in relevant if clean_url(it["link"]) not in registered_urls]
-
-    if args.json:
-        result = {
-            "timestamp": datetime.now().isoformat(),
-            "new_count": len(new_items),
-            "new_items": new_items,
-        }
-        output_str = json.dumps(result, indent=2)
-    else:
-        output_str = format_markdown_table(new_items)
-
-    if args.output:
-        with open(args.output, "w", encoding="utf-8") as f:
-            f.write(output_str)
-        print(f"Report written to {args.output}")
-    else:
-        if not args.auto_add:
-            print(output_str)
+    all_items, failures = poll_feeds(ENGINEERING_FEEDS, ("company", "default_layer"), clean_url)
+    relevant = filter_relevant_posts(all_items, load_registered_urls())
+    new_items = [item for item in relevant if not item["is_registered"]]
+    report = {
+        "timestamp": datetime.now().isoformat(),
+        "new_count": len(new_items),
+        "new_items": new_items,
+    }
+    return write_reports(args, report, format_markdown_table(new_items), failures, len(ENGINEERING_FEEDS))
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

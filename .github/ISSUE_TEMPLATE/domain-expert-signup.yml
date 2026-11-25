@@ -15,8 +15,8 @@ body:
   - type: input
     id: full_name
     attributes:
-      label: Full Name or Professional Handle
-      placeholder: e.g. Priya Sharma (or "Anonymous Risk Lead")
+      label: Professional handle
+      placeholder: e.g. Anonymous Risk Lead
     validations:
       required: true
   - type: input
@@ -54,25 +54,9 @@ body:
         - "Spot Reviewer (Only ping me when a major circular or crisis emerges in my domain)"
     validations:
       required: true
-  - type: dropdown
-    id: attribution_preference
+  - type: markdown
     attributes:
-      label: Public Attribution Preference
-      description: How should we credit your reviews on the live Atlas records?
-      options:
-        - "Public Credit (Name, Role, and Company listed on the topic record)"
-        - "Semi-Public Credit (Name and Role, company kept confidential)"
-        - "Anonymized Credit ('Reviewed by Senior Bank Risk Lead')"
-    validations:
-      required: true
-  - type: input
-    id: contact_method
-    attributes:
-      label: Preferred Async Contact (Email, LinkedIn, or WhatsApp)
-      description: Where should maintainers send concise review summaries? (If you prefer to keep this private, submit via the website web-form instead).
-      placeholder: name@organization.com or linkedin.com/in/...
-    validations:
-      required: false
+      value: This issue is public. For private contact, email atlas@six.tech.
   - type: textarea
     id: additional_notes
     attributes:

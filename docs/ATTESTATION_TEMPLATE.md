@@ -27,4 +27,4 @@ Evidence ledger: research/evidence/RECORD-ID.md
 ## Notes and open blockers
 PENDING
 
-**Important:** A checked box is an attestation, not proof. Never tick a step that has not been performed. Draft work may retain unchecked items. Only reviewed/published stages require all boxes.
+**Important:** Check a box only after performing the corresponding step. Draft work may retain unchecked items. Reviewed and published stages require all boxes and a stable independent reviewer identifier recorded with maintainers. Use the same opaque identifier in the attestation and evidence ledger, in the format `reviewer-` followed by 12 lowercase hexadecimal characters. Leave `Independent reviewer: PENDING` until the reviewer completes the check. Public pages and exports display the review status.

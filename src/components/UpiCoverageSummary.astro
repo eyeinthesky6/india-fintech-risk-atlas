@@ -55,7 +55,7 @@ const { total, sourceChecked, drafts, reviewed } = splitUpiRecordsByStage(record
         </td>
       </tr>
       <tr>
-        <td><strong>Independently reviewed / published</strong></td>
+        <td><strong>Human checked</strong></td>
         <td>{reviewed.length}</td>
         <td>
           {reviewed.length === 0 ? 'None' : reviewed.map((entry, idx) => (

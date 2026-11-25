@@ -22,4 +22,6 @@ An industry claim is not a regulatory obligation. A community observation is not
 ## How we reference others
 We link to original publications and write our own concise summaries, crediting the author or company. We do not reproduce full posts, diagrams, proprietary rules or documents without appropriate rights. Attribution alone does not provide copyright permission.
 
+The Atlas is a public research reference. Draft pages disclose unresolved source checks. **Source-checked draft** means the underlying sources have been checked and independent human review is pending. **Human checked** records have completed a separate human check of their evidence and claim scope. Authoritative wording, effective dates and applicability come from the cited sources. Atlas suggestions appear under **Atlas guidance**.
+
 [Full evidence and rights policy](https://github.com/eyeinthesky6/india-fintech-risk-atlas/blob/main/docs/EVIDENCE_LAYERS_AND_RIGHTS.md).

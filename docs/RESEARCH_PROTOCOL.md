@@ -32,7 +32,7 @@ Lifecycle progression: `discover → extract → draft → source-check → inde
 6. Separate independent reviewer re-opens every cited URL, verifies scope/dates/context, marks outcomes in `research/evidence/<RECORD-ID>.md`, and signs the attestation. **Researcher and reviewer must never be the same agent or pass.**
 7. Open a PR with the PR template checklist, disclose blockers, and wait for human review. Never merge or deploy autonomously.
 
-**Publication policy:** Draft and `source-checked` records may remain in clearly labeled research preview branches/draft PRs. Promoting a record to `reviewed` or `published` requires all 12 attestation checkboxes completed, zero `PENDING`/`unverified`/`blocked` ledger rows, a distinct named independent reviewer, and human merge approval.
+**Publication policy:** Public visibility is governed by [the research preview policy](SECTION_WORKFLOW.md#publication-policy). Promoting a record to `reviewed` or `published` requires all 12 attestation checkboxes completed, zero `PENDING`/`unverified`/`blocked` ledger rows, an attestation by a distinct human reviewer recorded by stable identifier, and human merge approval.
 
 ## Unified 10-step research & synthesis pipeline
 
@@ -96,6 +96,7 @@ Lifecycle progression: `discover → extract → draft → source-check → inde
   - [verify-citations.py](../scripts/verify-citations.py): runs online/offline citation checks, soft-404 and retired-URL detection, `90`-day (`official`) / `180`-day freshness SLAs, and builds the manual in-browser computer-use fallback queue (guided by [.agents/skills/atlas-content-update/SKILL.md](../.agents/skills/atlas-content-update/SKILL.md)).
   - [validate.yml](../.github/workflows/validate.yml): runs attestation check (`--all`), offline citation/deprecation parity (`verify-citations.py --offline --all`), reproducible `npm ci && npm run build` (`starlight-links-validator`), Pagefind `.pf_filter` assertion, and HTML link/base-path checks.
 - **Soft gates (human / independent reviewer):** Whether the primary text genuinely supports the wording, scope, effective dates, exceptions, and risk trade-offs.
+- **Scheduled source freshness:** The weekly workflow fails when records exceed the 90-day official or 180-day other-source review interval and lists the affected records for rechecking.
 
 ## Required PR evidence checklist
 

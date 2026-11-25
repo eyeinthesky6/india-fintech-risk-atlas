@@ -16,13 +16,14 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+from atlas_citations import deprecated_url_reason, external_urls, missing_evidence_urls, reference_urls
+
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 TAXONOMY = json.loads((ROOT / 'src' / 'taxonomy.json').read_text(encoding='utf-8'))
 DOCS_ROOT = ROOT / 'src' / 'content' / 'docs'
 LYCHEEIGNORE_PATH = ROOT / '.lycheeignore'
 USER_AGENT = 'IndiaFintechRiskAtlas-CitationCheck/1.0 (+https://github.com/eyeinthesky6/india-fintech-risk-atlas)'
 DATE_RE = re.compile(r'^\d{4}-\d{2}-\d{2}$')
-URL_RE = re.compile(r'https?://[^\s\)\]>"]+')
 SOFT_404_RE = re.compile(r'\b(?:404|page\s+not\s+found|error\s+404|cannot\s+be\s+found)\b', re.I)
 
 EXEMPT = {
@@ -39,14 +40,6 @@ EXEMPT = {
     'src/content/docs/upi/coverage.mdx',
     'src/content/docs/upi/glossary.md',
 }
-
-DEPRECATED_URL_PATTERNS = [
-    (
-        re.compile(r'https?://(?:www\.)?npci\.org\.in/what-we-do/upi/', re.I),
-        'Retired NPCI SPA route; replace with canonical /product/upi/* or /faqs/upi URLs',
-    ),
-]
-
 
 def configure_stdio():
     if hasattr(sys.stdout, 'reconfigure'):
@@ -98,22 +91,6 @@ def parse_record_frontmatter(txt):
             current_list_key = None
             scalars[key] = unquote(raw_val)
     return scalars, lists.get('evidenceLayers', [])
-
-
-def clean_url(url):
-    return url.rstrip('.,;\'"`')
-
-
-def extract_reference_urls(txt):
-    normalized = txt.replace('\r\n', '\n')
-    m = re.search(r'^##\s+References\b[^\n]*\n(.*?)(?=^##\s+|\Z)', normalized, re.M | re.S | re.I)
-    if not m:
-        return []
-    return sorted({clean_url(u) for u in URL_RE.findall(m.group(1))})
-
-
-def extract_all_external_urls(txt):
-    return sorted({clean_url(u) for u in URL_RE.findall(txt)})
 
 
 def load_lycheeignore_url_patterns():
@@ -180,9 +157,9 @@ def is_material_redirect(orig_url, final_url):
 
 
 def probe_url(url, ignore_patterns, offline):
-    for pat, reason in DEPRECATED_URL_PATTERNS:
-        if pat.search(url):
-            return {'status': 'BROKEN_OR_DEPRECATED', 'reason': reason, 'redirected_to': None}
+    reason = deprecated_url_reason(url)
+    if reason:
+        return {'status': 'BROKEN_OR_DEPRECATED', 'reason': reason, 'redirected_to': None}
 
     for pat in ignore_patterns:
         if pat.search(url):
@@ -292,7 +269,11 @@ def analyze(args):
         elif not DATE_RE.match(last_check):
             invalid_dates.append({'recordId': rid, 'file': rel, 'reason': f'Invalid lastSourceCheck format: {last_check}'})
         else:
-            checked_dt = datetime.date.fromisoformat(last_check)
+            try:
+                checked_dt = datetime.date.fromisoformat(last_check)
+            except ValueError:
+                invalid_dates.append({'recordId': rid, 'file': rel, 'reason': f'Invalid lastSourceCheck date: {last_check}'})
+                continue
             age_days = (as_of - checked_dt).days
             if age_days > threshold:
                 stale_records.append({
@@ -304,15 +285,14 @@ def analyze(args):
                     'file': rel,
                 })
 
-        ref_urls = extract_reference_urls(txt)
+        _, ref_urls = reference_urls(txt)
         ev_path = ROOT / 'research' / 'evidence' / f'{rid}.md'
         ev_urls = []
         if ev_path.exists():
             ev_txt = ev_path.read_text(encoding='utf-8')
-            ev_urls = extract_all_external_urls(ev_txt)
-            for url in ref_urls:
-                if url not in ev_urls:
-                    missing_ledger_urls.append({'recordId': rid, 'file': rel, 'url': url})
+            ev_urls = external_urls(ev_txt)
+            for url in missing_evidence_urls(ref_urls, ev_txt):
+                missing_ledger_urls.append({'recordId': rid, 'file': rel, 'url': url})
 
         combined_urls = sorted(set(ref_urls) | set(ev_urls))
         for url in combined_urls:

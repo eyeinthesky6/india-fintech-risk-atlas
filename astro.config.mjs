@@ -3,10 +3,29 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import starlightThemeSix from '@six-tech/starlight-theme-six';
 import starlightLinksValidator from 'starlight-links-validator';
+import { siteBase, siteOrigin } from './src/site-config.js';
+
+const atlasComponents = {
+  name: 'atlas-components',
+  hooks: {
+    'config:setup': ({ config, updateConfig }) => {
+      updateConfig({
+        components: {
+          ...config.components,
+          MarkdownContent: './src/components/AtlasMarkdownContent.astro',
+          PageSidebar: './src/components/AtlasPageSidebar.astro',
+          PageTitle: './src/components/AtlasPageTitle.astro',
+          Sidebar: './src/components/AtlasSidebar.astro',
+          ThemeSelect: './src/components/AtlasThemeSelect.astro',
+        },
+      });
+    },
+  },
+};
 
 export default defineConfig({
-  site: 'https://eyeinthesky6.github.io',
-  base: '/india-fintech-risk-atlas',
+  site: siteOrigin,
+  base: siteBase,
   integrations: [starlight({
     title: 'India Fintech Risk Atlas',
     description: 'An open, source-cited reference for Indian fintech fraud and risk patterns.',
@@ -22,15 +41,9 @@ export default defineConfig({
         ],
         footerText: 'India Risk Atlas — Open, source-cited fintech risk reference (CC BY 4.0 content, MIT code).',
       }),
+      atlasComponents,
       starlightLinksValidator(),
     ],
-    components: {
-      MarkdownContent: './src/components/AtlasMarkdownContent.astro',
-      PageSidebar: './src/components/AtlasPageSidebar.astro',
-      PageTitle: './src/components/AtlasPageTitle.astro',
-      Sidebar: './src/components/AtlasSidebar.astro',
-      ThemeSelect: './src/components/AtlasThemeSelect.astro',
-    },
     customCss: ['./src/styles/atlas-custom.css'],
     social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/eyeinthesky6/india-fintech-risk-atlas' }],
     editLink: { baseUrl: 'https://github.com/eyeinthesky6/india-fintech-risk-atlas/edit/main/' },

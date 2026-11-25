@@ -1,3 +1,5 @@
+export { ReportRateLimiter } from './rate-limiter.js';
+
 const ALLOWED_PATH_RE = /^(?:\/india-fintech-risk-atlas)?\/(?:upi|cards|payment-aggregator|digital-lending|evidence-policy|methodology|contribute|licensing)(?:\/[a-z0-9-]+)?\/?$/i;
 const ALLOWED_REASONS = new Set([
   'Outdated circular',
@@ -71,40 +73,28 @@ async function verifyTurnstile(token, remoteIp, secretKey, allowInsecureDev) {
 }
 
 async function checkAndIncrementLimits(env, clientIp) {
-  if (!env.RATE_LIMIT_KV) {
+  if (!env.REPORT_RATE_LIMITER) {
     return { allowed: String(env.ALLOW_INSECURE_DEV || '') === 'true', misconfigured: true };
   }
 
   const hourlyCap = Number(env.HOURLY_IP_CAP || 3);
   const dailyCap = Number(env.DAILY_GLOBAL_CAP || 30);
 
-  const now = new Date();
-  const dayBucket = now.toISOString().slice(0, 10);
-  const hourBucket = now.toISOString().slice(0, 13);
-
   const salt = String(env.IP_HASH_SALT || env.TRIAGE_GITHUB_REPO || 'atlas');
   const ipHash = await sha256Hex(`${salt}:${clientIp}`);
-  const ipKey = `ip:${ipHash}:${hourBucket}`;
-  const globalKey = `global:${dayBucket}`;
-
-  const [ipRaw, globalRaw] = await Promise.all([
-    env.RATE_LIMIT_KV.get(ipKey),
-    env.RATE_LIMIT_KV.get(globalKey),
-  ]);
-
-  const ipCount = Number(ipRaw || 0);
-  const globalCount = Number(globalRaw || 0);
-
-  if (ipCount >= hourlyCap || globalCount >= dailyCap) {
-    return { allowed: false };
+  try {
+    const namespace = env.REPORT_RATE_LIMITER;
+    const limiter = namespace.get(namespace.idFromName('atlas-correction-quota'));
+    const decision = await limiter.fetch('https://limiter.internal/consume', {
+      method: 'POST',
+      body: JSON.stringify({ ipHash, hourlyCap, dailyCap }),
+    });
+    if (decision.status === 204) return { allowed: true };
+    return { allowed: false, misconfigured: decision.status !== 429 };
+  } catch (error) {
+    console.error('Correction rate limiter is unavailable', error);
+    return { allowed: false, misconfigured: true };
   }
-
-  await Promise.all([
-    env.RATE_LIMIT_KV.put(ipKey, String(ipCount + 1), { expirationTtl: 3600 }),
-    env.RATE_LIMIT_KV.put(globalKey, String(globalCount + 1), { expirationTtl: 86400 }),
-  ]);
-
-  return { allowed: true };
 }
 
 export default {

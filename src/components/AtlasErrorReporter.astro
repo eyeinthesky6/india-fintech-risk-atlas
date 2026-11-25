@@ -9,10 +9,10 @@ interface Props {
 const { recordId, pageTitle, pagePath, fallbackIssueUrl } = Astro.props;
 
 const reportEndpoint = (
-  import.meta.env.PUBLIC_REPORT_ENDPOINT ?? 'https://atlas-report-triage.6edroid.workers.dev'
+  import.meta.env.PUBLIC_REPORT_ENDPOINT?.trim() || 'https://atlas-report-triage.6edroid.workers.dev'
 ).trim();
 const turnstileSiteKey = (
-  import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '0x4AAAAAAGR2zrzv8i4jINZt'
+  import.meta.env.PUBLIC_TURNSTILE_SITE_KEY?.trim() || '0x4AAAAAAGR2zrzv8i4jINZt'
 ).trim();
 
 const configJson = JSON.stringify({
@@ -21,6 +21,7 @@ const configJson = JSON.stringify({
   pagePath,
   fallbackIssueUrl,
   reportEndpoint,
+  explicitReportEndpoint: Boolean(import.meta.env.PUBLIC_REPORT_ENDPOINT?.trim()),
   turnstileSiteKey,
 }).replace(/</g, '\\u003c');
 
@@ -35,25 +36,7 @@ const REASONS = [
 <div class="atlas-reporter-root not-content" data-pagefind-ignore>
   <div class="atlas-accuracy-strip atlas-accuracy-strip--bottom" data-atlas-accuracy-bar>
     <div class="atlas-accuracy-strip__actions">
-      <button type="button" class="atlas-action-btn atlas-accuracy-btn" data-atlas-mark-accurate>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="13"
-          height="13"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-        >
-          <polyline points="20 6 9 17 4 12"></polyline>
-        </svg>
-        <span data-accurate-label>Looks accurate</span>
-      </button>
-
-      <button type="button" class="atlas-action-btn atlas-accuracy-btn atlas-accuracy-btn--report" data-atlas-start-report>
+      <button id="report-an-error" type="button" class="atlas-action-btn atlas-accuracy-btn atlas-accuracy-btn--report" data-atlas-start-report>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="13"
@@ -219,7 +202,7 @@ const REASONS = [
               class="atlas-action-btn atlas-report-fallback-link"
               data-atlas-fallback-link
             >
-              Or open pre-filled GitHub Issue &rarr;
+              Open a public GitHub issue &rarr;
             </a>
             <button type="button" class="atlas-action-btn" data-atlas-dialog-done>Done</button>
           </div>
@@ -237,7 +220,6 @@ const REASONS = [
     const EXCLUDED_SELECTOR =
       '.not-content, .atlas-dossier, .atlas-disclaimer, .atlas-refs-section, .atlas-accuracy-strip, .atlas-reporter-root, .atlas-reporter-overlay';
     const SELECTABLE_SELECTOR = 'tr, li, p, blockquote, .sl-heading-wrapper';
-    const STORAGE_KEY = 'atlas-accurate:' + window.location.pathname;
 
     function getConfig() {
       const el = document.querySelector('script[data-atlas-reporter-config]');
@@ -285,25 +267,9 @@ const REASONS = [
     let turnstileWidgetId = null;
     let turnstileScriptLoading = false;
 
-    function syncAccurateButtons(confirmed) {
-      document.querySelectorAll('[data-atlas-mark-accurate]').forEach((btn) => {
-        const label = btn.querySelector('[data-accurate-label]');
-        if (confirmed) {
-          btn.setAttribute('data-confirmed', 'true');
-          if (label) label.textContent = 'Confirmed — thanks';
-        } else {
-          btn.removeAttribute('data-confirmed');
-          if (label) label.textContent = 'Looks accurate';
-        }
-      });
-    }
-
-    try {
-      if (window.sessionStorage.getItem(STORAGE_KEY) === '1') {
-        syncAccurateButtons(true);
-      }
-    } catch {
-      // Ignore storage access restrictions
+    function getReportEndpoint(cfg) {
+      const isLocal = ['127.0.0.1', 'localhost', '[::1]'].includes(window.location.hostname);
+      return isLocal && !cfg.explicitReportEndpoint ? '' : cfg.reportEndpoint;
     }
 
     function cleanHeadingText(headingEl) {
@@ -415,7 +381,7 @@ const REASONS = [
     }
 
     function ensureTurnstile(cfg) {
-      if (!cfg?.turnstileSiteKey || !turnstileMount) return;
+      if (!cfg?.turnstileSiteKey || !turnstileMount || !getReportEndpoint(cfg)) return;
       if (window.turnstile && typeof window.turnstile.render === 'function') {
         if (turnstileWidgetId === null) {
           turnstileWidgetId = window.turnstile.render(turnstileMount, {
@@ -603,16 +569,6 @@ const REASONS = [
       const target = event.target;
       if (!(target instanceof Element)) return;
 
-      if (target.closest('[data-atlas-mark-accurate]')) {
-        syncAccurateButtons(true);
-        try {
-          window.sessionStorage.setItem(STORAGE_KEY, '1');
-        } catch {
-          // Ignore storage error
-        }
-        return;
-      }
-
       const startBtn = target.closest('[data-atlas-start-report]');
       if (startBtn) {
         if (startBtn.tagName === 'A') {
@@ -707,24 +663,27 @@ const REASONS = [
         fallbackLink.href = prefilledUrl;
       }
 
-      if (cfg.reportEndpoint) {
+      const reportEndpoint = getReportEndpoint(cfg);
+      if (reportEndpoint) {
         if (submitBtn) {
           submitBtn.disabled = true;
           submitBtn.textContent = 'Sending...';
         }
         try {
-          const res = await fetch(cfg.reportEndpoint, {
+          const res = await fetch(reportEndpoint, {
             method: 'POST',
+            redirect: 'error',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
           });
           form.hidden = true;
           resultBox.hidden = false;
 
-          if (res.ok) {
+          const receipt = res.ok ? await res.json().catch(() => null) : null;
+          if (receipt?.ok === true && receipt.queued === true) {
             resultStatus.className = 'atlas-report-result__status is-success';
             resultStatus.textContent =
-              'Report sent to private maintainer triage. Nothing on the page changes until verified.';
+              'Report queued for private maintainer review.';
           } else if (res.status === 429) {
             resultStatus.className = 'atlas-report-result__status is-warn';
             resultStatus.textContent =
@@ -732,7 +691,7 @@ const REASONS = [
           } else {
             resultStatus.className = 'atlas-report-result__status is-warn';
             resultStatus.textContent =
-              'Could not reach the reporting service. You can submit directly via GitHub below.';
+              'The service did not confirm delivery. You can open a public GitHub issue below.';
           }
         } catch {
           form.hidden = true;
@@ -744,13 +703,13 @@ const REASONS = [
         return;
       }
 
-      const isLocal = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
+      const isLocal = ['127.0.0.1', 'localhost', '[::1]'].includes(window.location.hostname);
       if (isLocal) {
         form.hidden = true;
         resultBox.hidden = false;
-        resultStatus.className = 'atlas-report-result__status is-success';
+        resultStatus.className = 'atlas-report-result__status is-warn';
         resultStatus.textContent =
-          'Local preview mode: captured payload ready for your private Cloudflare Worker triage queue (live page untouched).';
+          'Local preview. Review your draft report below.';
         if (resultPreview) {
           resultPreview.hidden = false;
           resultPreview.textContent = [
@@ -765,11 +724,10 @@ const REASONS = [
         return;
       }
 
-      window.open(prefilledUrl, '_blank', 'noopener,noreferrer');
       form.hidden = true;
       resultBox.hidden = false;
-      resultStatus.className = 'atlas-report-result__status is-success';
-      resultStatus.textContent = 'Opened pre-filled factual correction form on GitHub.';
+      resultStatus.className = 'atlas-report-result__status is-warn';
+      resultStatus.textContent = 'Private reporting is unavailable. You can open a public GitHub issue below.';
     });
   })();
 </script>

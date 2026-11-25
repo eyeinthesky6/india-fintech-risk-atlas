@@ -36,6 +36,13 @@
     "servicing": "Servicing"
   },
   "actors": {
+    "bank": "Bank",
+    "commercial-bank": "Commercial bank",
+    "payments-bank": "Payments bank",
+    "small-finance-bank": "Small finance bank",
+    "regional-rural-bank": "Regional rural bank",
+    "non-bank-pso": "Non-bank payment system operator",
+    "payment-system-participant": "Payment system provider or participant",
     "payer": "Payer",
     "cardholder": "Cardholder",
     "merchant": "Merchant",
@@ -60,7 +67,7 @@
     "draft": "Draft",
     "researching": "Researching",
     "source-checked": "Source-checked draft",
-    "reviewed": "Independently reviewed",
-    "published": "Published"
+    "reviewed": "Human checked",
+    "published": "Human checked"
   }
 }

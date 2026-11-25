@@ -5,6 +5,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+  actions: read
   pages: write
   id-token: write
 concurrency:
@@ -23,6 +24,9 @@ jobs:
       - name: Check attestations and record integrity
         run: python3 scripts/check-attestations.py --all
       - run: npm run build
+        env:
+          PUBLIC_REPORT_ENDPOINT: ${{ vars.PUBLIC_REPORT_ENDPOINT }}
+          PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.PUBLIC_TURNSTILE_SITE_KEY }}
       - uses: actions/upload-pages-artifact@v5
         with:
           path: dist
@@ -34,15 +38,24 @@ jobs:
     needs: build
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - id: deployment
         uses: actions/deploy-pages@v5
       - name: Send Telegram Deployment Alert
         if: success()
         env:
+          GH_TOKEN: ${{ github.token }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PAGES_URL: ${{ steps.deployment.outputs.page_url }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
+          PREVIOUS=$(gh run list --workflow pages.yml --status success --limit 1 --json headSha --jq '.[0].headSha // ""') || PREVIOUS=""
+          SUMMARY="$RUNNER_TEMP/atlas-pages-telegram.json"
+          python3 scripts/telegram-update.py deployment \
+            --head "$GITHUB_SHA" --previous "$PREVIOUS" --push-before "$PUSH_BEFORE" \
+            --site-url "$PAGES_URL" --repo-url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" > "$SUMMARY"
           python3 scripts/notify-telegram.py \
-            --title "🚀 New Version Deployed Live" \
-            --message "A new update to the Atlas was deployed to GitHub Pages. Open to inspect visually." \
-            --url "https://eyeinthesky6.github.io/india-fintech-risk-atlas/"
+            --title "Atlas update is live" --summary-file "$SUMMARY" \
+            --url "$PAGES_URL" --url-label "Open live Atlas"

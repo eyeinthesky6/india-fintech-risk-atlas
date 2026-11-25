@@ -9,7 +9,6 @@ const { entry } = Astro.locals.starlightRoute;
 const data = entry.data;
 const base = getBasePath();
 const slug = normalizeDocSlug(entry.id);
-const isUpiPage = slug === 'upi' || slug.startsWith('upi/');
 const pagePath = slug ? `${base}/${slug}/` : `${base}/`;
 const stage = data.reviewStage ?? 'draft';
 const stageLabel = taxonomyLabel(taxonomy.reviewStages, stage);
@@ -57,15 +56,17 @@ const statusModifier = isReviewed
             <span class="atlas-status-dot" aria-hidden="true"></span>
             {isReviewed ? (
               <span>
-                <strong>Independently reviewed</strong> &middot; Primary sources and claims signed off
+                <strong>{stageLabel}</strong> &middot; Evidence and claim scope checked
               </span>
             ) : isSourceChecked ? (
               <span>
-                <strong>Source-checked draft</strong> &middot; Verified {data.lastSourceCheck ?? '2026-11-23'} &middot; Independent review pending
+                <strong>{stageLabel}</strong>
+                {data.lastSourceCheck && <> &middot; Sources checked {data.lastSourceCheck}</>}
+                {' '}&middot; Human check pending
               </span>
             ) : (
               <span>
-                <strong>Draft</strong> &middot; {data.blockerNote ?? 'Primary source verification or independent review is incomplete.'}
+                <strong>{stageLabel}</strong> &middot; {data.blockerNote || 'Source checks are in progress.'}
               </span>
             )}
           </span>

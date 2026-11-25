@@ -1,4 +1,7 @@
-// Shared relationship primitives for website and machine exports. No Astro or Node dependencies.
+import { markdownLinks } from './atlas-markdown.js';
+import { siteOrigin } from '../site-config.js';
+
+// Shared relationship primitives for website and machine exports.
 export function sourceKeys(body) {
   // Use the section boundary explicitly; multiline $ otherwise matches end of each line.
   const text = (body || '').replace(/\r\n/g, '\n');
@@ -27,13 +30,18 @@ export function sourceKeys(body) {
   return [...keys].sort();
 }
 
-export function directTargets(body, base, validSlugs, self) {
-  const escaped = base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const pattern = new RegExp(escaped + '/([a-z0-9/-]+)', 'gi');
+function directTargets(body, base, validSlugs, self) {
+  const page = new URL(`${base}/${self ? self + '/' : ''}`, siteOrigin);
   const targets = new Set();
-  for (const match of (body || '').matchAll(pattern)) {
-    const slug = match[1].replace(/\/+$/, '').replace(/\/index$/, '');
-    if (slug !== self && validSlugs.has(slug)) targets.add(slug);
+  for (const link of markdownLinks(body || '')) {
+    try {
+      const url = new URL(link.url, page);
+      if (url.origin !== page.origin || !url.pathname.startsWith(`${base}/`)) continue;
+      const slug = url.pathname.slice(base.length + 1).replace(/\/+$/, '').replace(/\/index$/, '');
+      if (slug !== self && validSlugs.has(slug)) targets.add(slug);
+    } catch {
+      // A malformed link has no graph target. The site link validator reports it.
+    }
   }
   return [...targets].sort();
 }

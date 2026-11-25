@@ -42,8 +42,8 @@ Most senior risk architects and banking compliance officers do not use GitHub. W
    *`Topic Lead: [Your Name] — Head of Fraud Risk, [FinTech / Bank]`* (or anonymized as *`Senior Bank Risk Lead`* if required by your employer).
 
 ### How to Sign Up as a Domain Expert:
-- **Option A (Web / Direct):** Fill out our quick [Domain Expert Registration Form](https://forms.gle/RiskAtlasExpertSignup) *(Google Form / Tally)* or email your role and domain of interest directly to `atlas@six.tech`.
-- **Option B (GitHub):** If you already have a GitHub account, submit a [Domain Expert Registration Issue](https://github.com/eyeinthesky6/india-fintech-risk-atlas/issues/new?template=domain-expert-signup.yml).
+- For private contact, email your role and domain of interest to `atlas@six.tech`.
+- For public registration, open a [Domain Expert Registration Issue](https://github.com/eyeinthesky6/india-fintech-risk-atlas/issues/new?template=domain-expert-signup.yml). Use a professional handle if preferred and share contact details over email.
 
 ### Available Domain Tracks:
 - **UPI & Immediate Payments:** Real-time velocity, QR spoofing, collect requests, UDIR dispute flows.
@@ -91,4 +91,4 @@ If you spotted an outdated circular, missing carve-out (e.g. Small Finance Bank 
 
 1. **On-Page Error Reporter:** Use the **Report an error** button at the bottom of any topic record to highlight specific text.
 2. **Factual Correction Form:** Open a structured [Factual Correction Issue](https://github.com/eyeinthesky6/india-fintech-risk-atlas/issues/new?template=factual-correction.yml) with the primary source link.
-3. **Automated Triage:** Our triage bot queues the report, notifies maintainers, and runs automated link validation.
+3. **Maintainer triage:** A queue receipt confirms that the maintainer's private review queue accepted your report. The GitHub issue option is public.

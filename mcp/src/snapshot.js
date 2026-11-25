@@ -14,7 +14,7 @@ export function validateSnapshot(data) {
   if (!m || m.title !== 'India Fintech Risk Atlas' ||
       !Number.isFinite(Date.parse(m.generatedAt)) ||
       Date.parse(m.generatedAt) > Date.now() + 300000 ||
-      !/^1\.[1-9]\d*\.\d+$/.test(m.version || '') ||
+      !/^1\.\d+\.\d+$/.test(m.version || '') || Number(m.version.split('.')[1]) < 2 ||
       !Array.isArray(m.coveredProducts) || typeof m.verificationNotice !== 'string' ||
       !Array.isArray(data.records) || !data.records.length ||
       m.totalRecords !== data.records.length ||
@@ -28,7 +28,8 @@ export function validateSnapshot(data) {
     if (typeof r?.recordId !== 'string' || !r.recordId || ids.has(r.recordId) ||
         !isStringArray(r.products) || !isStringArray(r.actors) ||
         !isStringArray(r.evidenceLayers) || !Array.isArray(r.controls) ||
-        !r.controls.every((control) => typeof control?.basis === 'string' &&
+        !r.controls.every((control) => typeof control?.id === 'string' &&
+          isStringArray(control.ownerIds) && typeof control.basis === 'string' &&
           typeof control.owner === 'string' && typeof control.action === 'string') ||
         !Array.isArray(r.references) || typeof r.fullMarkdown !== 'string' ||
         typeof r.reviewStage !== 'string' ||

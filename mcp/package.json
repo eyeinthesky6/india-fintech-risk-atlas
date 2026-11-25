@@ -9,9 +9,10 @@
   },
   "scripts": {
     "start": "node bin/cli.js",
-    "test": "node test/test-server.js && node test/property-tests.js",
+    "test": "node test/test-server.js && node test/property-tests.js && node test/audit-client.js",
     "test:unit": "node test/test-server.js",
-    "test:property": "node test/property-tests.js"
+    "test:property": "node test/property-tests.js",
+    "test:audit": "node test/audit-client.js"
   },
   "keywords": [
     "mcp",

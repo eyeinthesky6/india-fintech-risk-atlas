@@ -39,6 +39,45 @@ function loadAtlasData() {
   throw new Error('Atlas dataset not found. Run "node scripts/build-atlas-data.js" to build.');
 }
 
+const ACTOR_ALIASES = {
+  'remitter-bank': ['remitter', 'issuer', 'commercial bank', 'commercial, payments', 'issuer bank', 'bank'],
+  'issuer-bank': ['issuer', 'remitter', 'commercial bank', 'commercial, payments', 'bank'],
+  'psp-bank': ['psp', 'sponsor', 'psp bank', 'psp banks', 'psps'],
+  'beneficiary-bank': ['beneficiary', 'payee', 'credit bank', 'beneficiary bank'],
+  'acquirer-bank': ['acquirer', 'acquiring', 'acquirer bank', 'acquiring bank'],
+  'payment-aggregator': ['payment aggregator', 'pa', 'pas', 'pg', 'payment aggregators', 'merchant aggregator'],
+  'tpap': ['tpap', 'tpaps', 'app', 'upi app', 'third-party application provider'],
+  'merchant': ['merchant', 'merchants', 'enterprise', 'business'],
+  'payer': ['payer', 'cardholder', 'customer', 'user', 'consumer'],
+  'cardholder': ['cardholder', 'payer', 'customer'],
+  'card-network': ['card network', 'network', 'visa', 'mastercard', 'rupay'],
+  'npci': ['npci', 'switch', 'network operator'],
+};
+
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function matchesActorRole(ownerText, queryRole) {
+  const lower = (ownerText || '').toLowerCase();
+  const q = (queryRole || '').toLowerCase().trim();
+  if (!q || q === 'all') return true;
+  if (lower.includes(q)) return true;
+  const aliases = ACTOR_ALIASES[q];
+  if (!aliases) return false;
+  return aliases.some((alias) => {
+    if (alias.length <= 3) {
+      try {
+        const regex = new RegExp(`\\b${escapeRegex(alias)}\\b`, 'i');
+        return regex.test(lower);
+      } catch {
+        return lower.includes(alias);
+      }
+    }
+    return lower.includes(alias);
+  });
+}
+
 export function createAtlasMcpServer() {
   const server = new Server(
     {
@@ -475,12 +514,7 @@ export function createAtlasMcpServer() {
         const matchedControls = [];
         for (const r of data.records) {
           for (const c of r.controls || []) {
-            const ownerLower = (c.owner || '').toLowerCase();
-            const matchesActor =
-              ownerLower.includes(actorQuery) ||
-              (actorQuery === 'tpap' && ownerLower.includes('app')) ||
-              (actorQuery === 'bank' && ownerLower.includes('bank'));
-
+            const matchesActor = matchesActorRole(c.owner, actorQuery);
             const matchesBasis = basisQuery === 'all' || c.basis.toLowerCase() === basisQuery.toLowerCase();
 
             if (matchesActor && matchesBasis) {
@@ -524,8 +558,7 @@ export function createAtlasMcpServer() {
         for (const r of data.records) {
           if (productQuery && !r.products.map((p) => p.toLowerCase()).includes(productQuery)) continue;
           for (const c of r.controls || []) {
-            const ownerLower = (c.owner || '').toLowerCase();
-            if (actorQuery !== 'all' && !ownerLower.includes(actorQuery)) continue;
+            if (actorQuery !== 'all' && !matchesActorRole(c.owner, actorQuery)) continue;
 
             checklistItems.push({
               id: `${r.recordId}-C${checklistItems.length + 1}`,

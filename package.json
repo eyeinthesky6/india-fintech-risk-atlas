@@ -7,6 +7,7 @@
     "dev": "astro dev",
     "build": "node scripts/build-atlas-data.js && astro build",
     "preview": "astro preview",
+    "test": "cd mcp && npm test",
     "mcp": "node mcp/bin/cli.js"
   },
   "dependencies": {

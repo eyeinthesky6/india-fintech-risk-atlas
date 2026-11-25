@@ -93,8 +93,8 @@ function parseTableRows(markdown) {
       .map((c) => c.trim());
     if (cells.length >= 3) {
       rows.push({
-        basis: cells[0],
-        owner: cells[1],
+        basis: cells[0].replace(/\*.*?\*/g, '').trim(),
+        owner: cells[1].replace(/\*.*?\*/g, '').trim(),
         action: cells[2],
       });
     }
@@ -171,6 +171,10 @@ function buildRecord(fileRelPath) {
   const raw = fs.readFileSync(absPath, 'utf8');
   const { meta, body } = parseFrontmatter(raw);
 
+  if (!meta.recordId) {
+    return null; // Not a canonical risk record
+  }
+
   const slug = fileRelPath.replace(/\\/g, '/').replace(/\.mdx?$/, '');
   const product = slug.split('/')[0] || 'upi';
 
@@ -186,12 +190,20 @@ function buildRecord(fileRelPath) {
     const headingLower = heading.toLowerCase();
     const secBody = sec.replace(/^##\s+[^\r\n]+/, '').trim();
 
-    if (headingLower.includes('what to do')) {
+    if (
+      headingLower.includes('what to do') ||
+      headingLower.includes('key obligations and boundaries') ||
+      headingLower.includes('key proposals and trade-offs')
+    ) {
       sections['what_to_do'] = secBody;
       whatToDoControls = parseTableRows(secBody);
-    } else if (headingLower.startsWith('what it')) {
+    } else if (headingLower.startsWith('what it') || headingLower.includes('what it covers')) {
       sections['what_it_is'] = secBody;
-    } else if (headingLower.startsWith('impact')) {
+    } else if (
+      headingLower.startsWith('impact') ||
+      headingLower.includes('why it matters') ||
+      headingLower.includes('participant roles at a glance')
+    ) {
       sections['impact'] = secBody;
     } else if (
       headingLower.includes('pattern') ||
@@ -200,7 +212,7 @@ function buildRecord(fileRelPath) {
       headingLower.includes('where it applies')
     ) {
       sections['common_patterns'] = secBody;
-    } else if (headingLower.includes('watch-out')) {
+    } else if (headingLower.includes('watch-out') || headingLower.startsWith('watch-outs')) {
       sections['watch_outs'] = secBody;
     } else if (headingLower.includes('reference') || headingLower.includes('review history')) {
       sections['references'] = secBody;
@@ -210,7 +222,7 @@ function buildRecord(fileRelPath) {
     }
   }
 
-  const recordId = meta.recordId || slug.toUpperCase().replace(/\//g, '-');
+  const recordId = meta.recordId;
   const evidenceLedger = parseEvidenceLedger(recordId);
   const sourceLabels = extractSourceLabels(references);
 
@@ -331,7 +343,7 @@ export function generateAllData() {
     .filter((f) => f.endsWith('.md'))
     .map((f) => path.join('upi', f));
 
-  const records = files.map((f) => buildRecord(f));
+  const records = files.map((f) => buildRecord(f)).filter(Boolean);
 
   records.sort((a, b) => {
     if (a.recordId === 'UPI-OVERVIEW') return -1;
@@ -345,7 +357,7 @@ export function generateAllData() {
   const dataset = {
     metadata: {
       title: 'India Fintech Risk Atlas',
-      version: '1.0.0',
+      version: '1.1.0',
       generatedAt: new Date().toISOString(),
       baseUrl: 'https://eyeinthesky6.github.io/india-fintech-risk-atlas/',
       triageWorkerUrl: 'https://atlas-report-triage.6edroid.workers.dev',
@@ -365,17 +377,14 @@ export function generateAllData() {
     knowledgeGraph,
   };
 
-  // 1. Write public/atlas-records.json
   const publicDir = path.join(ROOT_DIR, 'public');
   if (!fs.existsSync(publicDir)) fs.mkdirSync(publicDir, { recursive: true });
   fs.writeFileSync(path.join(publicDir, 'atlas-records.json'), JSON.stringify(dataset, null, 2), 'utf8');
 
-  // 2. Write mcp/data/atlas-records.json
   const mcpDataDir = path.join(ROOT_DIR, 'mcp', 'data');
   if (!fs.existsSync(mcpDataDir)) fs.mkdirSync(mcpDataDir, { recursive: true });
   fs.writeFileSync(path.join(mcpDataDir, 'atlas-records.json'), JSON.stringify(dataset, null, 2), 'utf8');
 
-  // 3. Write public/llms.txt
   const llmsTxt = [
     '# India Fintech Risk Atlas',
     '> An open, source-cited reference for Indian fintech (UPI, Cards, PA/PG, Lending) fraud patterns, controls, and operational risks.',
@@ -399,7 +408,6 @@ export function generateAllData() {
 
   fs.writeFileSync(path.join(publicDir, 'llms.txt'), llmsTxt, 'utf8');
 
-  // 4. Write public/llms-full.txt
   const fullDocs = [
     '# India Fintech Risk Atlas — Consolidated Knowledge Pack',
     `Generated: ${new Date().toISOString()}`,
@@ -422,7 +430,7 @@ export function generateAllData() {
 
   fs.writeFileSync(path.join(publicDir, 'llms-full.txt'), fullDocs, 'utf8');
 
-  console.log(`Successfully generated Atlas data for ${records.length} records and ${guideDocs.length} guide documents.`);
+  console.log(`Successfully generated Atlas data for ${records.length} canonical records and ${guideDocs.length} guide documents.`);
 }
 
 generateAllData();

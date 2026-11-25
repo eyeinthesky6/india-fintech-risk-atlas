@@ -18,7 +18,7 @@ The **India Fintech Risk Atlas** provides two classes of machine consumption:
 
 The question addressed by this document: **Should we deploy and maintain a live, public, remote MCP server over HTTP/SSE (e.g. on Cloudflare Workers) right now?**
 
-**Decision:** **NO.** Remote MCP is deferred until specific, measurable ecosystem triggers occur. For general web and chat users (ChatGPT, Gemini Web, Perplexity), the static `/llms.txt` and `/atlas-records.json` endpoints provide identical informational coverage at zero cost, zero maintenance, and infinite scale, while developer IDEs strongly prefer local stdio.
+**Decision:** **NO.** Remote MCP is deferred until specific, measurable ecosystem triggers occur. For general web and chat users (ChatGPT, Gemini Web, Perplexity), the static `/llms.txt` and `/atlas-records.json` endpoints provide static informational access without a dedicated MCP service, subject to client retrieval and hosting limits, while developer IDEs strongly prefer local stdio.
 
 ---
 
@@ -29,19 +29,19 @@ The question addressed by this document: **Should we deploy and maintain a live,
 | **Primary Audience** | Developers, Risk Engineers, Local IDE Agents | Web Chat users (ChatGPT, Gemini, Perplexity) | Remote Agent Swarms, SaaS integrations |
 | **Connection Protocol** | OS pipes (`process.stdin` / `stdout`) | HTTPS GET (HTTP/2, CDN cached) | Server-Sent Events (SSE) / HTTP POST |
 | **Hosting & Compute Cost** | **\$0** (runs on client's machine) | **\$0** (served statically via GitHub Pages CDN) | Ongoing Cloudflare Worker request & duration costs |
-| **Latency** | **< 2ms** (in-memory IPC) | 50–200ms (CDN fetch) | 150–500ms (network roundtrip + SSE keep-alive) |
+| **Latency** | Local IPC (not benchmarked here) | Network dependent | Network dependent |
 | **Offline Support** | **100% Yes** (bundled data) | No | No |
-| **Attack Surface** | **Zero** (no open port or network listener) | Zero (read-only static asset) | High (requires rate-limiting, auth, DDoS defense) |
+| **Attack Surface** | Reduced (no public listener; refresh and feedback still use HTTPS) | Reduced (public static content) | High (requires rate-limiting, auth, DDoS defense) |
 | **Tool Calling Parity** | 12 tools (interactive checklists, graphs) | Context reading only | 12 tools (interactive checklists, graphs) |
 
 ---
 
 ## 3. Why Remote MCP is Deferred Today
 
-1. **`llms.txt` Solves 90% of Web Chat Queries at Zero Cost:**
+1. **Static files are the default for web research:**
    When a user asks ChatGPT or Gemini Web a compliance or risk question, the model does not need interactive tool invocation—it needs accurate, source-cited text. Pointing web models to `https://eyeinthesky6.github.io/india-fintech-risk-atlas/llms.txt` fulfills this without any server infrastructure.
 2. **Local stdio is the Gold Standard for Developer Workflows:**
-   Engineers writing UPI or Card payment integrations work inside IDEs (Cursor, VS Code, Claude Desktop, Antigravity). Local stdio delivers sub-2ms response times, never fails on network drops, and has no API rate limits.
+   Engineers writing UPI or Card payment integrations work inside IDEs (Cursor, VS Code, Claude Desktop, Antigravity). Local stdio can use an offline snapshot; refresh and correction submission require network access.
 3. **Premature Security & Compute Overhead:**
    Exposing a remote MCP server over the public internet exposes the backend to automated scrapers, denial-of-wallet attacks, and runaway agent loops. Securing this requires API key issuance, billing, bot challenges, and rate limiting—diverting effort from authoring primary fintech risk intelligence.
 4. **Evolving Protocol Standards:**

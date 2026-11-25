@@ -78,7 +78,10 @@ function matchesActorRole(ownerText, queryRole) {
   });
 }
 
-export function createAtlasMcpServer() {
+export function createAtlasMcpServer(snapshotPath) {
+  // CLI selects one validated snapshot per process; in-memory tests retain bundled data.
+  const snapshot = snapshotPath ? JSON.parse(fs.readFileSync(snapshotPath, 'utf8')) : null;
+  const getData = () => snapshot || loadAtlasData();
   const server = new Server(
     {
       name: 'india-fintech-risk-atlas-mcp',
@@ -341,7 +344,7 @@ export function createAtlasMcpServer() {
   // 2. Handle Tool Calls
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const { name, arguments: args } = request.params;
-    const data = loadAtlasData();
+    const data = getData();
 
     switch (name) {
       case 'search_risk_records': {
@@ -854,7 +857,7 @@ export function createAtlasMcpServer() {
 
   // 3. List Resources
   server.setRequestHandler(ListResourcesRequestSchema, async () => {
-    const data = loadAtlasData();
+    const data = getData();
     const resources = [
       {
         uri: 'atlas://taxonomy',
@@ -888,7 +891,7 @@ export function createAtlasMcpServer() {
   // 4. Read Resource
   server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
     const { uri } = request.params;
-    const data = loadAtlasData();
+    const data = getData();
 
     if (uri === 'atlas://taxonomy') {
       return {

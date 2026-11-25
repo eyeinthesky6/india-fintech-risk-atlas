@@ -15,4 +15,13 @@ Source URLs and exact sections:
 Independent reviewer:
 Unresolved issues:
 
+## Agent review
+
+Follow the [review procedure](../docs/SECTION_WORKFLOW.md#agent-review-before-requesting-approval) for the final diff.
+
+- Reviewed head SHA:
+- Verdict and findings (with file or source locators):
+- Checks run and results:
+- Remaining blockers or unverified items:
+
 **PR checkbox completion is a declaration, not evidence of truth. The committed per-record attestation is the structural gate.**

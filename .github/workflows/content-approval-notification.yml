@@ -1,0 +1,69 @@
+name: Content approval notification
+
+on:
+  workflow_run:
+    workflows: [Validate site]
+    types: [requested]
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: atlas-approval-notice-${{ github.event.workflow_run.head_repository.id }}-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
+jobs:
+  notify:
+    if: github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check for a pending maintainer decision
+        id: approval
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VALIDATION_RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          RUN="repos/$GITHUB_REPOSITORY/actions/runs/$VALIDATION_RUN_ID"
+          for attempt in {1..30}; do
+            STATUS=$(gh api "$RUN" --jq '.status')
+            if [ "$STATUS" = completed ]; then
+              exit 0
+            fi
+            if [ "$STATUS" = waiting ]; then
+              PENDING=$(gh api "$RUN/pending_deployments" --jq 'any(.[]; .environment.name == "atlas-content-approval")')
+              if [ "$PENDING" = true ]; then
+                echo 'pending=true' >> "$GITHUB_OUTPUT"
+                exit 0
+              fi
+            fi
+            sleep 5
+          done
+          echo 'No pending Atlas content approval observed within the notification window.' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Check out the notifier from the default branch
+        if: steps.approval.outputs.pending == 'true'
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Send the GitHub approval link to Telegram
+        if: steps.approval.outputs.pending == 'true'
+        env:
+          VALIDATION_RUN_ID: ${{ github.event.workflow_run.id }}
+          REVISION: ${{ github.event.workflow_run.head_sha }}
+          PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          CHANGE="Revision ${REVISION:0:12}"
+          if [ -n "$PR_NUMBER" ]; then
+            CHANGE="PR #$PR_NUMBER ($CHANGE)"
+          fi
+          python3 scripts/notify-telegram.py \
+            --title 'Atlas content is waiting for approval' \
+            --message "$CHANGE is waiting for the maintainer. Open GitHub and select Review deployments, then atlas-content-approval." \
+            --url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$VALIDATION_RUN_ID" \
+            --url-label 'Review this revision on GitHub'

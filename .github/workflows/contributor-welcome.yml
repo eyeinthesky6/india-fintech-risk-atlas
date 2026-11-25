@@ -1,0 +1,68 @@
+name: Contributor & Expert Intake Welcome Bot
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+
+jobs:
+  welcome-and-triage:
+    runs-on: ubuntu-latest
+    if: "!github.event.issue.pull_request"
+    steps:
+      - name: Welcome Domain Expert Applicant
+        if: "contains(github.event.issue.labels.*.name, 'domain-expert')"
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = `### 🏛️ Welcome to the India Fintech Risk Atlas Expert Network!
+            
+            Thank you for stepping forward to guide our risk and compliance coverage.
+            
+            **What happens next (Zero GitHub effort required):**
+            1. **No Code / Git Required:** You never need to write code, submit PRs, or check branch conflicts.
+            2. **Topic Allocation:** A maintainer will link your profile to your selected domain track and record your attribution preferences.
+            3. **Delta Reviews:** Whenever our daily automated watchers detect a circular change or engineering practice update in your domain, our agents draft a **3-bullet operational summary**. You will be pinged for a quick 2-minute reality check: *"Does this reflect what your risk team does in production?"*
+            
+            Explore the live atlas at: [https://eyeinthesky6.github.io/india-fintech-risk-atlas/](https://eyeinthesky6.github.io/india-fintech-risk-atlas/)
+            
+            Thank you for helping build India's definitive public fintech risk reference!`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: comment
+            });
+
+      - name: Welcome Code / Content Contributor
+        if: "contains(github.event.issue.labels.*.name, 'contributor')"
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = `### 💻 Welcome to the India Fintech Risk Atlas Contributor Team!
+            
+            Thank you for joining our open-source effort to catalog fraud and risk patterns in Indian financial products.
+            
+            **Quick Start Guide:**
+            1. 📋 **Pick a Work Unit:** Check our live [Product Expansion Task Board](https://github.com/eyeinthesky6/india-fintech-risk-atlas/blob/main/docs/PRODUCT_EXPANSION_TASKBOARD.md) for available topic records across Cards, Payment Aggregators, and Digital Lending.
+            2. 📜 **Follow the Double-Ledger Rule:** Every claim in \`src/content/docs/<product>/<ID>.md\` must have exact 1:1 matching entries in:
+               - \`research/evidence/<ID>.md\` (Assertion ledger)
+               - \`research/attestations/<ID>.md\` (12-item declaration)
+            3. ⚡ **Run Verification:** Before opening a PR, ensure tests pass:
+               \`\`\`bash
+               python scripts/check-attestations.py --all
+               npm run build
+               \`\`\`
+            4. 🚀 **One Record Per PR:** Keep your PRs scoped to a single topic record or maintenance unit.
+            
+            Feel free to comment here if you have any questions!`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: comment
+            });

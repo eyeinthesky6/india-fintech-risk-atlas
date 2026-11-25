@@ -1,0 +1,80 @@
+name: Join as a Domain Expert or Advisory Panelist
+description: For fintech risk leads, banking compliance officers, fraud architects, and legal researchers.
+title: "[Expert Registration]: "
+labels:
+  - domain-expert
+  - community
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### 🏛️ India Fintech Risk Atlas — Expert Network Registration
+        Thank you for offering your domain expertise. We ensure you **never have to write code, manage Git branches, or deal with technical PRs**.
+        
+        Our automated agents and technical maintainers draft updates based on daily circular monitoring. As a Domain Expert, you will only ever be asked for a **2-minute async review of a 3-bullet summary** when regulations or fraud patterns change in your domain.
+  - type: input
+    id: full_name
+    attributes:
+      label: Full Name or Professional Handle
+      placeholder: e.g. Priya Sharma (or "Anonymous Risk Lead")
+    validations:
+      required: true
+  - type: input
+    id: role_and_org
+    attributes:
+      label: Current Role & Organization Type
+      description: e.g., "VP Fraud Operations at Large Private Bank", "Risk Engineering Lead at Payment Aggregator", "Independent FinTech Counsel"
+      placeholder: Head of Fraud Risk, Payment Aggregator
+    validations:
+      required: true
+  - type: dropdown
+    id: track_interest
+    attributes:
+      label: Primary Domain / Topic Area
+      description: Which area of the Atlas do you want to advise or review?
+      options:
+        - "UPI & Immediate Payments (Social engineering, QR, collect requests, velocity)"
+        - "Cards, Tokenization & Chargebacks (CoFT, 2FA, pre-arbitration)"
+        - "Payment Aggregators & Gateways (Escrow, merchant KYC, transaction laundering)"
+        - "Digital Lending & Recovery (FLDG, RE oversight, recovery agent ethics)"
+        - "Mule Accounts & AML (Dormancy burst, shell accounts, cybercell freezes)"
+        - "Mobile AppSec & Device Integrity (RASP, screen overlays, root bypass)"
+        - "Dispute Resolution & Customer Liability (UDIR, zero liability timelines)"
+        - "General Advisory Panel (Policy consultation, regulatory strategy, institutional governance)"
+    validations:
+      required: true
+  - type: dropdown
+    id: involvement_level
+    attributes:
+      label: Preferred Level of Involvement
+      description: How would you like to participate?
+      options:
+        - "Domain Expert / Topic Lead (Async review of 3-bullet summaries when rules change ~1-2 times/month)"
+        - "Atlas Advisory Panel (Quarterly high-level strategy check-in & institutional guidance)"
+        - "Spot Reviewer (Only ping me when a major circular or crisis emerges in my domain)"
+    validations:
+      required: true
+  - type: dropdown
+    id: attribution_preference
+    attributes:
+      label: Public Attribution Preference
+      description: How should we credit your reviews on the live Atlas records?
+      options:
+        - "Public Credit (Name, Role, and Company listed on the topic record)"
+        - "Semi-Public Credit (Name and Role, company kept confidential)"
+        - "Anonymized Credit ('Reviewed by Senior Bank Risk Lead')"
+    validations:
+      required: true
+  - type: input
+    id: contact_method
+    attributes:
+      label: Preferred Async Contact (Email, LinkedIn, or WhatsApp)
+      description: Where should maintainers send concise review summaries? (If you prefer to keep this private, submit via the website web-form instead).
+      placeholder: name@organization.com or linkedin.com/in/...
+    validations:
+      required: false
+  - type: textarea
+    id: additional_notes
+    attributes:
+      label: Specific Fraud Patterns or Regulatory Gaps You'd Like to Address (Optional)
+      description: Any specific pain points or unaddressed fraud vectors you have seen in production?

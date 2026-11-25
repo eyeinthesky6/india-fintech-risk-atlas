@@ -1,0 +1,50 @@
+name: Join as a Code or Content Contributor
+description: For developers, technical writers, and data analysts who want to work on Atlas records, scripts, or the website.
+title: "[Contributor Registration]: "
+labels:
+  - contributor
+  - triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### 💻 Join the India Fintech Risk Atlas Engineering & Content Team
+        Welcome! We are building an open-source, source-cited reference for Indian fintech fraud and risk.
+        All contributions follow our strict double-ledger evidence rules: every claim must have matching entries in `research/evidence/<ID>.md` and `research/attestations/<ID>.md`.
+  - type: input
+    id: github_handle
+    attributes:
+      label: GitHub Handle / Name
+      placeholder: @yourusername
+    validations:
+      required: true
+  - type: dropdown
+    id: contribution_interest
+    attributes:
+      label: What area would you like to contribute to?
+      options:
+        - "Drafting new topic records (Cards, PA/PG, Digital Lending - see Task Board)"
+        - "Evidence research & circular verification (updating primary source locators)"
+        - "Automations & Python scrapers (RSS watchers, citation checkers, attestation linters)"
+        - "Website engineering & Astro UI (Starlight, graph views, search, accessibility)"
+    validations:
+      required: true
+  - type: dropdown
+    id: experience_level
+    attributes:
+      label: Background
+      options:
+        - "Fintech / Payment engineer"
+        - "Fullstack / Frontend developer (Astro / TypeScript / Python)"
+        - "Regulatory / Compliance researcher"
+        - "Student / Open-source enthusiast"
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you like to tackle first?
+      description: Mention a record ID (e.g., `CARD-001`, `UPI-010`), a specific PR, or a tooling improvement.
+      placeholder: "I'd like to help draft the Card Tokenization (CoFT) topic record or improve the practitioner RSS watcher."
+    validations:
+      required: false

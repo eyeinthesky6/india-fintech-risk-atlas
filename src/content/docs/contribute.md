@@ -1,57 +1,94 @@
 ---
-title: Contribute & Governance
+title: Join the Atlas & Contribute
 ---
 
-The India Fintech Risk Atlas is an independent, public-good reference platform. We welcome contributions from risk engineers, banking compliance officers, fraud investigators, and civil-society institutions.
+The India Fintech Risk Atlas is an independent, public-good reference platform. We catalog fraud vectors, regulatory controls, and technical operational failure modes across Indian financial products.
 
----
-
-## 🏛️ Atlas Advisory Panel & Domain Expert Working Groups
-
-Most senior risk and compliance practitioners do not live on GitHub. We have designed our governance so that **domain experts can govern and verify content without writing code, opening pull requests, or managing Git branches.**
-
-### 1. The Atlas Advisory Panel
-We are building an **Atlas Advisory Panel** comprising senior fintech risk leaders, digital banking heads, cyber law scholars, and institutional partners (such as the Internet Freedom Foundation - IFF and digital payment councils) who serve as co-owners, governance guardians, and content sponsors.
-
-- **Role:** High-level strategic oversight, policy consultation reviews, and institutional credibility.
-- **Commitment:** Quarterly async check-ins; reviewing synthesis memos on major regulatory shifts (e.g. RBI Master Directions, Digital Competition Bill).
-
-### 2. Domain Experts & Topic Leads
-For practitioners working directly in fraud operations, payment switches, or InfoSec teams:
-- **Scope:** Own a specific domain (Mobile AppSec, Mule Syndicates, Reconciliation, Social Engineering, Disputes).
-- **The Zero-GitHub Review Loop:**
-  1. Automated bots monitor RBI/NPCI circulars and engineering blogs daily.
-  2. Maintainers or AI agents draft a **3-bullet operational summary** and table update.
-  3. The Domain Expert reviews the brief via email, WhatsApp, or a simple web form (takes ~2 minutes): *"Does this match what your risk team implements in production?"*
-  4. Maintainers commit the verified update with full attribution to the expert.
-- **Attribution & Recognition:** Your name, role, and organization are prominently credited on the topic record:  
-  *`Topic Lead: [Your Name] — Senior Fraud Architect, [FinTech / Bank]`*  
-  *(Optionally anonymized if required by institutional employer policies).*
-
-> **Interested in joining?** Reach out directly to the maintainers or email `atlas@six.tech` to join the Advisory Panel or claim a Domain Expert lead.
+We have designed our platform so that **domain experts (bankers, compliance leads, fraud investigators) never have to touch GitHub or write code**, while **software engineers and researchers can contribute through standard Git workflows**.
 
 ---
 
-## 🔍 Report an Error or Share Operational Feedback
+## 🧭 Choose Your Contribution Path
 
-You do not need a GitHub account to submit corrections or practical insights:
-
-1. **On-Page Error Reporter:** Click **Report an error** or **Looks accurate** at the bottom of any topic record. You can highlight the exact paragraph or sentence that is outdated or incorrect.
-2. **Issue Form:** For structured corrections, use our pre-filled [factual correction form](https://github.com/eyeinthesky6/india-fintech-risk-atlas/issues/new?template=factual-correction.yml) to point out superseded circulars or missing edge cases.
-3. **Maintainer Verification:** Maintainers inspect the cited circular, update the evidence ledger, and publish the verified correction.
+```
+                      ┌──────────────────────────────────────┐
+                      │   How would you like to contribute?  │
+                      └──────────────────┬───────────────────┘
+                                         │
+                 ┌───────────────────────┴───────────────────────┐
+                 ▼                                               ▼
+   [I am a Domain Expert / Leader]                [I am an Engineer / Researcher]
+   • Bank Compliance / Risk Lead                  • Open-Source Developer
+   • Payment Ops / Fraud Architect                • Data & Documentation Analyst
+   • Legal & Policy Scholar                       • Astro / Web Engineer
+                 │                                               │
+                 ▼                                               ▼
+         Zero-GitHub Path                                   Git / PR Path
+    (2-minute async delta reviews)                    (Task Board & Double-Ledger)
+```
 
 ---
 
-## 💻 Technical & Code Contributions (Pull Requests)
+## 🏛️ Path 1: Domain Experts & Atlas Advisory Panel (Zero GitHub Required)
 
-For engineers and researchers who prefer working directly in Git:
+Most senior risk architects and banking compliance officers do not use GitHub. We guarantee that **you will never be asked to write code, resolve merge conflicts, or manage pull requests.**
 
-1. Click **Edit this page** or fork the repository.
-2. Adhere to the [Content Schema](https://github.com/eyeinthesky6/india-fintech-risk-atlas/blob/main/docs/CONTENT_SCHEMA.md) and [Research Protocol](https://github.com/eyeinthesky6/india-fintech-risk-atlas/blob/main/docs/RESEARCH_PROTOCOL.md).
-3. Every record update requires 1:1 double-ledger parity in `research/evidence/<ID>.md` and `research/attestations/<ID>.md`.
-4. Run pre-commit checks:
-   ```bash
-   python scripts/check-attestations.py --all
-   npm run build
-   ```
-5. Maintainers and independent domain reviewers will inspect the diff before merging.
+### How the Zero-GitHub Review Loop Works
+1. **Automated Monitoring:** Our automated watcher bots monitor RBI Master Directions, NPCI circulars, and engineering blogs daily.
+2. **AI & Maintainer Drafting:** When a change occurs, an AI assistant or technical maintainer drafts a **concise 3-bullet operational summary** and table update.
+3. **2-Minute Async Review:** You receive a short brief via email or WhatsApp:  
+   > *"RBI has updated the timeline for customer unauthorized debit reporting under Circular X. We drafted this 1-line update to `UPI-015`. Does this reflect what your bank/PSP enforces in production?"*
+4. **Attribution:** Once you confirm or tweak the note, the record is published with your attribution:  
+   *`Topic Lead: [Your Name] — Head of Fraud Risk, [FinTech / Bank]`* (or anonymized as *`Senior Bank Risk Lead`* if required by your employer).
+
+### How to Sign Up as a Domain Expert:
+- **Option A (Web / Direct):** Fill out our quick [Domain Expert Registration Form](https://forms.gle/RiskAtlasExpertSignup) *(Google Form / Tally)* or email your role and domain of interest directly to `atlas@six.tech`.
+- **Option B (GitHub):** If you already have a GitHub account, submit a [Domain Expert Registration Issue](https://github.com/eyeinthesky6/india-fintech-risk-atlas/issues/new?template=domain-expert-signup.yml).
+
+### Available Domain Tracks:
+- **UPI & Immediate Payments:** Real-time velocity, QR spoofing, collect requests, UDIR dispute flows.
+- **Credit & Debit Cards:** CoFT tokenization failures, recurring mandates, chargeback pre-arbitration.
+- **Payment Aggregators & Gateways:** Escrow management, merchant KYC, transaction laundering.
+- **Digital Lending:** First-Loss Default Guarantees (FLDG), Regulated Entity (RE) oversight, recovery agent ethics.
+- **Mule Accounts & AML:** Dormancy-to-burst patterns, shell company accounts, state cybercell freezing orders.
+- **Mobile Security & RASP:** Screen-overlay attacks, root bypass, malicious APK detection, biometric step-up.
+- **Atlas Advisory Panel:** Strategic institutional oversight, regulatory consultation memos, civil society coordination (e.g. Internet Freedom Foundation - IFF).
+
+---
+
+## 💻 Path 2: Code & Content Contributors (GitHub & Pull Requests)
+
+For developers, technical researchers, and data engineers who want to add new topic records, improve scrapers, or enhance the Astro website.
+
+### Step 1: Register Your Interest
+Open a [Contributor Registration Issue](https://github.com/eyeinthesky6/india-fintech-risk-atlas/issues/new?template=contributor-signup.yml). Our welcome bot will immediately guide you to active issues and assign topic labels.
+
+### Step 2: Pick a Work Unit
+Check the live [Product Expansion Task Board](https://github.com/eyeinthesky6/india-fintech-risk-atlas/blob/main/docs/PRODUCT_EXPANSION_TASKBOARD.md). Work is organized into single, bounded work units (max 1 topic record per PR).
+
+### Step 3: Enforce Double-Ledger Parity
+Every new claim or updated row in `src/content/docs/<product>/<ID>.md` must have matching 1:1 entries in:
+- `research/evidence/<ID>.md` (Claim-by-claim assertion ledger mapping to one of the 5 evidence layers: `Regulatory`, `Industry practice`, `Community insight`, `Research & academic`, or `Atlas guidance`).
+- `research/attestations/<ID>.md` (12-item declaration checklist; note that contributor/author agents **cannot** self-certify reviewer boxes `8–10, 12`).
+
+### Step 4: Run Verification Before Submitting
+```powershell
+# 1. Verify attestation ledgers and stage parity
+python scripts/check-attestations.py --all
+
+# 2. Verify citation freshness and check link health
+python scripts/verify-citations.py --offline --all
+
+# 3. Test website build and link integrity
+npm run build
+```
+
+---
+
+## 🔍 Report an Error or Share Live Operational Feedback
+
+If you spotted an outdated circular, missing carve-out (e.g. Small Finance Bank vs. Commercial Bank), or broken link:
+
+1. **On-Page Error Reporter:** Use the **Report an error** button at the bottom of any topic record to highlight specific text.
+2. **Factual Correction Form:** Open a structured [Factual Correction Issue](https://github.com/eyeinthesky6/india-fintech-risk-atlas/issues/new?template=factual-correction.yml) with the primary source link.
+3. **Automated Triage:** Our triage bot queues the report, notifies maintainers, and runs automated link validation.

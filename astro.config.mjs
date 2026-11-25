@@ -18,6 +18,7 @@ export default defineConfig({
           { label: 'Coverage', link: '/upi/coverage/' },
           { label: 'Sources', link: '/upi/sources/' },
           { label: 'Methodology', link: '/methodology/' },
+          { label: 'Join & Contribute', link: '/contribute/' },
         ],
         footerText: 'India Risk Atlas — Open, source-cited fintech risk reference (CC BY 4.0 content, MIT code).',
       }),

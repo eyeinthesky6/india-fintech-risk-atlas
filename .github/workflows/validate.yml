@@ -15,6 +15,8 @@ jobs:
         run: python3 scripts/check-attestations.py --all
       - name: Check citation parity, deprecated URLs, and freshness metadata
         run: python3 scripts/verify-citations.py --offline --all
+      - name: Check Telegram summaries
+        run: python3 scripts/test_telegram_update.py
   build:
     name: Site build & link check
     runs-on: ubuntu-latest
@@ -25,6 +27,17 @@ jobs:
           node-version: '24'
           cache: 'npm'
       - run: npm ci --no-audit --no-fund
+      - name: Parse workflow and issue-form YAML
+        run: |
+          node --input-type=module <<'EOF'
+          import fs from 'node:fs';
+          import { parse } from 'yaml';
+          for (const dir of ['.github/workflows', '.github/ISSUE_TEMPLATE']) {
+            for (const file of fs.readdirSync(dir).filter((name) => /\.ya?ml$/.test(name))) {
+              parse(fs.readFileSync(`${dir}/${file}`, 'utf8'));
+            }
+          }
+          EOF
       - run: npm run build
       - name: Check tracked exports are current
         run: git diff --exit-code --stat -- public/atlas-records.json public/llms.txt public/llms-full.txt mcp/data/atlas-records.json
@@ -36,6 +49,8 @@ jobs:
           cmp public/atlas-records.json dist/atlas-records.json
           cmp public/llms.txt dist/llms.txt
           cmp public/llms-full.txt dist/llms-full.txt
+      - name: Verify the website and machine graph agree
+        run: node scripts/check-graph-projections.js
       - name: Verify build output, Pagefind filters, and HTML internal links
         run: |
           test -f dist/index.html

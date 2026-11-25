@@ -6,13 +6,12 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   issues: write
-  pull-requests: write
 
 jobs:
   watch-practitioners:
-    name: Poll engineering feeds & auto-add
+    name: Poll engineering feeds for research candidates
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -23,11 +22,10 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Run practitioner watcher preview
+      - name: Collect practitioner candidates
         id: watcher
         run: |
-          python3 scripts/watch-practitioners.py --json --output report.json
-          python3 scripts/watch-practitioners.py --output report.md
+          python3 scripts/watch-practitioners.py --json --output report.json --markdown-output report.md
           NEW_COUNT=$(python3 -c "import json; d=json.load(open('report.json')); print(d['new_count'])")
           echo "new_count=$NEW_COUNT" >> $GITHUB_OUTPUT
           if [ "$NEW_COUNT" -gt 0 ]; then
@@ -36,24 +34,19 @@ jobs:
             echo "has_new=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Auto-add new engineering observations
-        if: steps.watcher.outputs.has_new == 'true'
-        run: |
-          python3 scripts/watch-practitioners.py --auto-add
-
-      - name: Create pull request or alert issue
+      - name: Open a candidate review issue
         if: steps.watcher.outputs.has_new == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          DATE=$(date -u +"%Y-%m-%d")
-          TITLE="[PRACTITIONER INTAKE] Discovered engineering observations ($DATE)"
-          
-          # Open triage issue for domain stewards
+          BATCH_ID=$(python3 -c 'import hashlib,json; report=json.load(open("report.json")); links=sorted({row["link"] for row in report["new_items"]}); print(hashlib.sha256("\n".join(links).encode()).hexdigest()[:12])')
+          TITLE="[PRACTITIONER INTAKE] Review engineering candidates ($BATCH_ID)"
+          EXISTING=$(gh issue list --state all --search "$BATCH_ID in:title" --json title --jq '.[].title')
+          if printf '%s\n' "$EXISTING" | grep -Fxq "$TITLE"; then
+            echo "Candidate batch already recorded."
+            exit 0
+          fi
           gh issue create \
             --title "$TITLE" \
             --body-file report.md \
-            --label "practitioner-alert" || \
-          gh issue create \
-            --title "$TITLE" \
-            --body-file report.md
+            --label "practitioner-alert"

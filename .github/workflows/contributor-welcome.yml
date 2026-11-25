@@ -5,12 +5,13 @@ on:
     types: [opened]
 
 permissions:
+  contents: read
   issues: write
 
 jobs:
   welcome-and-triage:
     runs-on: ubuntu-latest
-    if: "!github.event.issue.pull_request"
+    if: contains(github.event.issue.labels.*.name, 'domain-expert') || contains(github.event.issue.labels.*.name, 'contributor')
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -26,7 +27,7 @@ jobs:
             
             **What happens next (Zero GitHub effort required):**
             1. **No Code / Git Required:** You never need to write code, submit PRs, or check branch conflicts.
-            2. **Topic Allocation:** A maintainer will link your profile to your selected domain track and record your attribution preferences.
+            2. **Topic Allocation:** A maintainer will follow up about your selected domain. The Atlas displays the human-check status on records.
             3. **Delta Reviews:** Whenever our daily automated watchers detect a circular change or engineering practice update in your domain, our agents draft a **3-bullet operational summary**. You will be pinged for a quick 2-minute reality check: *"Does this reflect what your risk team does in production?"*
             
             Explore the live atlas at: [https://eyeinthesky6.github.io/india-fintech-risk-atlas/](https://eyeinthesky6.github.io/india-fintech-risk-atlas/)
@@ -72,10 +73,13 @@ jobs:
 
       - name: Send Telegram Alert for New Signup
         env:
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_URL: ${{ github.event.issue.html_url }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           python3 scripts/notify-telegram.py \
-            --title "👤 New Application: ${{ github.event.issue.title }}" \
-            --message "A new expert or contributor application was submitted. Issue #${{ github.event.issue.number }}." \
-            --url "${{ github.event.issue.html_url }}"
+            --title "New Atlas application: $ISSUE_TITLE" \
+            --message "A contributor or expert application was submitted as issue #$ISSUE_NUMBER." \
+            --url "$ISSUE_URL" --url-label "Open application"

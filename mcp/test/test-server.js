@@ -1,3 +1,4 @@
+import assert from 'node:assert/strict';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { createAtlasMcpServer } from '../src/server.js';
@@ -39,6 +40,7 @@ async function runTests() {
     arguments: { record_id: 'UPI-004' },
   });
   const record = JSON.parse(recordRes.content[0].text);
+  assert.equal(record.recordId, 'UPI-004');
   console.log(`✓ get_record fetched "${record.title}" (${record.recordId})`);
 
   // Test 4: Explore knowledge graph
@@ -47,6 +49,7 @@ async function runTests() {
     arguments: { record_id: 'UPI-004' },
   });
   const kg = JSON.parse(kgRes.content[0].text);
+  assert.equal(kg.total_connected_neighbors, kg.connected_topics.length);
   console.log(`✓ explore_knowledge_graph returned ${kg.total_connected_neighbors} connected topics for UPI-004`);
 
   // Test 5: Get persona controls
@@ -55,7 +58,9 @@ async function runTests() {
     arguments: { actor: 'tpap', basis: 'all' },
   });
   const persona = JSON.parse(personaRes.content[0].text);
-  console.log(`✓ get_persona_controls found ${persona.total_controls_found} obligations for TPAP`);
+  assert.ok(persona.controls.every((control) => control.owner_ids.includes('tpap')));
+  assert.ok(persona.total_controls_found > 0);
+  console.log(`✓ get_persona_controls found ${persona.total_controls_found} explicitly scoped rows for TPAP`);
 
   // Test 6: Generate gap checklist
   const checklistRes = await client.callTool({
@@ -63,6 +68,7 @@ async function runTests() {
     arguments: { actor: 'remitter-bank', format: 'markdown' },
   });
   const md = checklistRes.content[0].text;
+  assert.match(md, /\| Check \| Record \| Basis \|/);
   console.log(`✓ generate_gap_checklist generated markdown checklist (${md.length} characters)`);
 
   // Test 7: Get guide doc
@@ -71,6 +77,7 @@ async function runTests() {
     arguments: { doc_id: 'evidence-policy' },
   });
   const guide = JSON.parse(guideRes.content[0].text);
+  assert.equal(guide.slug, 'evidence-policy');
   console.log(`✓ get_guide_doc retrieved: ${guide.title}`);
 
   // Test 8: Get clean markdown ([Copy] parity)
@@ -79,15 +86,18 @@ async function runTests() {
     arguments: { record_id: 'UPI-004' },
   });
   const cleanMd = copyRes.content[0].text;
+  assert.match(cleanMd, /Source: https:\/\//);
   console.log(`✓ get_clean_markdown extracted clean text with Source URL (${cleanMd.includes('Source: https://')})`);
 
-  // Test 9: Mark record accurate ([✓ Looks accurate] parity)
+  // Test 9: The legacy tool reports the recorded evidence status.
   const markRes = await client.callTool({
     name: 'mark_record_accurate',
     arguments: { record_id: 'UPI-004' },
   });
   const mark = JSON.parse(markRes.content[0].text);
-  console.log(`✓ mark_record_accurate confirmed: ${mark.confirmed}`);
+  assert.equal(mark.confirmed, false);
+  assert.equal(mark.human_checked, false);
+  console.log('✓ Legacy accuracy tool returned the recorded evidence stage');
 
   // Test 10: Get evidence ledger
   const ledgerRes = await client.callTool({
@@ -95,7 +105,7 @@ async function runTests() {
     arguments: { record_id: 'UPI-004' },
   });
   const ledger = JSON.parse(ledgerRes.content[0].text);
-  console.log(`✓ get_evidence_ledger returned ${ledger.claims.length} verified claims for UPI-004`);
+  console.log(`✓ get_evidence_ledger returned ${ledger.claims.length} ledger claims for UPI-004`);
 
   // Test 11: List sources
   const sourcesRes = await client.callTool({
@@ -103,7 +113,7 @@ async function runTests() {
     arguments: { record_id: 'UPI-004' },
   });
   const sources = JSON.parse(sourcesRes.content[0].text);
-  console.log(`✓ list_sources returned ${sources.total_sources} unique verified URLs for UPI-004`);
+  console.log(`✓ list_sources returned ${sources.total_sources} cited URLs for UPI-004`);
 
   // Test 12: List taxonomy
   const taxRes = await client.callTool({

@@ -118,10 +118,19 @@ async function runPropertyTests() {
     if (conn.allNeighbors.includes(id)) {
       throw new Error(`Self-loop detected in node ${id}`);
     }
-    // 2. Union property: allNeighbors == union(sharedSources, sameTheme)
+    // 2. Exact union and undirected edges for each relation.
     const union = new Set([...conn.sharedSources, ...conn.sameTheme, ...(conn.directLinks || [])]);
-    if (conn.allNeighbors.length !== union.size) {
+    if (conn.allNeighbors.length !== union.size ||
+        new Set(conn.allNeighbors).size !== union.size ||
+        conn.allNeighbors.some((neighbor) => !union.has(neighbor))) {
       throw new Error(`allNeighbors does not match union for node ${id}`);
+    }
+    for (const relation of ['sharedSources', 'sameTheme', 'directLinks']) {
+      for (const neighbor of conn[relation]) {
+        if (!kg.connections[neighbor]?.[relation].includes(id)) {
+          throw new Error(`Non-reciprocal ${relation} edge between ${id} and ${neighbor}`);
+        }
+      }
     }
     // 3. Every neighbor must exist in record database
     for (const n of conn.allNeighbors) {
@@ -145,19 +154,14 @@ async function runPropertyTests() {
         const r4 = await client.callTool({ name: 'get_guide_doc', arguments: { doc_id: fuzzString } });
         const r5 = await client.callTool({ name: 'get_persona_controls', arguments: { actor: fuzzString } });
 
-        // Invariant: Response must always have content array with a string
-        return (
-          Array.isArray(r1.content) &&
-          Array.isArray(r2.content) &&
-          Array.isArray(r3.content) &&
-          Array.isArray(r4.content) &&
-          Array.isArray(r5.content)
+        return !r1.isError && [r1, r2, r3, r4, r5].every((result) =>
+          result.content.length === 1 && typeof result.content[0].text === 'string',
         );
       },
     ),
     { numRuns: 100 },
   );
-  console.log('✓ Property 5 PASSED: Server is 100% resilient to arbitrary fuzzing and injection payloads');
+  console.log('✓ Property 5 PASSED: Five read tools returned structured responses across 100 random strings');
 
   // Property 6: Gap Checklist Format Consistency
   console.log('Testing Property 6: Gap Checklist Format & Content Invariant...');

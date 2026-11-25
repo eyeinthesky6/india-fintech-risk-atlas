@@ -1,5 +1,5 @@
 # India Fintech Risk Atlas — Consolidated Knowledge Pack
-Generated: 2026-11-25T11:16:11.434Z
+Generated: 2026-11-25T11:57:57.441Z
 Source-checked records await independent review. Draft records may have blocked primary sources. Regulatory material can include proposals or future obligations. Verify the scope, effective date and primary text before relying on a claim.
 
 ---
@@ -7,7 +7,7 @@ Source-checked records await independent review. Draft records may have blocked 
 # UPI-OVERVIEW: UPI ecosystem and participant roles
 URL: https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/upi-ecosystem/
 Description: UPI-OVERVIEW — system architecture, participant boundaries, and asymmetric risk telemetry.
-Product: upi | Type: explainer | Review Stage: source-checked | Last Source Check: 2026-11-23
+Product: upi | Type: explainer | Review Stage: Source-checked draft | Last Source Check: 2026-11-23
 Actors: npci, remitter-bank, beneficiary-bank, psp-bank, tpap, payment-aggregator, merchant | Evidence Layers: official, atlas
 
 ## What it covers
@@ -56,7 +56,7 @@ Unified Payments Interface (UPI) runs across separate banks, TPAP apps, Payment 
 # CARD-OVERVIEW: Card Ecosystem & Clearing Architecture
 URL: https://eyeinthesky6.github.io/india-fintech-risk-atlas/cards/card-ecosystem/
 Description: Overview of the 4-party card payment model in India, dual-message clearing flows, CoFT tokenization rails, and interchange risk boundaries.
-Product: cards | Type: explainer | Review Stage: source-checked | Last Source Check: 2026-11-25
+Product: cards | Type: explainer | Review Stage: Source-checked draft | Last Source Check: 2026-11-25
 Actors: cardholder, merchant, acquirer-bank, issuer-bank, card-network, payment-aggregator | Evidence Layers: official, industry, atlas
 
 ## What it is
@@ -134,7 +134,7 @@ Domestic transactions strictly enforce RBI AFA (2FA OTP/biometrics). However, fo
 # UPI-001: Unusual outbound payment velocity
 URL: https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/unusual-outbound-velocity/
 Description: UPI-001 — account-level outbound burst and rapid balance-depletion signals.
-Product: upi | Type: detective-control | Review Stage: source-checked | Last Source Check: 2026-11-23
+Product: upi | Type: detective-control | Review Stage: Source-checked draft | Last Source Check: 2026-11-23
 Actors: remitter-bank, psp-bank, tpap, payment-aggregator | Evidence Layers: official, research, atlas
 
 ## What it solves
@@ -181,7 +181,7 @@ Detects sudden bursts of outgoing UPI payments—such as multiple back-to-back t
 # UPI-002: Potential mule-account funnel
 URL: https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/mule-account-funnel/
 Description: UPI-002 — pass-through layering networks, RBIH MuleHunter.AI / I4C coordination, and relational detection limits.
-Product: upi | Type: fraud-pattern | Review Stage: source-checked | Last Source Check: 2026-11-23
+Product: upi | Type: fraud-pattern | Review Stage: Source-checked draft | Last Source Check: 2026-11-23
 Actors: beneficiary-bank, remitter-bank, psp-bank, payment-aggregator | Evidence Layers: official, research, atlas
 
 ## What it is
@@ -229,7 +229,7 @@ Money mules receive fraud proceeds from unrelated victims and quickly forward th
 # UPI-003: Account takeover and device-binding risk
 URL: https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/account-takeover/
 Description: UPI-003 — unauthorized account/device compromise, SIM/device binding, and post-change cooling periods.
-Product: upi | Type: fraud-pattern | Review Stage: source-checked | Last Source Check: 2026-11-23
+Product: upi | Type: fraud-pattern | Review Stage: Source-checked draft | Last Source Check: 2026-11-23
 Actors: payer, tpap, psp-bank, remitter-bank | Evidence Layers: official, atlas
 
 ## What it is
@@ -273,7 +273,7 @@ Account takeover (ATO) happens when an attacker steals control of a customer's m
 # UPI-004: Collect-request deception
 URL: https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/collect-request-deception/
 Description: UPI-004 — social engineering around payment direction, P2P collect discontinuation, and P2M pull controls.
-Product: upi | Type: fraud-pattern | Review Stage: source-checked | Last Source Check: 2026-11-23
+Product: upi | Type: fraud-pattern | Review Stage: Source-checked draft | Last Source Check: 2026-11-23
 Actors: payer, tpap, psp-bank, remitter-bank, merchant | Evidence Layers: official, industry, atlas
 
 ## What it is
@@ -317,7 +317,7 @@ A scammer sends a UPI payment request and tricks the victim into thinking that a
 # UPI-005: Payment status and order reconciliation
 URL: https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/payment-status-reconciliation/
 Description: UPI-005 — merchant/PA payment status, webhook authenticity, idempotency, and order-fulfilment reconciliation.
-Product: upi | Type: operational-failure | Review Stage: source-checked | Last Source Check: 2026-11-23
+Product: upi | Type: operational-failure | Review Stage: Source-checked draft | Last Source Check: 2026-11-23
 Actors: payment-aggregator, merchant, psp-bank, remitter-bank, beneficiary-bank | Evidence Layers: official, industry, atlas
 
 ## What it is
@@ -360,7 +360,7 @@ In online UPI merchant checkouts, the customer's browser screen, redirect `callb
 # UPI-006: QR and fake cashback deception
 URL: https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/qr-cashback-deception/
 Description: UPI-006 — social engineering via deceptive QR codes, cashback claims, and tampered payment links.
-Product: upi | Type: fraud-pattern | Review Stage: source-checked | Last Source Check: 2026-11-23
+Product: upi | Type: fraud-pattern | Review Stage: Source-checked draft | Last Source Check: 2026-11-23
 Actors: payer, tpap, psp-bank, remitter-bank, merchant | Evidence Layers: official, industry, research, atlas
 
 ## What it is
@@ -406,7 +406,7 @@ Fraudsters share QR codes or payment links promising cashbacks, refunds, prizes,
 # UPI-007: Fake support and grievance impersonation
 URL: https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/fake-support-impersonation/
 Description: UPI-007 — search-result, social-media, and bogus call-centre impersonation around refunds and failed payments.
-Product: upi | Type: fraud-pattern | Review Stage: source-checked | Last Source Check: 2026-11-23
+Product: upi | Type: fraud-pattern | Review Stage: Source-checked draft | Last Source Check: 2026-11-23
 Actors: payer, tpap, psp-bank, remitter-bank, payment-aggregator | Evidence Layers: official, atlas
 
 ## What it is
@@ -456,7 +456,7 @@ The root failure mode is **unclear in-app resolution status**, pushing anxious c
 # UPI-008: Untrusted app and remote-access risk
 URL: https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/untrusted-app-access/
 Description: UPI-008 — sideloaded APKs, screen mirroring, remote-access coercion, and mobile RASP controls.
-Product: upi | Type: preventive-control | Review Stage: draft | Last Source Check: 2026-11-23
+Product: upi | Type: preventive-control | Review Stage: Draft | Last Source Check: 2026-11-23
 Source blocker: NPCI/2025-26/IS/003 is corroborated by a member-bank mirror. The issuer original remains unverified.
 Actors: payer, tpap, psp-bank, remitter-bank | Evidence Layers: official, atlas
 
@@ -476,8 +476,8 @@ Prevents attackers from spying on UPI PIN entry, intercepting OTPs, hijacking ta
 
 | Basis | Owner | Action |
 |---|---|---|
-| Regulatory | Commercial, Payments & Small Finance banks | Detect remote-access apps and block login access; verify secure download/install integrity, publish official app checksums, explore root/jailbreak install blocks, and consider anti-malware defenses. |
-| Regulatory | Non-bank PSOs | Block mobile payment access whenever a remote-access session is live, and subscribe to anti-phishing and rogue-app takedown monitoring services. |
+| Regulatory | Commercial, Payments & Small Finance banks | Detect remote-access apps and block login access; verify secure download/install integrity, publish official app checksums, explore root/jailbreak install blocks, and consider anti-malware defenses. <a href="#ref-1">[1]</a> |
+| Regulatory | Non-bank PSOs | Block mobile payment access whenever a remote-access session is live, and subscribe to anti-phishing and rogue-app takedown monitoring services. <a href="#ref-2">[2]</a> |
 | Regulatory | Payers | NPCI's public fraud-awareness guidance advises against installing unknown APKs, screen-sharing tools or SMS-forwarding apps, and against transacting during active calls. <a href="#ref-4">[4]</a> |
 | Atlas guidance | TPAPs, PSPs | Terminate or block UPI payment initiation whenever live screen mirroring, active casting, or remote control is detected, showing plain-language instructions on why access paused. |
 | Atlas guidance | Mobile security & engineering | Enforce app-store signature verification, root/emulator/debugger detection, and overlay defense (`FLAG_SECURE` / non-obscured touch checks) without breaking OS accessibility tools. |
@@ -488,8 +488,8 @@ Prevents attackers from spying on UPI PIN entry, intercepting OTPs, hijacking ta
 - **How to validate:** Test active screen-mirroring, USB-debug, and overlay attacks in Android/iOS labs; verify `TalkBack`/`VoiceOver` accessibility compatibility so disabled users are never locked out; audit false-positive launch block rates.
 
 ## References and review history
-1. RBI, [Commercial Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/scripts/BS_ViewMasDirections.aspx?id=13642), `RBI/DoS/2026-27/411` (updated Oct 1, 2026) — secure install/checksums/remote-access login blocks (`§68(2)(ii),(iv), §68(4)–(5), §68(12)`), accessed Nov 23, 2026 (parallel `id=13624` PBs, `id=13633` SFBs).
-2. RBI, [Master Directions on Cyber Resilience and Digital Payment Security Controls for non-bank PSOs](https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=13751&Mode=0), `RBI/DPSS/2026-27/475` (Nov 5, 2026; Large/Medium immediate, Small Apr 1, 2028) — rogue-app takedown (`§27(h)`) and blocking payments during live remote access (`§31(f)`), accessed Nov 23, 2026.
+1. <a id="ref-1"></a> RBI, [Commercial Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/scripts/BS_ViewMasDirections.aspx?id=13642), `RBI/DoS/2026-27/411` (updated Oct 1, 2026) — secure install/checksums/remote-access login blocks (`§68(2)(ii),(iv), §68(4)–(5), §68(12)`), accessed Nov 23, 2026 (parallel `id=13624` PBs, `id=13633` SFBs).
+2. <a id="ref-2"></a> RBI, [Master Directions on Cyber Resilience and Digital Payment Security Controls for non-bank PSOs](https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=13751&Mode=0), `RBI/DPSS/2026-27/475` (Nov 5, 2026; Large/Medium immediate, Small Apr 1, 2028) — rogue-app takedown (`§27(h)`) and blocking payments during live remote access (`§31(f)`), accessed Nov 23, 2026.
 3. NPCI circular `NPCI/2025-26/IS/003` (May 19, 2025), *Comprehensive Mobile Application Security Framework for UPI - 2025* — [provisional third-party bank mirror](https://rscb.bank.in/Content/pdf/npcicircular.pdf), pp. 1–8. The issuer original and exact operative scope remain unverified.
 4. <a id="ref-4"></a> NPCI, [Fraud Awareness](https://www.npci.org.in/fraud-awareness) (*Downloading of unknown apps*), browser-checked Nov 23, 2026.
 5. NPCI, [UPI Circulars index](https://www.npci.org.in/circulars/upi), browser-checked Nov 23, 2026 (confirmed `NPCI/2025-26/IS/003` is not listed on public `/circulars/upi` or `/circulars/others`).
@@ -501,7 +501,7 @@ Prevents attackers from spying on UPI PIN entry, intercepting OTPs, hijacking ta
 # UPI-009: Authentication and payment authorization
 URL: https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/authentication-context/
 Description: UPI-009 — multi-factor authentication, dynamic factors, exemptions, and issuer responsibility.
-Product: upi | Type: preventive-control | Review Stage: source-checked | Last Source Check: 2026-11-23
+Product: upi | Type: preventive-control | Review Stage: Source-checked draft | Last Source Check: 2026-11-23
 Actors: payer, tpap, psp-bank, remitter-bank | Evidence Layers: official, atlas
 
 ## What it solves
@@ -547,7 +547,7 @@ Ensures payment approvals genuinely come from the authorized customer and bound 
 # UPI-010: Transaction velocity and EFRM monitoring
 URL: https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/transaction-velocity/
 Description: UPI-010 — regulatory Enterprise Fraud Risk Management (EFRM) architecture, alert parameterization, staff calibration, and feedback loops.
-Product: upi | Type: detective-control | Review Stage: source-checked | Last Source Check: 2026-11-23
+Product: upi | Type: detective-control | Review Stage: Source-checked draft | Last Source Check: 2026-11-23
 Actors: remitter-bank, beneficiary-bank, psp-bank, payment-aggregator | Evidence Layers: official, industry, research, atlas
 
 ## What it solves
@@ -596,7 +596,7 @@ Moves fraud monitoring beyond single heuristic alerts to a calibrated **monitori
 # UPI-011: Repeated failed authentication attempts
 URL: https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/failed-authentication/
 Description: UPI-011 — detecting credential stuffing, wrong-PIN probing, lockouts, and customer alerts.
-Product: upi | Type: detective-control | Review Stage: source-checked | Last Source Check: 2026-11-23
+Product: upi | Type: detective-control | Review Stage: Source-checked draft | Last Source Check: 2026-11-23
 Actors: payer, tpap, psp-bank, remitter-bank | Evidence Layers: official, atlas
 
 ## What it solves
@@ -638,7 +638,7 @@ Catches brute-force PIN/OTP guessing, stolen-device probing, or a coerced victim
 # UPI-012: Merchant onboarding and classification
 URL: https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/merchant-onboarding/
 Description: UPI-012 — Payment Aggregator KYC/CDD, MCC classification, acquiring bank oversight, and transaction laundering risks.
-Product: upi | Type: preventive-control | Review Stage: source-checked | Last Source Check: 2026-11-23
+Product: upi | Type: preventive-control | Review Stage: Source-checked draft | Last Source Check: 2026-11-23
 Actors: payment-aggregator, beneficiary-bank, psp-bank, merchant | Evidence Layers: official, atlas
 
 ## What it solves
@@ -678,7 +678,7 @@ Stops shell businesses, banned merchants, and mule networks from acquiring P2M U
 # UPI-013: UPI dispute and complaint routing
 URL: https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/dispute-routing/
 Description: UPI-013 — RBI Online Dispute Resolution (ODR), PA chargeback/dispute flows, and separating failed vs. fraudulent incidents.
-Product: upi | Type: recovery-process | Review Stage: source-checked | Last Source Check: 2026-11-23
+Product: upi | Type: recovery-process | Review Stage: Source-checked draft | Last Source Check: 2026-11-23
 Actors: payer, tpap, psp-bank, remitter-bank, beneficiary-bank, payment-aggregator, npci | Evidence Layers: official, industry, atlas
 
 ## What it solves
@@ -726,7 +726,7 @@ Ensures UPI complaints reach the right operational track immediately instead of 
 # UPI-014: Settlement and reconciliation exceptions
 URL: https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/settlement-exceptions/
 Description: UPI-014 — interbank settlement-file reconciliation, failed-transaction TATs, and scheme exception handling.
-Product: upi | Type: operational-failure | Review Stage: source-checked | Last Source Check: 2026-11-23
+Product: upi | Type: operational-failure | Review Stage: Source-checked draft | Last Source Check: 2026-11-23
 Actors: remitter-bank, beneficiary-bank, psp-bank, npci | Evidence Layers: official, atlas
 
 ## What it is
@@ -773,7 +773,7 @@ Even when merchant checkouts handle webhooks properly ([Payment status and order
 # UPI-015: Unauthorized and fraudulent transaction customer protection
 URL: https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/customer-liability/
 Description: UPI-015 — customer liability allocation, burden of proof, 2026–2027 commercial-bank amendments vs. payments-bank baseline.
-Product: upi | Type: recovery-process | Review Stage: source-checked | Last Source Check: 2026-11-23
+Product: upi | Type: recovery-process | Review Stage: Source-checked draft | Last Source Check: 2026-11-23
 Actors: payer, remitter-bank, beneficiary-bank, psp-bank | Evidence Layers: official, atlas
 
 ## What it solves
@@ -814,7 +814,7 @@ Defines who bears the loss, what deadlines apply, and what proof banks must keep
 # UPI-016: Digital payment fraud safeguards under discussion
 URL: https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/risk-discussion/
 Description: UPI-016 — RBI's April 2026 Discussion Paper on lagged credit, trusted-person verification, KYC credit checks, and kill switches.
-Product: upi | Type: policy-consultation | Review Stage: source-checked | Last Source Check: 2026-11-23
+Product: upi | Type: policy-consultation | Review Stage: Source-checked draft | Last Source Check: 2026-11-23
 Actors: remitter-bank, beneficiary-bank, psp-bank, tpap, payment-aggregator | Evidence Layers: official, atlas
 
 ## What it covers

@@ -14,7 +14,6 @@ const base = getBasePath();
 const slug = normalizeDocSlug(id);
 const isUpiHub = slug === 'upi';
 const isUpiChild = slug.startsWith('upi/');
-const isUpiPage = isUpiHub || isUpiChild;
 const themeLabel = theme ? taxonomyLabel(taxonomy.themes, theme) : '';
 
 const rawBody = typeof body === 'string' ? body.trim() : '';
@@ -122,24 +121,6 @@ const copyPayload = JSON.stringify({
         data-pagefind-ignore
       >
         <div class="atlas-accuracy-strip__actions">
-          <button type="button" class="atlas-action-btn atlas-accuracy-btn" data-atlas-mark-accurate>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="13"
-              height="13"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-            <span data-accurate-label>Looks accurate</span>
-          </button>
-
           <button
             type="button"
             class="atlas-action-btn atlas-accuracy-btn atlas-accuracy-btn--report"

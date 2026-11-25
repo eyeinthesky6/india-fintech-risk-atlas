@@ -31,4 +31,4 @@ jobs:
       - name: Audit record freshness, deprecated URLs, and manual browser queue
         run: |
           set -o pipefail
-          python3 scripts/verify-citations.py --offline --all | tee -a "$GITHUB_STEP_SUMMARY"
+          python3 scripts/verify-citations.py --offline --all --fail-on-stale | tee -a "$GITHUB_STEP_SUMMARY"

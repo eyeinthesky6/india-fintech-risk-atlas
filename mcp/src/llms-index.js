@@ -16,7 +16,8 @@ export function renderLlmIndex({ metadata, records, guideDocs }) {
     '## Canonical Risk Records',
     ...records.map((record) => {
       const blocker = record.blockerNote ? ` | Source blocker: ${record.blockerNote}` : '';
-      return `- [${record.recordId}: ${record.title}](${record.url}): ${record.description} | Layers: ${record.evidenceLayers.join(', ')} | Stage: ${record.reviewStage} | Last source check: ${record.lastSourceCheck ?? 'unknown'}${blocker}`;
+      const stage = metadata.taxonomy.reviewStages[record.reviewStage] ?? record.reviewStage;
+      return `- [${record.recordId}: ${record.title}](${record.url}): ${record.description} | Layers: ${record.evidenceLayers.join(', ')} | Stage: ${stage} | Last source check: ${record.lastSourceCheck ?? 'unknown'}${blocker}`;
     }),
     '',
     '## Documentation & Policies',

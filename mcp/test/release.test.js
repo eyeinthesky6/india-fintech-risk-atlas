@@ -77,14 +77,12 @@ test('tools and LLM index use the selected snapshot and agree on evidence status
   assert.match(ledger.claims.find((claim) => claim.claimId === 'UPI-008-C3').result, /^blocked/);
   const index = await client.readResource({ uri: 'atlas://llms-txt' });
   assert.match(index.contents[0].text, /Current snapshot title/);
-  assert.match(index.contents[0].text, /UPI-008[^\n]+Stage: draft[^\n]+Source blocker:/);
+  assert.match(index.contents[0].text, /UPI-008[^\n]+Stage: Draft[^\n]+Source blocker:/);
 });
 
-test('corrections use the fixed triage destination with redirects disabled', async (t) => {
-  const snapshot = structuredClone(bundle);
-  snapshot.metadata.triageWorkerUrl = 'https://example.invalid';
-  const fetch = t.mock.method(globalThis, 'fetch', async () => Response.json({ ok: true, queued: true }));
-  const server = createAtlasMcpServer(snapshot);
+test('corrections return a private browser route without sending the draft', async (t) => {
+  const fetch = t.mock.method(globalThis, 'fetch', async () => { throw new Error('Outbound request'); });
+  const server = createAtlasMcpServer(bundle);
   const client = new Client({ name: 'atlas-correction-test', version: '1.0.0' });
   const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
   t.after(async () => {
@@ -95,21 +93,69 @@ test('corrections use the fixed triage destination with redirects disabled', asy
   await client.connect(clientTransport);
   const response = await client.callTool({
     name: 'submit_correction',
-    arguments: { record_id: 'UPI-008', note: 'Regression test' },
+    arguments: { record_id: 'UPI-008', note: 'Private draft' },
   });
-  assert.equal(JSON.parse(response.content[0].text).submitted_to_triage_worker, true);
-  assert.equal(fetch.mock.callCount(), 1);
-  const [url, options] = fetch.mock.calls[0].arguments;
-  assert.equal(url, 'https://atlas-report-triage.6edroid.workers.dev');
-  assert.equal(options.redirect, 'error');
-  assert.match(JSON.parse(options.body).pagePath, /\/upi\/untrusted-app-access\/$/);
+  const draft = JSON.parse(response.content[0].text);
+  assert.equal(draft.submitted_to_triage_worker, false);
+  assert.equal(fetch.mock.callCount(), 0);
+  assert.match(draft.private_report_page_url, /\/upi\/untrusted-app-access\/#report-an-error$/);
+  assert.equal(draft.draft.note, 'Private draft');
+  assert.ok(!draft.direct_github_issue_url.includes('Private'));
+});
 
-  fetch.mock.mockImplementation(async () => Response.json({ ok: true, queued: false }));
-  const rejected = await client.callTool({
-    name: 'submit_correction',
-    arguments: { record_id: 'UPI-008', note: 'Regression test' },
+test('scope, stable IDs, source metadata and tool validation agree with the research policy', async (t) => {
+  const server = createAtlasMcpServer(bundle);
+  const client = new Client({ name: 'atlas-data-contract-test', version: '1.0.0' });
+  const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
+  t.after(async () => {
+    await client.close();
+    await server.close();
   });
-  const receipt = JSON.parse(rejected.content[0].text);
-  assert.equal(receipt.submitted_to_triage_worker, false);
-  assert.match(receipt.private_report_page_url, /\/upi\/untrusted-app-access\/$/);
+  await server.connect(serverTransport);
+  await client.connect(clientTransport);
+
+  async function call(name, args) {
+    const response = await client.callTool({ name, arguments: args });
+    assert.ok(!response.isError, response.content[0].text);
+    return JSON.parse(response.content[0].text);
+  }
+
+  const { controls } = await call('get_persona_controls', { actor: 'Remitter bank' });
+  assert.ok(controls.length > 0);
+  assert.ok(controls.every((control) => control.owner_ids.includes('remitter-bank')));
+  assert.ok(controls.every((control) => control.record_id !== 'CARD-OVERVIEW'));
+  assert.ok(controls.every((control) => control.owner !== 'Non-bank PSOs'));
+
+  const all = await call('generate_gap_checklist', { actor: 'all', format: 'json' });
+  const psp = await call('generate_gap_checklist', { actor: 'psp-bank', format: 'json' });
+  const matching = psp.items.find((item) => item.record_id === 'UPI-009' && item.owner.startsWith('UPI apps'));
+  assert.ok(matching);
+  assert.match(matching.id, /^CTRL-UPI-009-/);
+  assert.ok(all.items.find((item) => item.id === matching.id && item.requirement === matching.requirement));
+  assert.ok(all.items.every((item) => item.regulatory_status !== 'proposal'));
+  assert.ok(all.items.some((item) => item.record_id === 'UPI-008' && item.owner === 'Non-bank PSOs'));
+
+  const { sources } = await call('list_sources', {});
+  for (const name of ['about-upi', 'webhookVerification', 'complaint-register', 'circulars/upi']) {
+    assert.ok(sources.some((source) => source.url.endsWith(name)), name);
+  }
+  const claim = sources.find((source) => source.url.endsWith('npcicircular.pdf')).cited_in_records
+    .find((reference) => reference.record_id === 'UPI-008');
+  assert.equal(claim.human_checked, false);
+  assert.match(claim.claims[0].result, /^blocked/);
+
+  const guide = await call('get_guide_doc', { doc_id: 'upi/coverage' });
+  assert.match(guide.content, /\| Draft \| UPI-008 \|/);
+  assert.ok(!guide.content.includes('<UpiCoverageSummary'));
+  const legacy = await call('get_guide_doc', { doc_id: 'upi-ecosystem' });
+  assert.match(legacy.url, /upi-ecosystem/);
+
+  for (const [name, args] of [['get_guide_doc', {}], ['search_risk_records', { query: 42 }]]) {
+    const response = await client.callTool({ name, arguments: args });
+    assert.equal(response.isError, true);
+  }
+
+  const status = await call('mark_record_accurate', { record_id: 'UPI-008' });
+  assert.equal(status.confirmed, false);
+  assert.equal(status.human_checked, false);
 });

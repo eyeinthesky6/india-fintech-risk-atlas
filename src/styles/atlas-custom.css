@@ -624,13 +624,6 @@ main .pagination-links .pagination-label {
   color: var(--foreground-light);
 }
 
-.atlas-accuracy-btn[data-confirmed='true'] {
-  border-color: var(--atlas-l2);
-  color: var(--atlas-l2);
-  background: color-mix(in oklab, var(--atlas-l2) 8%, var(--card));
-  font-weight: 600;
-}
-
 .atlas-accuracy-btn--report:hover {
   border-color: var(--atlas-l3);
   color: var(--atlas-l3);

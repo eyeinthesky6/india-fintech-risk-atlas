@@ -62,6 +62,8 @@ Starlight overrides (`src/components/AtlasMarkdownContent.astro`) look up displa
 ### Enforced in v1 (single source of truth: [src/taxonomy.json](../src/taxonomy.json))
 
 - **`products`, `recordType`, `theme`, `lifecycle`, `actors`, `evidenceLayers`, `reviewStage`, and `recordIdPattern`:** See [src/taxonomy.json](../src/taxonomy.json) for the authoritative list of allowed keys and display labels.
+- **Control owners:** Keep the readable owner label in the article. [The owner-role registry](../src/control-owner-roles.json) maps that exact label to eligible actor IDs for the MCP controls and checklist. Broad categories retain their own IDs. Generic owner labels are available in all-role results with no inferred license scope.
+- **Control and evidence IDs:** Machine exports assign a control ID from the record and normalized row contents. Filters preserve that ID. Evidence claims keep their separate ledger IDs. Link individual candidate rows to their numbered sources where possible.
 - **Editorial scope discipline:** Keep legal/regulatory citations separated per entity class (commercial bank vs. payments bank vs. small finance bank vs. non-bank PSO vs. payment aggregator). Academic/research papers are tagged under `research` as Research & academic leads, not `industry`, `practitioner`, or `atlas`.
 
 ### Planned for v2 roadmap (not enforced in v1 build)

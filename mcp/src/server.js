@@ -1,3 +1,4 @@
+import { AjvJsonSchemaValidator } from '@modelcontextprotocol/sdk/validation/ajv';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import {
   CallToolRequestSchema,
@@ -13,7 +14,6 @@ import { renderLlmIndex } from './llms-index.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DATA_PATH = path.resolve(__dirname, '..', 'data', 'atlas-records.json');
-const TRIAGE_ENDPOINT = 'https://atlas-report-triage.6edroid.workers.dev';
 
 let cachedData = null;
 
@@ -42,42 +42,54 @@ function loadAtlasData() {
 }
 
 const ACTOR_ALIASES = {
-  'remitter-bank': ['remitter', 'issuer', 'commercial bank', 'commercial, payments', 'issuer bank', 'bank'],
-  'issuer-bank': ['issuer', 'remitter', 'commercial bank', 'commercial, payments', 'bank'],
-  'psp-bank': ['psp', 'sponsor', 'psp bank', 'psp banks', 'psps'],
-  'beneficiary-bank': ['beneficiary', 'payee', 'credit bank', 'beneficiary bank'],
-  'acquirer-bank': ['acquirer', 'acquiring', 'acquirer bank', 'acquiring bank'],
-  'payment-aggregator': ['payment aggregator', 'pa', 'pas', 'pg', 'payment aggregators', 'merchant aggregator'],
-  'tpap': ['tpap', 'tpaps', 'app', 'upi app', 'third-party application provider'],
-  'merchant': ['merchant', 'merchants', 'enterprise', 'business'],
-  'payer': ['payer', 'cardholder', 'customer', 'user', 'consumer'],
-  'cardholder': ['cardholder', 'payer', 'customer'],
-  'card-network': ['card network', 'network', 'visa', 'mastercard', 'rupay'],
-  'npci': ['npci', 'switch', 'network operator'],
+  psp: 'psp-bank',
+  remitter: 'remitter-bank',
+  beneficiary: 'beneficiary-bank',
+  issuer: 'issuer-bank',
+  acquirer: 'acquirer-bank',
+  pa: 'payment-aggregator',
+  'upi app': 'tpap',
+  'third-party application provider': 'tpap',
+  'non-bank pso': 'non-bank-pso',
 };
 
-function escapeRegex(str) {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+function resolveActor(query, actors) {
+  const key = query.toLowerCase().trim();
+  if (key === 'all' || Object.hasOwn(actors, key)) return key;
+  return Object.entries(actors).find(([, label]) => label.toLowerCase() === key)?.[0] ??
+    (Object.hasOwn(ACTOR_ALIASES, key) ? ACTOR_ALIASES[key] : undefined);
 }
 
-function matchesActorRole(ownerText, queryRole) {
-  const lower = (ownerText || '').toLowerCase();
-  const q = (queryRole || '').toLowerCase().trim();
-  if (!q || q === 'all') return true;
-  if (lower.includes(q)) return true;
-  const aliases = ACTOR_ALIASES[q];
-  if (!aliases) return false;
-  return aliases.some((alias) => {
-    if (alias.length <= 3) {
-      try {
-        const regex = new RegExp(`\\b${escapeRegex(alias)}\\b`, 'i');
-        return regex.test(lower);
-      } catch {
-        return lower.includes(alias);
-      }
-    }
-    return lower.includes(alias);
-  });
+function eligibleChecklistControl(record, control) {
+  if (control.regulatoryStatus === 'proposal') return false;
+  if (control.basis !== 'Regulatory' || !['draft', 'researching'].includes(record.reviewStage)) return true;
+
+  const references = record.references.filter((ref) => control.referenceNumbers?.includes(ref.number));
+  return references.length > 0 && references.every((ref) =>
+    ref.evidence?.length > 0 && ref.evidence.every((claim) => /^supported\b/i.test(claim.result)),
+  );
+}
+
+function toolError(text) {
+  return { isError: true, content: [{ type: 'text', text }] };
+}
+
+function resolveSlug(entries, identifier) {
+  const key = identifier?.trim().replace(/^\/+|\/+$/g, '').toLowerCase();
+  if (!key) return undefined;
+  const exact = entries.find((entry) => entry.recordId?.toLowerCase() === key || entry.slug.toLowerCase() === key);
+  if (exact) return exact;
+  const matchingAliases = entries.filter((entry) => entry.slug.toLowerCase().split('/').at(-1) === key);
+  return matchingAliases.length === 1 ? matchingAliases[0] : undefined;
+}
+
+function findGuide(data, identifier) {
+  const guide = resolveSlug(data.guideDocs, identifier);
+  if (guide) return guide;
+  const record = resolveSlug(data.records, identifier);
+  if (record?.recordId !== 'UPI-OVERVIEW') return undefined;
+  const { slug, title, description, url, fullMarkdown } = record;
+  return { slug, title, description, url, content: fullMarkdown.replace(/^---\r?\n[\s\S]*?\r?\n---/, '').trim() };
 }
 
 export function createAtlasMcpServer(snapshot) {
@@ -95,10 +107,7 @@ export function createAtlasMcpServer(snapshot) {
     },
   );
 
-  // 1. List Tools (12 comprehensive tools matching and exceeding manual UI capabilities)
-  server.setRequestHandler(ListToolsRequestSchema, async () => {
-    return {
-      tools: [
+  const tools = [
         {
           name: 'search_risk_records',
           description:
@@ -112,7 +121,7 @@ export function createAtlasMcpServer(snapshot) {
               },
               product: {
                 type: 'string',
-                description: 'Filter by fintech product rail, e.g. "upi", "cards", "payment-aggregator", "digital-lending"',
+                description: 'Filter by a product in list_taxonomy, such as "upi" or "cards"',
               },
               actor: {
                 type: 'string',
@@ -164,7 +173,7 @@ export function createAtlasMcpServer(snapshot) {
         {
           name: 'list_sources',
           description:
-            'List verified primary regulatory sources, RBI master directions, NPCI circulars, operator disclosures, and academic papers cited across the Atlas.',
+            'List cited references and their claim evidence, including document scope, locators, blocked results, and record review stage.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -260,7 +269,7 @@ export function createAtlasMcpServer(snapshot) {
         {
           name: 'get_clean_markdown',
           description:
-            'Retrieve clean, publication-ready markdown for a record with UI widgets/drawers stripped and the canonical source citation appended (exact parity with the UI [Copy] button).',
+            'Retrieve record Markdown with review status, references and the canonical page URL.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -275,7 +284,7 @@ export function createAtlasMcpServer(snapshot) {
         {
           name: 'mark_record_accurate',
           description:
-            'Record an accuracy confirmation for a specific record (parity with the UI [✓ Looks accurate] button).',
+            'Legacy compatibility tool. Read a record’s evidence status without recording a review.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -299,7 +308,7 @@ export function createAtlasMcpServer(snapshot) {
         {
           name: 'submit_correction',
           description:
-            'Send a factual correction to Atlas maintainers. If private triage requires browser verification, use the returned record URL to report the error on the site.',
+            'Prepare a correction draft and return the browser form for private reporting or the public issue link.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -335,23 +344,30 @@ export function createAtlasMcpServer(snapshot) {
                 description: 'HTTPS URL to the primary RBI / NPCI / official source supporting the correction',
               },
             },
-            required: ['record_id', 'reason', 'note'],
+            required: ['record_id', 'note'],
           },
         },
-      ],
-    };
-  });
+  ];
+  const schemaValidator = new AjvJsonSchemaValidator();
+  const validators = new Map(tools.map((tool) => [tool.name, schemaValidator.getValidator(tool.inputSchema)]));
+  server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools }));
 
-  // 2. Handle Tool Calls
+  // Handle Tool Calls
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
-    const { name, arguments: args } = request.params;
+    const { name, arguments: args = {} } = request.params;
+    const validate = validators.get(name);
+    if (validate) {
+      const result = validate(args);
+      if (!result.valid) return toolError(result.errorMessage || 'Invalid tool arguments.');
+    }
     const data = getData();
 
     switch (name) {
       case 'search_risk_records': {
         const query = (args?.query || '').toLowerCase().trim();
         const product = (args?.product || '').toLowerCase().trim();
-        const actor = (args?.actor || '').toLowerCase().trim();
+        const actor = args.actor ? resolveActor(args.actor, data.metadata.taxonomy.actors) : 'all';
+        if (!actor) return toolError('Unknown actor. Use list_taxonomy for supported actors.');
         const layer = (args?.evidence_layer || '').toLowerCase().trim();
         const stage = String(args?.review_stage || '').toLowerCase().trim();
         const limit = typeof args?.limit === 'number' && !isNaN(args.limit) ? Math.max(1, Math.min(Math.floor(args.limit), 50)) : 10;
@@ -359,7 +375,7 @@ export function createAtlasMcpServer(snapshot) {
         let results = data.records.filter((r) => {
           if (stage && r.reviewStage !== stage) return false;
           if (product && !r.products.map((p) => p.toLowerCase()).includes(product)) return false;
-          if (actor && !r.actors.map((a) => a.toLowerCase()).includes(actor)) return false;
+          if (actor !== 'all' && !r.actors.includes(actor)) return false;
           if (layer && !r.evidenceLayers.map((l) => l.toLowerCase()).includes(layer)) return false;
 
           if (query) {
@@ -391,6 +407,7 @@ export function createAtlasMcpServer(snapshot) {
           actors: r.actors,
           evidence_layers: r.evidenceLayers,
           review_stage: r.reviewStage,
+          human_checked: r.humanChecked ?? ['reviewed', 'published'].includes(r.reviewStage),
           source_blocker: r.blockerNote || undefined,
           last_source_check: r.lastSourceCheck,
           controls_count: r.controls?.length || 0,
@@ -418,15 +435,7 @@ export function createAtlasMcpServer(snapshot) {
       }
 
       case 'get_record': {
-        const targetId = String(args?.record_id || '').toUpperCase().trim();
-        const targetSlug = String(args?.record_id || '').toLowerCase().trim();
-
-        const record = data.records.find(
-          (r) =>
-            r.recordId.toUpperCase() === targetId ||
-            r.slug.toLowerCase().endsWith(targetSlug) ||
-            r.slug.toLowerCase() === targetSlug,
-        );
+        const record = resolveSlug(data.records, args.record_id);
 
         if (!record) {
           return {
@@ -451,7 +460,7 @@ export function createAtlasMcpServer(snapshot) {
       }
 
       case 'explore_knowledge_graph': {
-        const targetId = String(args?.record_id || '').toUpperCase().trim();
+        const targetId = resolveSlug(data.records, args.record_id)?.recordId;
         const relation = String(args?.relation_type || 'all').toLowerCase().trim();
         const connections = data.knowledgeGraph?.connections?.[targetId];
 
@@ -467,7 +476,7 @@ export function createAtlasMcpServer(snapshot) {
           };
         }
 
-        const record = data.records.find((r) => r.recordId.toUpperCase() === targetId);
+        const record = resolveSlug(data.records, targetId);
 
         let neighbors = [];
         if (relation === 'shared-sources') {
@@ -517,25 +526,26 @@ export function createAtlasMcpServer(snapshot) {
       }
 
       case 'get_persona_controls': {
-        const actorQuery = String(args?.actor || '').toLowerCase().trim();
+        const actorQuery = resolveActor(args.actor, data.metadata.taxonomy.actors);
         const basisQuery = String(args?.basis || 'all').trim();
 
         if (!actorQuery) {
           return {
             isError: true,
-            content: [{ type: 'text', text: 'Please specify an entity persona: tpap, remitter-bank, psp-bank, merchant, etc.' }],
+            content: [{ type: 'text', text: 'Unknown actor. Use list_taxonomy for supported actors.' }],
           };
         }
 
         const matchedControls = [];
         for (const r of data.records) {
           for (const c of r.controls || []) {
-            const matchesActor = matchesActorRole(c.owner, actorQuery);
+            const matchesActor = actorQuery === 'all' || c.ownerIds?.includes(actorQuery);
             const matchesBasis = basisQuery === 'all' || c.basis.toLowerCase() === basisQuery.toLowerCase();
 
             if (matchesActor && matchesBasis) {
               matchedControls.push({
                 record_id: r.recordId,
+                control_id: c.id,
                 topic_title: r.title,
                 url: r.url,
                 review_stage: r.reviewStage,
@@ -544,6 +554,8 @@ export function createAtlasMcpServer(snapshot) {
                 basis_raw: c.basisRaw ?? c.basis,
                 regulatory_status: c.regulatoryStatus ?? 'not-determined',
                 owner: c.owner,
+                owner_ids: c.ownerIds,
+                reference_numbers: c.referenceNumbers,
                 action: c.action,
               });
             }
@@ -570,7 +582,8 @@ export function createAtlasMcpServer(snapshot) {
       }
 
       case 'generate_gap_checklist': {
-        const actorQuery = String(args?.actor || 'all').toLowerCase().trim();
+        const actorQuery = resolveActor(args.actor || 'all', data.metadata.taxonomy.actors);
+        if (!actorQuery) return toolError('Unknown actor. Use list_taxonomy for supported actors.');
         const productQuery = String(args?.product || 'upi').toLowerCase().trim();
         const format = String(args?.format || 'markdown').toLowerCase().trim();
 
@@ -578,10 +591,11 @@ export function createAtlasMcpServer(snapshot) {
         for (const r of data.records) {
           if (productQuery && !r.products.map((p) => p.toLowerCase()).includes(productQuery)) continue;
           for (const c of r.controls || []) {
-            if (actorQuery !== 'all' && !matchesActorRole(c.owner, actorQuery)) continue;
+            if (actorQuery !== 'all' && !c.ownerIds?.includes(actorQuery)) continue;
+            if (!eligibleChecklistControl(r, c)) continue;
 
             checklistItems.push({
-              id: `${r.recordId}-C${checklistItems.length + 1}`,
+              id: c.id,
               record_id: r.recordId,
               topic: r.title,
               review_stage: r.reviewStage,
@@ -590,6 +604,8 @@ export function createAtlasMcpServer(snapshot) {
               basis_raw: c.basisRaw ?? c.basis,
               regulatory_status: c.regulatoryStatus ?? 'not-determined',
               owner: c.owner,
+              owner_ids: c.ownerIds,
+              reference_numbers: c.referenceNumbers,
               requirement: c.action,
               status: 'NOT_AUDITED',
             });
@@ -624,10 +640,7 @@ export function createAtlasMcpServer(snapshot) {
       }
 
       case 'get_guide_doc': {
-        const targetSlug = String(args?.doc_id || '').toLowerCase().trim();
-        const guide = data.guideDocs?.find(
-          (g) => g.slug.toLowerCase() === targetSlug || g.slug.toLowerCase().endsWith(targetSlug),
-        );
+        const guide = findGuide(data, args.doc_id);
 
         if (!guide) {
           const available = (data.guideDocs || []).map((g) => g.slug).join(', ');
@@ -649,7 +662,7 @@ export function createAtlasMcpServer(snapshot) {
 
       case 'get_clean_markdown': {
         const targetId = String(args?.record_id || '').toUpperCase().trim();
-        const record = data.records.find((r) => r.recordId.toUpperCase() === targetId);
+        const record = resolveSlug(data.records, targetId);
 
         if (!record) {
           return {
@@ -675,7 +688,7 @@ export function createAtlasMcpServer(snapshot) {
 
       case 'mark_record_accurate': {
         const targetId = String(args?.record_id || '').toUpperCase().trim();
-        const record = data.records.find((r) => r.recordId.toUpperCase() === targetId);
+        const record = resolveSlug(data.records, targetId);
 
         if (!record) {
           return {
@@ -692,9 +705,10 @@ export function createAtlasMcpServer(snapshot) {
                 {
                   record_id: record.recordId,
                   title: record.title,
-                  confirmed: true,
-                  timestamp: new Date().toISOString(),
-                  message: `Accuracy attested for ${record.recordId}. Parity with [✓ Confirmed — thanks].`,
+                  confirmed: false,
+                  review_stage: record.reviewStage,
+                  human_checked: ['reviewed', 'published'].includes(record.reviewStage),
+                  message: 'This tool returns the recorded evidence status. It does not record an attestation.',
                 },
                 null,
                 2,
@@ -706,7 +720,7 @@ export function createAtlasMcpServer(snapshot) {
 
       case 'get_evidence_ledger': {
         const targetId = String(args?.record_id || '').toUpperCase().trim();
-        const record = data.records.find((r) => r.recordId.toUpperCase() === targetId);
+        const record = resolveSlug(data.records, targetId);
 
         if (!record) {
           return {
@@ -726,6 +740,7 @@ export function createAtlasMcpServer(snapshot) {
                   review_stage: record.reviewStage,
                   source_blocker: record.blockerNote || undefined,
                   last_source_check: record.lastSourceCheck,
+                  human_checked: record.humanChecked ?? ['reviewed', 'published'].includes(record.reviewStage),
                   evidence_layers_present: record.evidenceLayers,
                   claims: record.evidenceLedger,
                 },
@@ -749,22 +764,30 @@ export function createAtlasMcpServer(snapshot) {
           records = records.filter((r) => r.products.map((p) => p.toLowerCase()).includes(targetProduct));
         }
 
-        const sources = [];
-        const seenUrls = new Set();
-
-        for (const r of records) {
-          for (const ref of r.references || []) {
-            if (ref.url && !seenUrls.has(ref.url)) {
-              seenUrls.add(ref.url);
-              sources.push({
+        const byUrl = new Map();
+        for (const record of records) {
+          for (const ref of record.references) {
+            if (!ref.url) continue;
+            if (!byUrl.has(ref.url)) {
+              byUrl.set(ref.url, {
                 title: ref.title || ref.raw,
                 url: ref.url,
-                cited_in_record: r.recordId,
+                cited_in_record: record.recordId,
                 raw_citation: ref.raw,
+                cited_in_records: [],
               });
             }
+            byUrl.get(ref.url).cited_in_records.push({
+              record_id: record.recordId,
+              reference_number: ref.number,
+              review_stage: record.reviewStage,
+              human_checked: record.humanChecked ?? ['reviewed', 'published'].includes(record.reviewStage),
+              source_blocker: record.blockerNote || undefined,
+              claims: ref.evidence ?? [],
+            });
           }
         }
+        const sources = [...byUrl.values()];
 
         return {
           content: [
@@ -795,82 +818,28 @@ export function createAtlasMcpServer(snapshot) {
       }
 
       case 'submit_correction': {
-        const recordId = String(args?.record_id || '').trim();
-        const section = String(args?.section || 'Whole page').trim();
-        const reason = String(args?.reason || 'Other').trim();
-        const quote = String(args?.quote || '').trim();
-        const note = String(args?.note || '').trim();
-        const sourceUrl = String(args?.source_url || '').trim();
+        const record = resolveSlug(data.records, args.record_id);
+        if (!record) return toolError('Record not found.');
+        const note = args.note.trim();
+        if (!note) return toolError('Missing required field: note');
 
-        if (!recordId) {
-          return { isError: true, content: [{ type: 'text', text: 'Missing required field: record_id' }] };
-        }
-        if (!note) {
-          return { isError: true, content: [{ type: 'text', text: 'Missing required field: note' }] };
-        }
-
-        const record = data.records.find((item) => item.recordId === recordId.toUpperCase());
-        const reportPage = record?.url ?? 'https://eyeinthesky6.github.io/india-fintech-risk-atlas/contribute/';
-        let submitSuccess = false;
-        let triageResponse = null;
-
-        try {
-          const payload = {
-            recordId,
-            pagePath: new URL(reportPage).pathname,
-            pageTitle: record?.title ?? recordId,
-            section,
-            reason,
-            quote,
-            note: `${note} [Submitted via Atlas MCP Server]`,
-            sourceUrl,
-            dwellMs: 5000,
-          };
-
-          const res = await fetch(TRIAGE_ENDPOINT, {
-            method: 'POST',
-            redirect: 'error',
-            headers: {
-              'Content-Type': 'application/json',
-              Origin: 'https://eyeinthesky6.github.io',
-            },
-            body: JSON.stringify(payload),
-          });
-
-          if (res.ok) {
-            triageResponse = await res.json();
-            submitSuccess = triageResponse?.ok === true && triageResponse.queued === true;
-          } else {
-            triageResponse = await res.text();
-          }
-        } catch (err) {
-          triageResponse = String(err);
-        }
-
-        const fallbackIssueUrl = `https://github.com/eyeinthesky6/india-fintech-risk-atlas/issues/new?template=factual-correction.yml&title=${encodeURIComponent(`[Correction] ${recordId}: ${section}`)}`;
-
+        const section = args.section?.trim() || 'Whole page';
+        const reason = args.reason ?? 'Other';
+        const issueTitle = encodeURIComponent(`[Correction] ${record.recordId}: ${section}`);
         return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(
-                {
-                  submitted_to_triage_worker: submitSuccess,
-                  record_id: recordId,
-                  section,
-                  reason,
-                  status: submitSuccess
-                    ? 'Report queued in private triage queue for maintainer review.'
-                    : 'No queue receipt. Open the record page to report privately after browser verification, or use the public GitHub issue form.',
-                  triage_details: triageResponse,
-                  private_report_page_url: reportPage,
-                  direct_github_issue_url: fallbackIssueUrl,
-                },
-                null,
-                2,
-              ),
-            },
-          ],
+          content: [{
+            type: 'text',
+            text: JSON.stringify({
+              submitted_to_triage_worker: false,
+              record_id: record.recordId,
+              section,
+              reason,
+              status: 'Open the record page and use Report an error to submit privately. GitHub issues are public.',
+              private_report_page_url: `${record.url}#report-an-error`,
+              direct_github_issue_url: `https://github.com/eyeinthesky6/india-fintech-risk-atlas/issues/new?template=factual-correction.yml&title=${issueTitle}`,
+              draft: { note, quote: args.quote?.trim() ?? '', source_url: args.source_url?.trim() ?? '' },
+            }, null, 2),
+          }],
         };
       }
 
@@ -946,7 +915,7 @@ export function createAtlasMcpServer(snapshot) {
 
     if (uri.startsWith('atlas://records/')) {
       const recordId = uri.replace('atlas://records/', '').toUpperCase();
-      const record = data.records.find((r) => r.recordId.toUpperCase() === recordId);
+      const record = resolveSlug(data.records, recordId);
       if (record) {
         return {
           contents: [
@@ -962,7 +931,7 @@ export function createAtlasMcpServer(snapshot) {
 
     if (uri.startsWith('atlas://guides/')) {
       const guideSlug = uri.replace('atlas://guides/', '').toLowerCase();
-      const guide = data.guideDocs?.find((g) => g.slug.toLowerCase() === guideSlug);
+      const guide = findGuide(data, guideSlug);
       if (guide) {
         return {
           contents: [

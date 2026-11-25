@@ -1,20 +1,19 @@
 #!/usr/bin/env python3
 """Lightweight content attestation check. Standard library only; not a truth verifier."""
 import json
+from datetime import date
 import pathlib
 import re
 import subprocess
 import sys
 
+from atlas_citations import deprecated_url_reason, missing_evidence_urls, reference_urls
+
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-TAXONOMY = json.loads((ROOT / 'src' / 'taxonomy.json').read_text(encoding='utf-8'))
 CONTENT_PREFIXES = ('src/content/docs/',)
-VALID_STAGES = set(TAXONOMY['reviewStages'])
-RECORD_ID_RE = re.compile(TAXONOMY['recordIdPattern'])
+LEDGER_PREFIXES = ('research/attestations/', 'research/evidence/')
 DATE_RE = re.compile(r'^\d{4}-\d{2}-\d{2}$')
-DEPRECATED_REF_URL_RES = [
-    re.compile(r'https?://(?:www\.)?npci\.org\.in/what-we-do/upi/', re.I),
-]
+REVIEWER_ID_RE = re.compile(r'^reviewer-[a-f0-9]{12}$')
 EXEMPT = {
     'src/content/docs/404.md',
     'src/content/docs/index.mdx',
@@ -31,31 +30,36 @@ EXEMPT = {
 }
 
 
-def all_content_files():
-    files = []
-    for prefix in CONTENT_PREFIXES:
-        base = ROOT / prefix
-        if not base.exists():
-            continue
-        for p in sorted(base.rglob('*')):
-            if p.is_file() and p.suffix in {'.md', '.mdx'}:
-                files.append(p.relative_to(ROOT).as_posix())
-    return files
+def git_output(*args):
+    return subprocess.check_output(['git', *args], cwd=ROOT).decode('utf-8')
 
 
-def target_files():
-    if '--all' in sys.argv:
-        return all_content_files()
-    args = (
-        ['git', 'diff', '--cached', '--name-only', '--diff-filter=ACMR']
-        if '--staged' in sys.argv
-        else ['git', 'diff', '--name-only', '--diff-filter=ACMR', 'origin/main...HEAD']
-    )
-    try:
-        return subprocess.check_output(args, cwd=ROOT, text=True).splitlines()
-    except subprocess.CalledProcessError:
-        print('Cannot determine changed files; refusing to claim validation.', file=sys.stderr)
-        sys.exit(2)
+class ContentView:
+    def __init__(self, staged):
+        self.staged = staged
+        self.index = (set(git_output('ls-files', '--cached', '-z').split('\0'))
+                      if staged else None)
+
+    def read(self, path):
+        if self.staged:
+            return git_output('show', ':' + path) if path in self.index else None
+        file = ROOT / path
+        return file.read_text(encoding='utf-8') if file.is_file() else None
+
+    def records(self):
+        if self.staged:
+            paths = self.index
+        else:
+            paths = ((path.relative_to(ROOT).as_posix()) for path in
+                     (ROOT / CONTENT_PREFIXES[0]).rglob('*') if path.is_file())
+        return sorted(path for path in paths
+                      if path.startswith(CONTENT_PREFIXES) and path.endswith(('.md', '.mdx'))
+                      and path not in EXEMPT)
+
+    def changes(self):
+        if self.staged:
+            return git_output('diff', '--cached', '--no-renames', '--name-only', '-z').split('\0')
+        return git_output('diff', '--no-renames', '--name-only', '-z', 'origin/main...HEAD').split('\0')
 
 
 def parse_frontmatter(txt):
@@ -81,26 +85,15 @@ def parse_frontmatter(txt):
     return scalars
 
 
-def extract_reference_urls(txt):
-    normalized = txt.replace('\r\n', '\n')
-    m = re.search(r'^##\s+References\b[^\n]*\n(.*?)(?=^##\s+|\Z)', normalized, re.M | re.S | re.I)
-    if not m:
-        return False, []
-    urls = sorted({u.rstrip('.,;\'"`') for u in re.findall(r'https?://[^\s\)\]>"]+', m.group(1))})
-    return True, urls
-
-
 def record_id_from_frontmatter(fm):
     return fm.get('recordId') or fm.get('id')
 
 
-def check_duplicate_ids():
+def check_duplicate_ids(view, paths):
     seen = {}
     duplicates = []
-    for path in all_content_files():
-        if path in EXEMPT:
-            continue
-        fm = parse_frontmatter((ROOT / path).read_text(encoding='utf-8'))
+    for path in paths:
+        fm = parse_frontmatter(view.read(path))
         rid = record_id_from_frontmatter(fm)
         if not rid:
             continue
@@ -119,56 +112,58 @@ def same_person(a, b):
     return bool(a and b and a.strip().lower() == b.strip().lower())
 
 
-def resolve_target_content_files(id_map):
-    selected = []
-    seen_paths = set()
-    for path in target_files():
-        candidate = None
-        if path.startswith(CONTENT_PREFIXES) and path.endswith(('.md', '.mdx')) and path not in EXEMPT:
-            candidate = path
-        elif path.startswith(('research/attestations/', 'research/evidence/')) and path.endswith('.md'):
-            rid = pathlib.Path(path).stem
-            candidate = id_map.get(rid)
-        if candidate and candidate not in seen_paths:
-            seen_paths.add(candidate)
-            selected.append(candidate)
-    return selected
+def resolve_target_content_files(view, paths, id_map):
+    if '--all' in sys.argv:
+        return paths
+
+    changed = view.changes()
+    if view.staged and any(path.startswith(CONTENT_PREFIXES + LEDGER_PREFIXES) or
+                           path == 'src/taxonomy.json' for path in changed):
+        return paths
+    selected = set()
+    available = set(paths)
+    for path in changed:
+        if path in available:
+            selected.add(path)
+        elif path.startswith(LEDGER_PREFIXES) and path.endswith('.md'):
+            record = id_map.get(pathlib.Path(path).stem)
+            if record:
+                selected.add(record)
+    return sorted(selected)
 
 
 def main():
-    id_map, failures = check_duplicate_ids()
-    for path in resolve_target_content_files(id_map):
-        if not (ROOT / path).exists():
-            continue
-
-        txt = (ROOT / path).read_text(encoding='utf-8')
+    view = ContentView('--staged' in sys.argv)
+    taxonomy = json.loads(view.read('src/taxonomy.json'))
+    valid_stages = set(taxonomy['reviewStages'])
+    record_id_re = re.compile(taxonomy['recordIdPattern'])
+    paths = view.records()
+    id_map, failures = check_duplicate_ids(view, paths)
+    for path in resolve_target_content_files(view, paths, id_map):
+        txt = view.read(path)
         fm = parse_frontmatter(txt)
         rid = record_id_from_frontmatter(fm)
         if not rid:
             failures.append(f'{path}: missing frontmatter recordId')
             continue
-        if not RECORD_ID_RE.match(rid):
+        if not record_id_re.fullmatch(rid):
             failures.append(f'{path}: invalid frontmatter recordId ({rid})')
             continue
 
         fm_stage = fm.get('reviewStage', '').strip().lower()
-        if fm_stage not in VALID_STAGES:
+        if fm_stage not in valid_stages:
             failures.append(f'{path}: invalid/missing frontmatter reviewStage ({fm_stage or "MISSING"})')
 
-        att = ROOT / 'research' / 'attestations' / f'{rid}.md'
-        if not att.exists():
-            failures.append(f'{path}: missing {att.relative_to(ROOT).as_posix()}')
+        att_rel = f'research/attestations/{rid}.md'
+        ev_rel = f'research/evidence/{rid}.md'
+        body = view.read(att_rel)
+        ev_body = view.read(ev_rel)
+        if body is None:
+            failures.append(f'{path}: missing {att_rel}')
+        if ev_body is None:
+            failures.append(f'{path}: missing {ev_rel}')
+        if body is None or ev_body is None:
             continue
-
-        ev = ROOT / 'research' / 'evidence' / f'{rid}.md'
-        if not ev.exists():
-            failures.append(f'{path}: missing {ev.relative_to(ROOT).as_posix()}')
-            continue
-
-        body = att.read_text(encoding='utf-8')
-        ev_body = ev.read_text(encoding='utf-8')
-        att_rel = att.relative_to(ROOT).as_posix()
-        ev_rel = ev.relative_to(ROOT).as_posix()
 
         if not re.search(r'^Record:\s*' + re.escape(rid) + r'\s*$', body, re.M):
             failures.append(f'{att_rel}: wrong Record ID')
@@ -190,28 +185,32 @@ def main():
                 failures.append(f'{att_rel}: reviewer/publication declarations checked while Independent reviewer is PENDING')
 
         last_check = fm.get('lastSourceCheck', '').strip()
-        if last_check and not DATE_RE.match(last_check):
-            failures.append(f'{path}: invalid lastSourceCheck format ({last_check}; expected YYYY-MM-DD)')
+        if last_check:
+            try:
+                if not DATE_RE.fullmatch(last_check):
+                    raise ValueError()
+                date.fromisoformat(last_check)
+            except ValueError:
+                failures.append(f'{path}: invalid lastSourceCheck ({last_check}; expected a real YYYY-MM-DD date)')
 
         stage_m = re.search(r'^Stage:\s*(.+)$', body, re.M)
         stage = stage_m.group(1).strip().lower() if stage_m else ''
-        if stage not in VALID_STAGES:
+        if stage not in valid_stages:
             failures.append(f'{att_rel}: invalid/missing Stage')
         else:
-            if fm_stage in VALID_STAGES and fm_stage != stage:
+            if fm_stage in valid_stages and fm_stage != stage:
                 failures.append(f'{path}: frontmatter reviewStage ({fm_stage}) does not match {att_rel} Stage ({stage})')
             if stage in {'source-checked', 'reviewed', 'published'} and not last_check:
                 failures.append(f'{path}: missing lastSourceCheck required for {stage} stage')
 
-            has_refs, ref_urls = extract_reference_urls(txt)
+            has_refs, ref_urls = reference_urls(txt)
             if stage in {'source-checked', 'reviewed', 'published'} and not has_refs:
                 failures.append(f'{path}: missing ## References section required for {stage} stage')
-            ev_urls = {u.rstrip('.,;\'"`') for u in re.findall(r'https?://[^\s\)\]>"]+', ev_body)}
             for url in ref_urls:
-                if any(p.search(url) for p in DEPRECATED_REF_URL_RES):
+                if deprecated_url_reason(url):
                     failures.append(f'{path}: deprecated/retired reference URL: {url}')
-                if url not in ev_urls:
-                    failures.append(f'{path}: external reference URL not recorded in {ev_rel}: {url}')
+            for url in missing_evidence_urls(ref_urls, ev_body):
+                failures.append(f'{path}: external reference URL not recorded in {ev_rel}: {url}')
 
             if stage == 'source-checked':
                 if is_pending(researcher):
@@ -222,11 +221,13 @@ def main():
                 if len(boxes) != 12 or any(x == ' ' for x in boxes):
                     failures.append(f'{att_rel}: reviewed/published needs all 12 declarations')
                 if is_pending(reviewer) or is_pending(researcher) or same_person(reviewer, researcher):
-                    failures.append(f'{att_rel}: distinct named researcher/reviewer required')
+                    failures.append(f'{att_rel}: distinct researcher and reviewer identifiers required')
                 ev_rev_m = re.search(r'^Independent reviewer:\s*(.*)$', ev_body, re.M)
                 ev_rev = ev_rev_m.group(1).strip() if ev_rev_m else ''
-                if is_pending(ev_rev) or same_person(ev_rev, researcher):
-                    failures.append(f'{ev_rel}: distinct named Independent reviewer required in evidence ledger')
+                if not REVIEWER_ID_RE.fullmatch(reviewer):
+                    failures.append(f'{att_rel}: use the stable reviewer identifier recorded with maintainers')
+                if ev_rev != reviewer or same_person(ev_rev, researcher):
+                    failures.append(f'{ev_rel}: independent reviewer identifier must match the attestation')
                 if re.search(r'\|\s*(PENDING|unverified|blocked\b[^|]*)\s*\|', ev_body, re.I):
                     failures.append(f'{ev_rel}: reviewed/published record cannot contain PENDING/unverified/blocked claims')
 
@@ -238,4 +239,8 @@ def main():
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except (subprocess.CalledProcessError, OSError, ValueError, TypeError) as error:
+        print(f'Could not validate content: {error}', file=sys.stderr)
+        sys.exit(2)

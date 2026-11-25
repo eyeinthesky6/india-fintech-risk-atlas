@@ -17,23 +17,37 @@ import os
 import sys
 import urllib.request
 import urllib.error
+from pathlib import Path
+from urllib.parse import urlsplit
 
 
-def send_telegram_notification(token: str, chat_id: str, title: str, message: str, url: str | None = None) -> bool:
-    endpoint = f"https://api.telegram.org/bot{token}/sendMessage"
-
+def format_notification(title, message, links):
     safe_title = html.escape(title)
-    safe_message = html.escape(message.replace("\\n", "\n"))
+    safe_message = html.escape(message)
     formatted_text = f"<b>🏛️ India Fintech Risk Atlas</b>\n\n<b>{safe_title}</b>\n\n{safe_message}"
-    if url:
-        safe_url = html.escape(url, quote=True)
-        formatted_text += f'\n\n🔗 <a href="{safe_url}">View on Live Website</a>'
+    visible_links = []
+    for label, url in links:
+        if not url:
+            continue
+        try:
+            parts = urlsplit(url)
+        except ValueError:
+            continue
+        if parts.scheme in {'http', 'https'} and parts.hostname and parts.username is None:
+            visible_links.append(f'<a href="{html.escape(url, quote=True)}">{html.escape(label)}</a>')
+    if visible_links:
+        formatted_text += '\n\n' + ' · '.join(visible_links)
+    return formatted_text
+
+
+def send_telegram_notification(token: str, chat_id: str, text: str) -> bool:
+    endpoint = f"https://api.telegram.org/bot{token}/sendMessage"
 
     payload = {
         "chat_id": chat_id,
-        "text": formatted_text,
+        "text": text,
         "parse_mode": "HTML",
-        "disable_web_page_preview": False,
+        "link_preview_options": {"is_disabled": True},
     }
 
     req = urllib.request.Request(
@@ -62,21 +76,38 @@ def send_telegram_notification(token: str, chat_id: str, title: str, message: st
 def main():
     parser = argparse.ArgumentParser(description="Send alert to Telegram")
     parser.add_argument("--title", required=True, help="Notification title")
-    parser.add_argument("--message", required=True, help="Notification body text")
+    body = parser.add_mutually_exclusive_group(required=True)
+    body.add_argument("--message", help="Notification body text")
+    body.add_argument("--summary-file", type=Path, help="JSON summary with message and links")
     parser.add_argument("--url", default=None, help="Optional link for visual inspection")
+    parser.add_argument("--url-label", default="Open details", help="Text for the optional link")
+    parser.add_argument("--preview", action="store_true", help="Print the notification locally")
     args = parser.parse_args()
+    summary = json.loads(args.summary_file.read_text(encoding="utf-8")) if args.summary_file else {
+        "message": args.message.replace("\\n", "\n"), "links": [],
+    }
+    links = list(summary["links"])
+    if args.url:
+        links.append((args.url_label, args.url))
+    text = format_notification(args.title, summary["message"], links)
+    if args.preview:
+        print(text)
+        return
 
     token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
     chat_id = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
 
     if not token or not chat_id:
-        print("Notice: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID not configured in environment. Skipping notification.")
-        sys.exit(0)
+        status = "Skipped because Telegram credentials are missing."
+    elif send_telegram_notification(token, chat_id, text):
+        status = "Telegram accepted the notification."
+    else:
+        status = "Telegram did not confirm delivery."
 
-    success = send_telegram_notification(token, chat_id, args.title, args.message, args.url)
-    if not success:
-        # Non-zero exit is not triggered to avoid breaking the caller workflow
-        print("Warning: Telegram notification failed to deliver.", file=sys.stderr)
+    print(status)
+    if summary := os.environ.get("GITHUB_STEP_SUMMARY"):
+        with open(summary, "a", encoding="utf-8") as output:
+            output.write(f"**Notification** — {status}\n\n")
 
 
 if __name__ == "__main__":

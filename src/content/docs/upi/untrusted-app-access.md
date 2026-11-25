@@ -38,8 +38,8 @@ Prevents attackers from spying on UPI PIN entry, intercepting OTPs, hijacking ta
 
 | Basis | Owner | Action |
 |---|---|---|
-| Regulatory | Commercial, Payments & Small Finance banks | Detect remote-access apps and block login access; verify secure download/install integrity, publish official app checksums, explore root/jailbreak install blocks, and consider anti-malware defenses. |
-| Regulatory | Non-bank PSOs | Block mobile payment access whenever a remote-access session is live, and subscribe to anti-phishing and rogue-app takedown monitoring services. |
+| Regulatory | Commercial, Payments & Small Finance banks | Detect remote-access apps and block login access; verify secure download/install integrity, publish official app checksums, explore root/jailbreak install blocks, and consider anti-malware defenses. <a href="#ref-1">[1]</a> |
+| Regulatory | Non-bank PSOs | Block mobile payment access whenever a remote-access session is live, and subscribe to anti-phishing and rogue-app takedown monitoring services. <a href="#ref-2">[2]</a> |
 | Regulatory | Payers | NPCI's public fraud-awareness guidance advises against installing unknown APKs, screen-sharing tools or SMS-forwarding apps, and against transacting during active calls. <a href="#ref-4">[4]</a> |
 | Atlas guidance | TPAPs, PSPs | Terminate or block UPI payment initiation whenever live screen mirroring, active casting, or remote control is detected, showing plain-language instructions on why access paused. |
 | Atlas guidance | Mobile security & engineering | Enforce app-store signature verification, root/emulator/debugger detection, and overlay defense (`FLAG_SECURE` / non-obscured touch checks) without breaking OS accessibility tools. |
@@ -50,8 +50,8 @@ Prevents attackers from spying on UPI PIN entry, intercepting OTPs, hijacking ta
 - **How to validate:** Test active screen-mirroring, USB-debug, and overlay attacks in Android/iOS labs; verify `TalkBack`/`VoiceOver` accessibility compatibility so disabled users are never locked out; audit false-positive launch block rates.
 
 ## References and review history
-1. RBI, [Commercial Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/scripts/BS_ViewMasDirections.aspx?id=13642), `RBI/DoS/2026-27/411` (updated Oct 1, 2026) — secure install/checksums/remote-access login blocks (`§68(2)(ii),(iv), §68(4)–(5), §68(12)`), accessed Nov 23, 2026 (parallel `id=13624` PBs, `id=13633` SFBs).
-2. RBI, [Master Directions on Cyber Resilience and Digital Payment Security Controls for non-bank PSOs](https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=13751&Mode=0), `RBI/DPSS/2026-27/475` (Nov 5, 2026; Large/Medium immediate, Small Apr 1, 2028) — rogue-app takedown (`§27(h)`) and blocking payments during live remote access (`§31(f)`), accessed Nov 23, 2026.
+1. <a id="ref-1"></a> RBI, [Commercial Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/scripts/BS_ViewMasDirections.aspx?id=13642), `RBI/DoS/2026-27/411` (updated Oct 1, 2026) — secure install/checksums/remote-access login blocks (`§68(2)(ii),(iv), §68(4)–(5), §68(12)`), accessed Nov 23, 2026 (parallel `id=13624` PBs, `id=13633` SFBs).
+2. <a id="ref-2"></a> RBI, [Master Directions on Cyber Resilience and Digital Payment Security Controls for non-bank PSOs](https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=13751&Mode=0), `RBI/DPSS/2026-27/475` (Nov 5, 2026; Large/Medium immediate, Small Apr 1, 2028) — rogue-app takedown (`§27(h)`) and blocking payments during live remote access (`§31(f)`), accessed Nov 23, 2026.
 3. NPCI circular `NPCI/2025-26/IS/003` (May 19, 2025), *Comprehensive Mobile Application Security Framework for UPI - 2025* — [provisional third-party bank mirror](https://rscb.bank.in/Content/pdf/npcicircular.pdf), pp. 1–8. The issuer original and exact operative scope remain unverified.
 4. <a id="ref-4"></a> NPCI, [Fraud Awareness](https://www.npci.org.in/fraud-awareness) (*Downloading of unknown apps*), browser-checked Nov 23, 2026.
 5. NPCI, [UPI Circulars index](https://www.npci.org.in/circulars/upi), browser-checked Nov 23, 2026 (confirmed `NPCI/2025-26/IS/003` is not listed on public `/circulars/upi` or `/circulars/others`).

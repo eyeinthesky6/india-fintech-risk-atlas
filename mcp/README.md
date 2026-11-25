@@ -56,20 +56,20 @@ Add to `%APPDATA%\Claude\claude_desktop_config.json` (Windows) or `~/Library/App
 
 ## 🛠️ Available tools
 
-| Category | Tool | Parameters | UI Feature Parity |
+| Category | Tool | Parameters | Result |
 |---|---|---|---|
 | **Search & Discovery** | `search_risk_records` | `query`, `product`, `actor`, `evidence_layer`, `limit` | Full-text & faceted search bar (`Ctrl+K` + Pagefind filters) |
 | **Record Retrieval** | `get_record` | `record_id` | Ready-Reckoner article view (What it is, Impact, Patterns, Controls, Watch-outs) |
 | **Knowledge Graph** | `explore_knowledge_graph` | `record_id`, `relation_type` | Interactive SVG Graph drawer (`> Knowledge graph [Expand]`), theme clusters, and co-cited circulars |
 | **Persona Filtering** | `get_persona_controls` | `actor`, `basis` | Role-based table filtering (e.g. view only `TPAP`, `Remitter Bank`, or `Merchant` obligations) |
 | **Pre-Audit & Gaps** | `generate_gap_checklist` | `actor`, `product`, `format` | Actionable Markdown/JSON audit checklist matrix for engineering and risk teams |
-| **Clean Export** | `get_clean_markdown` | `record_id` | `[Copy]` button parity — extracts clean markdown stripped of UI widgets + canonical source citation |
-| **Verification & Trust**| `mark_record_accurate` | `record_id` | `[✓ Looks accurate]` button parity — attests record validity |
+| **Clean Export** | `get_clean_markdown` | `record_id` | Record Markdown with references, review metadata and the canonical URL |
+| **Evidence status** | `mark_record_accurate` | `record_id` | Legacy lookup of the recorded evidence stage and human-check status |
 | **Evidence Audit** | `get_evidence_ledger` | `record_id` | Bottom `Record Dossier` & claim-level primary source audit table |
 | **Primary Sources** | `list_sources` | `record_id`, `product` | Collapsible `Sources, legal scope & review history` drawer & `sources.md` register |
 | **Policies & Guides** | `get_guide_doc` | `doc_id` | Top navigation tabs: `evidence-policy`, `methodology`, `risk-stack-playbook`, `glossary`, `sources`, etc. |
 | **Taxonomy** | `list_taxonomy` | *(none)* | 5 evidence layers, themes, actors, products, and review stages |
-| **Feedback & Triage** | `submit_correction` | `record_id`, `section`, `reason`, `quote`, `note`, `source_url` | Checks for a private queue receipt. If browser verification is required, open the returned record URL and use **Report an error**. |
+| **Feedback & Triage** | `submit_correction` | `record_id`, `section`, `reason`, `quote`, `note`, `source_url` | Prepares a draft. Use **Report an error** on the returned page for private reporting after browser verification. |
 
 ---
 
@@ -117,4 +117,4 @@ For the full architectural decision record, security requirements, and activatio
 
 ## Snapshot freshness
 
-Online startup uses the fixed GitHub Pages feed or its six-hour cache. `--refresh` checks the feed immediately. If the feed fails or returns an incompatible snapshot, the CLI uses the last valid cached release, then the bundle. `--offline` or `ATLAS_OFFLINE=1` disables the dataset request and selects the most recently generated valid local copy. Rebuilding identical content preserves its generation date. Each session uses one snapshot for tools and the LLM index. Correction submissions have their own fixed endpoint.
+Online startup uses the fixed GitHub Pages feed or its six-hour cache. `--refresh` checks the feed immediately. If the feed fails or returns an incompatible snapshot, the CLI uses the last valid cached release, then the bundle. `--offline` or `ATLAS_OFFLINE=1` disables the dataset request and selects the most recently generated valid local copy. Rebuilding identical content preserves its generation date. Each session uses one snapshot for tools and the LLM index. Private corrections are submitted through the website.

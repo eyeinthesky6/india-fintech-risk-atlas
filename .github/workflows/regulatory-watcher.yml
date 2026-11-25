@@ -25,8 +25,7 @@ jobs:
       - name: Run regulatory feed watcher
         id: watcher
         run: |
-          python3 scripts/watch-regulators.py --json --output report.json
-          python3 scripts/watch-regulators.py --output report.md
+          python3 scripts/watch-regulators.py --json --output report.json --markdown-output report.md
           NEW_COUNT=$(python3 -c "import json; d=json.load(open('report.json')); print(d['new_count'])")
           echo "new_count=$NEW_COUNT" >> $GITHUB_OUTPUT
           if [ "$NEW_COUNT" -gt 0 ]; then
@@ -36,6 +35,7 @@ jobs:
           fi
 
       - name: Create or update triage issue
+        id: triage
         if: steps.watcher.outputs.has_new == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -43,28 +43,23 @@ jobs:
           DATE=$(date -u +"%Y-%m-%d")
           TITLE="[REGULATORY ALERT] New regulatory publication detected ($DATE)"
           # Check if an open issue with this title already exists
-          EXISTING_ISSUE=$(gh issue list --state open --search "$TITLE in:title" --json number -q '.[0].number')
+          EXISTING_ISSUE=$(gh issue list --state open --search "$TITLE in:title" --json number -q '.[0].number // empty')
           if [ -n "$EXISTING_ISSUE" ]; then
-            echo "Issue #$EXISTING_ISSUE already exists for today. Adding comment..."
-            gh issue comment "$EXISTING_ISSUE" --body-file report.md
+            TRIAGE_URL=$(gh issue comment "$EXISTING_ISSUE" --body-file report.md)
           else
-            echo "Creating new regulatory triage issue..."
-            gh issue create \
-              --title "$TITLE" \
-              --body-file report.md \
-              --label "regulatory-alert" || \
-            gh issue create \
-              --title "$TITLE" \
-              --body-file report.md
+            TRIAGE_URL=$(gh issue create --title "$TITLE" --body-file report.md --label "regulatory-alert")
           fi
+          echo "url=$TRIAGE_URL" >> "$GITHUB_OUTPUT"
 
       - name: Send Telegram Alert for New Circulars
         if: steps.watcher.outputs.has_new == 'true'
         env:
+          TRIAGE_URL: ${{ steps.triage.outputs.url }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
+          SUMMARY="$RUNNER_TEMP/atlas-regulatory-telegram.json"
+          python3 scripts/telegram-update.py regulatory --report report.json > "$SUMMARY"
           python3 scripts/notify-telegram.py \
-            --title "⚠️ New Regulatory Publication Detected" \
-            --message "Daily watcher detected ${{ steps.watcher.outputs.new_count }} new circular(s) from RBI / PIB." \
-            --url "https://github.com/${{ github.repository }}/issues"
+            --title "New regulatory publications" --summary-file "$SUMMARY" \
+            --url "$TRIAGE_URL" --url-label "Open triage report"

@@ -7,7 +7,7 @@
     "dev": "astro dev",
     "build": "node scripts/build-atlas-data.js && astro build",
     "preview": "astro preview",
-    "test": "node --test workers/report-triage/test/triage.test.js && npm test --prefix mcp",
+    "test": "node --test scripts/test-reference-display.test.js workers/report-triage/test/triage.test.js && npm test --prefix mcp",
     "mcp": "node mcp/bin/cli.js"
   },
   "dependencies": {

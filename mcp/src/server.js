@@ -189,7 +189,7 @@ export function createAtlasMcpServer() {
               },
               relation_type: {
                 type: 'string',
-                enum: ['all', 'shared-sources', 'same-theme'],
+                enum: ['all', 'shared-sources', 'same-theme', 'direct-links'],
                 description: 'Filter connection type: "all" (default), "shared-sources" (co-cited RBI/NPCI rules), or "same-theme" (lifecycle cluster)',
               },
             },
@@ -468,6 +468,8 @@ export function createAtlasMcpServer() {
         let neighbors = [];
         if (relation === 'shared-sources') {
           neighbors = connections.sharedSources;
+        } else if (relation === 'direct-links') {
+          neighbors = connections.directLinks || [];
         } else if (relation === 'same-theme') {
           neighbors = connections.sameTheme;
         } else {
@@ -483,6 +485,7 @@ export function createAtlasMcpServer() {
             theme: nr ? nr.themeLabel : '',
             shared_sources: connections.sharedSources.includes(nid),
             same_theme: connections.sameTheme.includes(nid),
+            direct_link: (connections.directLinks || []).includes(nid),
           };
         });
 

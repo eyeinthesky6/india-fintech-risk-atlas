@@ -1,0 +1,36 @@
+name: PR Ready for Final Visual Sign-Off
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  notify-ready:
+    name: Notify owner when PR is fully reviewed and ready
+    runs-on: ubuntu-latest
+    # Only trigger when the review is an explicit approval and the PR is not a draft
+    if: "github.event.review.state == 'approved' && !github.event.pull_request.draft"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Check if all PR status checks have passed
+        id: check-ci
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          # Query GitHub CLI for check status on this PR
+          CONCLUSION=$(gh pr view "$PR_NUMBER" --json statusCheckRollup -q '[.statusCheckRollup[]? | select(.conclusion != "SUCCESS" and .conclusion != "NEUTRAL")] | length')
+          echo "failing_checks=$CONCLUSION" >> $GITHUB_OUTPUT
+
+      - name: Send Telegram Notification for Final Visual Review
+        if: steps.check-ci.outputs.failing_checks == '0'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python3 scripts/notify-telegram.py \
+            --title "🎯 PR Ready for Visual Check & Merge (#${{ github.event.pull_request.number }})" \
+            --message "PR '${{ github.event.pull_request.title }}' has passed all automated CI tests and received domain review approval from @${{ github.event.review.user.login }}.\n\nReady for your 1-click visual sign-off." \
+            --url "${{ github.event.pull_request.html_url }}"

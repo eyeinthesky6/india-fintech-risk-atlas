@@ -26,6 +26,14 @@ jobs:
           cache: 'npm'
       - run: npm ci --no-audit --no-fund
       - run: npm run build
+      - run: npm ci --prefix mcp --no-audit --no-fund
+      - run: npm test
+      - name: Check public and bundled exports are identical
+        run: |
+          cmp public/atlas-records.json mcp/data/atlas-records.json
+          cmp public/atlas-records.json dist/atlas-records.json
+          cmp public/llms.txt dist/llms.txt
+          cmp public/llms-full.txt dist/llms-full.txt
       - name: Verify build output, Pagefind filters, and HTML internal links
         run: |
           test -f dist/index.html

@@ -2,10 +2,11 @@
   "metadata": {
     "title": "India Fintech Risk Atlas",
     "version": "1.0.0",
-    "generatedAt": "2026-11-25T09:34:55.507Z",
+    "generatedAt": "2026-11-25T09:44:22.619Z",
     "baseUrl": "https://eyeinthesky6.github.io/india-fintech-risk-atlas/",
     "triageWorkerUrl": "https://atlas-report-triage.6edroid.workers.dev",
     "totalRecords": 21,
+    "totalGuideDocs": 10,
     "evidenceLayers": [
       {
         "id": "official",
@@ -113,6 +114,7 @@
       ],
       "recordType": "explainer",
       "theme": "overview",
+      "themeLabel": "Overview & ecosystem",
       "lifecycle": [
         "onboarding",
         "initiation",
@@ -141,6 +143,17 @@
       ],
       "reviewStage": "source-checked",
       "lastSourceCheck": "2026-11-23",
+      "sourceLabels": [
+        "RBI Non-bank PSO 2026",
+        "RBI DPSC 2026",
+        "RBI PB DPSC 2026",
+        "RBI SFB DPSC 2026",
+        "RBI Auth 2025",
+        "RBI PA MD 2025",
+        "RBI ODR 2020",
+        "NPCI UPI Overview & Roles",
+        "NPCI UPI FAQs"
+      ],
       "sections": {
         "what_it_is": "Unified Payments Interface (UPI) runs across separate banks, TPAP apps, Payment Aggregators, and NPCI rather than inside a single institution. Authentication, fraud monitoring, merchant onboarding, settlement reconciliation, and dispute resolution are split—each participant sees only its own slice of customer, device, and payment telemetry.",
         "participant_roles_at_a_glance": "| Participant | Telemetry typically visible | Blind spots | Core control ownership |\n|---|---|---|---|\n| **Remitter (Issuer) Bank** | Account tenure, historical outflows, PIN/auth checks, SMS alert replies | Third-party TPAP UI screens, client-side screen sharing | Authentication, outbound velocity/EFRM, customer liability, NCRP coordination |\n| **Beneficiary Bank** | Payee KYC, credit inflows, onward fan-out / ATM cash-outs, shared branch/address ties | Payer's pre-payment social-engineering context | Mule-funnel detection (`MuleHunter.AI`), inflow alerts, `T+1` failed-credit reversals |\n| **PSP Bank / TPAP** | VPA mapping, device/SIM binding, runtime/screen-share checks, intent metadata | Customer balance/income across unlinked banks | Mobile app security/audits, debit-direction UX clarity, in-app ODR initiation |\n| **Acquiring Bank / PA** | Merchant KYC/CPV, MCC, checkout volume, chargebacks, webhook status | Payer's handset security or phone-call coercion | Merchant CDD/MCC vetting, profile-drift monitoring, escrow/dispute flows |",
@@ -277,6 +290,7 @@
       ],
       "recordType": "detective-control",
       "theme": "monitoring-mules-merchants",
+      "themeLabel": "Monitoring, mules & merchants",
       "lifecycle": [
         "initiation",
         "authorization",
@@ -295,6 +309,13 @@
       ],
       "reviewStage": "source-checked",
       "lastSourceCheck": "2026-11-23",
+      "sourceLabels": [
+        "RBI DPSC 2026",
+        "RBI PB DPSC 2026",
+        "RBI SFB DPSC 2026",
+        "RBI Non-bank PSO 2026",
+        "arXiv Research Lead"
+      ],
       "sections": {
         "what_it_is": "Detects sudden bursts of outgoing UPI payments—such as multiple back-to-back transfers to unfamiliar payees, rapid splitting right after an incoming credit, or abrupt balance draining—early enough to flag account takeover, scam coercion, or mule cash-outs. Outbound velocity is a **risk signal, not standalone proof of fraud**.",
         "impact": "- **Customer:** Victim balances or compromised accounts are drained across multiple rapid hops before alerts are reviewed.\n- **Banks & PSPs:** Counting raw transfers without comparing against the customer's own baseline misses stealth draining or floods queues with noisy retail alerts.",
@@ -424,6 +445,7 @@
       ],
       "recordType": "fraud-pattern",
       "theme": "monitoring-mules-merchants",
+      "themeLabel": "Monitoring, mules & merchants",
       "lifecycle": [
         "onboarding",
         "monitoring",
@@ -442,6 +464,13 @@
       ],
       "reviewStage": "source-checked",
       "lastSourceCheck": "2026-11-23",
+      "sourceLabels": [
+        "RBI DPSC 2026",
+        "RBI FRM 2026",
+        "RBI Fraud Discussion Paper",
+        "PIB MuleHunter MoU",
+        "arXiv Research Lead"
+      ],
       "sections": {
         "what_it_is": "Money mules receive fraud proceeds from unrelated victims and quickly forward them onward across other bank accounts, wallets, or cash-outs. On its own, each UPI transaction can look like normal retail spend—the giveaway is **tight inflow-to-outflow coupling, sudden activity after dormancy, and shared infrastructure** (devices, addresses, IP/branch attributes) tying separate accounts together.",
         "impact": "- **Beneficiary & remitter banks:** High alert backlogs, NCRP lien/freeze coordination overhead, and regulatory scrutiny on mule onboarding.\n- **Innocent sellers & community accounts:** Broad or blunt freezes lock up legitimate livelihoods when normal merchants receive a tainted scam transfer.\n- **Ecosystem recovery:** Every extra hop delays inter-bank tracing and lowers funds recoverable after fraud reporting.",
@@ -586,6 +615,7 @@
       ],
       "recordType": "fraud-pattern",
       "theme": "identity-auth",
+      "themeLabel": "Identity, access & authentication",
       "lifecycle": [
         "onboarding",
         "authentication",
@@ -603,6 +633,13 @@
       ],
       "reviewStage": "source-checked",
       "lastSourceCheck": "2026-11-23",
+      "sourceLabels": [
+        "RBI DPSC 2026",
+        "RBI PB DPSC 2026",
+        "RBI SFB DPSC 2026",
+        "RBI Non-bank PSO 2026",
+        "RBI Fraud Discussion Paper"
+      ],
       "sections": {
         "what_it_is": "Account takeover (ATO) happens when an attacker steals control of a customer's mobile number, SIM, UPI app login, or credentials and uses that access to drain the account. While bank device checks have reduced pure technical takeovers relative to manipulation scams, silent SIM swaps, recycled mobile numbers, and malware-based re-registration still create high-speed losses.",
         "impact": "- **Customer:** Rapid unauthorized transfers shortly after a SIM swap, device switch, or mobile-number change.\n- **Bank & PSP:** Sudden shift from trusted-device activity to risky transfers and zero-warning dispute liability checks.\n- **Legitimate users:** Overly rigid device checks after genuine phone upgrades, lost SIM replacements, or travel can lock victims out during emergencies.",
@@ -721,6 +758,7 @@
       ],
       "recordType": "fraud-pattern",
       "theme": "social-engineering",
+      "themeLabel": "Social engineering & scams",
       "lifecycle": [
         "initiation",
         "authorization"
@@ -739,6 +777,12 @@
       ],
       "reviewStage": "source-checked",
       "lastSourceCheck": "2026-11-23",
+      "sourceLabels": [
+        "NPCI OC 220 (P2P Collect)",
+        "NPCI UPI Circulars",
+        "RBI RBC 2026",
+        "Razorpay Docs"
+      ],
       "sections": {
         "what_it_is": "A scammer sends a UPI payment request and tricks the victim into thinking that approving the popup and entering their UPI PIN will *credit* money into their account. Because authorization prompts can look routine when someone is rushed or coached on a call, victims unknowingly approve money *leaving* their account.",
         "impact": "- **Customer:** Immediate, real-time debit that the victim authorized under deception, leading to disputed recovery.\n- **Bank & PSP:** High APP-scam complaint load and regulatory liability exposure where clear, specific scam warnings were missing.\n- **Merchant & App:** Legitimate merchant pull checkouts lose trust and conversion when users fear collect popups.",
@@ -866,6 +910,7 @@
       ],
       "recordType": "operational-failure",
       "theme": "reconciliation-disputes-protection",
+      "themeLabel": "Reconciliation, disputes & protection",
       "lifecycle": [
         "processing",
         "reconciliation"
@@ -884,6 +929,12 @@
       ],
       "reviewStage": "source-checked",
       "lastSourceCheck": "2026-11-23",
+      "sourceLabels": [
+        "RBI PA MD 2025",
+        "RBI TAT 2019",
+        "Razorpay Docs",
+        "Cashfree Docs"
+      ],
       "sections": {
         "what_it_is": "In online UPI merchant checkouts, the customer's browser screen, redirect `callback_url`, asynchronous Payment Aggregator (PA) webhook, and bank settlement file are four separate states. Order fulfillment breaks when merchants trust unverified browser redirects, process retried webhooks as second payments, leave orders permanently stuck in `PENDING`, or send duplicate refunds. *(For interbank settlement-file matching and `T+1`/`T+5` reversal SLAs, see [Settlement and reconciliation exceptions](/india-fintech-risk-atlas/upi/settlement-exceptions/).)*",
         "impact": "- **Customer:** Account gets debited while the order stays failed or cancelled, locking funds until `T+5` auto-reversal or manual refund.\n- **Merchant:** Double shipment of goods or duplicate payouts when retried webhooks are not deduplicated.\n- **PA & Acquirer:** Unmatched order vs escrow records violate PA payout transparency and refund rules.",
@@ -1006,6 +1057,7 @@
       ],
       "recordType": "fraud-pattern",
       "theme": "social-engineering",
+      "themeLabel": "Social engineering & scams",
       "lifecycle": [
         "initiation",
         "authorization"
@@ -1025,6 +1077,14 @@
       ],
       "reviewStage": "source-checked",
       "lastSourceCheck": "2026-11-23",
+      "sourceLabels": [
+        "NPCI Fraud Awareness",
+        "RBI Fraud Discussion Paper",
+        "RBI DPSC 2026",
+        "RBI RBC 2026",
+        "Razorpay Docs",
+        "arXiv Research Lead"
+      ],
       "sections": {
         "what_it_is": "Fraudsters share QR codes or payment links promising cashbacks, refunds, prizes, or advance payments. Scanning the QR or tapping the link pre-fills an **outgoing payment** to an attacker-controlled VPA or merchant, so victims who enter their UPI PIN thinking they are \"claiming\" money authorize a debit instead. In a technical variant, attackers alter unsigned UPI deep-link parameters (`pa`, `pn`, `am`) to swap the payee or amount.",
         "impact": "- **Customer:** Instant unauthorized-looking loss even though the victim entered their PIN, creating complex dispute cases.\n- **Bank & PSP:** Repeat scam complaints against newly spun-up or compromised payee VPAs and unsigned merchant links.\n- **Merchant & App:** Tampered deep links erode checkout trust when payment amounts or displayed names diverge from orders.",
@@ -1174,6 +1234,7 @@
       ],
       "recordType": "fraud-pattern",
       "theme": "social-engineering",
+      "themeLabel": "Social engineering & scams",
       "lifecycle": [
         "servicing",
         "dispute",
@@ -1192,6 +1253,16 @@
       ],
       "reviewStage": "source-checked",
       "lastSourceCheck": "2026-11-23",
+      "sourceLabels": [
+        "NPCI Fraud Awareness",
+        "RBI DPSC 2026",
+        "RBI ODR 2020",
+        "RBI RBC 2026",
+        "RBI Non-bank PSO 2026",
+        "RBI Fraud Discussion Paper",
+        "NPCI UPI FAQs",
+        "NPCI Complaint Register"
+      ],
       "sections": {
         "what_it_is": "Customers dealing with a `PENDING` transfer, failed order, or delayed refund often search Google or post complaints on social media looking for helpline numbers. Scammers plant fake customer-care numbers in search ads, hijack brand support replies online, or run bogus call centres impersonating banks, TPAPs, or merchants—then collect OTPs/PINs, push remote-access apps, or coach victims into \"refund verification\" debits.\n\nThe root failure mode is **unclear in-app resolution status**, pushing anxious customers outside the app onto open web search.",
         "impact": "- **Customer:** A minor technical delay turns into full account compromise or secondary APP scam losses.\n- **Bank, TPAP & PA:** Double burden of handling both the original transaction query and subsequent fraud reports/NCRP complaints.\n- **Brand trust:** Poisoned search listings and fake handles damage confidence in official support channels.",
@@ -1343,6 +1414,7 @@
       ],
       "recordType": "preventive-control",
       "theme": "identity-auth",
+      "themeLabel": "Identity, access & authentication",
       "lifecycle": [
         "initiation",
         "authentication"
@@ -1359,6 +1431,13 @@
       ],
       "reviewStage": "source-checked",
       "lastSourceCheck": "2026-11-23",
+      "sourceLabels": [
+        "RBI DPSC 2026",
+        "RBI Non-bank PSO 2026",
+        "NPCI/2025-26/IS/003 (mirror)",
+        "NPCI Fraud Awareness",
+        "NPCI UPI Circulars"
+      ],
       "sections": {
         "what_it_is": "Prevents attackers from spying on UPI PIN entry, intercepting OTPs, hijacking taps via screen overlays, or tampering with mobile app binaries when victims are talked into sideloading fake APKs (disguised as KYC/reward apps) or opening live screen-sharing/remote-access tools during a payment.",
         "impact": "- **Customer:** Fraudsters watch screen state in real time, steal SMS OTPs, or guide taps across authorization screens.\n- **TPAPs & Banks:** High-severity unauthorized transfers happen from the customer's own bound handset, bypassing normal device-trust assumptions.",
@@ -1492,6 +1571,7 @@
       ],
       "recordType": "preventive-control",
       "theme": "identity-auth",
+      "themeLabel": "Identity, access & authentication",
       "lifecycle": [
         "authentication",
         "authorization"
@@ -1508,6 +1588,11 @@
       ],
       "reviewStage": "source-checked",
       "lastSourceCheck": "2026-11-23",
+      "sourceLabels": [
+        "RBI Auth 2025",
+        "RBI DPSC 2026",
+        "RBI Non-bank PSO 2026"
+      ],
       "sections": {
         "what_it_is": "Ensures payment approvals genuinely come from the authorized customer and bound device rather than replayed credentials, stolen static passwords, or man-in-the-middle (MITM) tampering—while keeping exempted fast flows (like recurring mandates and Tap-and-Pay NFC UPI) correctly scoped.",
         "impact": "- **Customer & Issuer:** Stolen static credentials or intercepted sessions let attackers authorize debits without clear merchant confirmation on alerts or OTPs.\n- **Product teams:** Misreading RBI exemptions causes either broken checkout flows or non-compliant skip-auth bugs.",
@@ -1614,6 +1699,7 @@
       ],
       "recordType": "detective-control",
       "theme": "monitoring-mules-merchants",
+      "themeLabel": "Monitoring, mules & merchants",
       "lifecycle": [
         "monitoring",
         "investigation",
@@ -1633,6 +1719,15 @@
       ],
       "reviewStage": "source-checked",
       "lastSourceCheck": "2026-11-23",
+      "sourceLabels": [
+        "RBI DPSC 2026",
+        "RBI PB DPSC 2026",
+        "RBI SFB DPSC 2026",
+        "RBI Non-bank PSO 2026",
+        "RBI FRM 2026",
+        "Stripe Radar Docs",
+        "arXiv Research Lead"
+      ],
       "sections": {
         "what_it_is": "Moves fraud monitoring beyond single heuristic alerts to a calibrated **monitoring program**: choosing governed rule parameters, sizing daily alert queues to analyst capacity, preventing biased rule feedback loops, and training operations teams to tell true fraud apart from benign activity. *(For account-level outbound burst features, see [Unusual outbound payment velocity (`UPI-001`)](/india-fintech-risk-atlas/upi/unusual-outbound-velocity/).)*",
         "impact": "- **Fraud ops & analysts:** Poorly tuned alerts drown investigators in false positives while real attacks slip through unreviewed queues.\n- **Legitimate merchants & users:** Naive static cutoffs trigger unexplained blocks, slow unblocking delays, and Ombudsman escalations.\n- **Model drift:** Using uninvestigated past alerts as \"clean\" labels creates circular blind spots over time.",
@@ -1799,6 +1894,7 @@
       ],
       "recordType": "detective-control",
       "theme": "identity-auth",
+      "themeLabel": "Identity, access & authentication",
       "lifecycle": [
         "authentication",
         "authorization",
@@ -1816,6 +1912,12 @@
       ],
       "reviewStage": "source-checked",
       "lastSourceCheck": "2026-11-23",
+      "sourceLabels": [
+        "RBI DPSC 2026",
+        "RBI PB DPSC 2026",
+        "RBI SFB DPSC 2026",
+        "RBI Non-bank PSO 2026"
+      ],
       "sections": {
         "what_it_is": "Catches brute-force PIN/OTP guessing, stolen-device probing, or a coerced victim mistyping credentials—while separating real security failures from harmless CBS timeouts or poor mobile network drops so genuine users aren't trapped in dead-end lockouts.",
         "impact": "- **Security exposure:** Unlimited retries allow automated probing or stolen-device guessing until an account compromises.\n- **Customer friction:** Treating switch timeouts or connectivity errors like wrong-PIN attacks locks legitimate users out during urgent payments.",
@@ -1918,6 +2020,7 @@
       ],
       "recordType": "preventive-control",
       "theme": "monitoring-mules-merchants",
+      "themeLabel": "Monitoring, mules & merchants",
       "lifecycle": [
         "onboarding",
         "processing",
@@ -1935,6 +2038,10 @@
       ],
       "reviewStage": "source-checked",
       "lastSourceCheck": "2026-11-23",
+      "sourceLabels": [
+        "RBI PA MD 2025",
+        "RBI DPSC 2026"
+      ],
       "sections": {
         "what_it_is": "Stops shell businesses, banned merchants, and mule networks from acquiring P2M UPI handles through weak identity checks, misstated business descriptions (MCC miscoding), unregistered marketplace sub-merchants (\"transaction laundering\"), or settlement routing into unrelated third-party accounts.",
         "impact": "- **Ecosystem & acquirers:** Fraud proceeds flow through misclassified merchant VPAs while regulators and acquiring banks hold ultimate oversight liability.\n- **Customers:** Payers see confusing intermediary PA names instead of who they actually paid, aiding checkout deception and dispute delays.",
@@ -2035,6 +2142,7 @@
       ],
       "recordType": "recovery-process",
       "theme": "reconciliation-disputes-protection",
+      "themeLabel": "Reconciliation, disputes & protection",
       "lifecycle": [
         "dispute",
         "recovery",
@@ -2056,10 +2164,20 @@
       ],
       "reviewStage": "source-checked",
       "lastSourceCheck": "2026-11-23",
+      "sourceLabels": [
+        "RBI ODR 2020",
+        "RBI DPSC 2026",
+        "RBI PA MD 2025",
+        "RBI RBC 2026",
+        "NPCI Settlement Process",
+        "Razorpay Docs",
+        "NPCI UPI FAQs",
+        "NPCI OC 235 (URCS TAT)"
+      ],
       "sections": {
         "what_it_is": "Ensures UPI complaints reach the right operational track immediately instead of landing in one generic support queue: separating (1) **failed/pending technical debits**, (2) **merchant non-delivery/refund disputes**, and (3) **unauthorized or scam-coerced transfers**.",
         "impact": "- **Customers:** Delayed `T+1`/`T+5` ODR auto-reversals or missed urgent NCRP/1930 fraud reporting windows.\n- **Merchants & PAs:** Routine order returns flagged as fraud disputes risk unjustified settlement holds or VPA blocks.\n- **Banks:** Missed 15-day URCS response windows convert disputes into automatic *Deemed Accepted* chargeback losses.",
-        "where_it_applies": "- **Technical failure:** Account debited without beneficiary/merchant credit → rule-based ODR (`T+1` / `T+5` SLA).\n- **Merchant dispute:** Paid order failed fulfilment/refund → PA/acquirer evidence workflow (invoice, delivery proof).\n- **Fraud / Unauthorized / Scam:** Instant 24x7 bank/PSO intake, \"mark transaction as fraudulent\" flag, NCRP/1930 routing, and URCS Fraud chargeback.",
+        "common_patterns": "- **Technical failure:** Account debited without beneficiary/merchant credit → rule-based ODR (`T+1` / `T+5` SLA).\n- **Merchant dispute:** Paid order failed fulfilment/refund → PA/acquirer evidence workflow (invoice, delivery proof).\n- **Fraud / Unauthorized / Scam:** Instant 24x7 bank/PSO intake, \"mark transaction as fraudulent\" flag, NCRP/1930 routing, and URCS Fraud chargeback.",
         "what_to_do": "| Basis | Owner | Action |\n|---|---|---|\n| Regulatory | Authorised PSOs, PSPs, TPAPs | Run rule-based, minimal-intervention ODR for failed transactions aligned to `T+1`/`T+5` compensation TATs; TPAPs must embed in-app grievance lodging with unique tracking IDs (unresolved claims >1 month escalate to RBI Integrated Ombudsman). |\n| Regulatory | Commercial, PB, SFB banks & PSOs | Provide an explicit in-app grievance section with timelines plus an authenticated \"mark/identify transaction as fraudulent\" option; commercial banks (effective Jan 1, 2027) must run 24x7 fraud reporting, SMS-reply alert objection numbers, direct links, NCRP/1930 guidance, and immediate acknowledgement. |\n| Regulatory | Payment Aggregators, NPCI ecosystem | Maintain a published dispute policy, refund SLA, escalation matrix, and grievance officer with acquirers/merchants. Under NPCI rules, unauthorized/fraud claims go to the customer's bank (`Chargeback -> Re-present -> Pre-Arbitration -> Arbitration`), with **15 calendar days** in URCS for Fraud/Wrong Credit chargeback responses before automatic *Deemed Accepted* closure. |\n| Industry practice | PAs, Merchants | Track disputes cleanly across phases (*Fraud*, *Retrieval*, *Chargeback*, *Pre-Arbitration*, *Arbitration*) and statuses (`Open`, `Under Review`, `Won`, `Lost`, `Closed`) via webhooks and portal workflows to submit delivery/invoice proof or refund promptly *(Razorpay documented pattern)*. |\n| Atlas guidance | TPAPs, Banks, PAs | Build 3-way intake classification right on the transaction screen—routing unsettled debits to ODR/TAT timers, fulfilment issues to PA evidence queues, and scam/ATO reports directly to 24x7 fraud desks + NCRP/1930 guidance. |",
         "watch_outs": "- **Legitimate lookalikes:** Temporary `PENDING` transactions awaiting clearing, user-cancelled retries, and normal merchant return/exchange requests should never be tagged as fraud disputes.\n- **Signals needed:** RRN/UTR, switch/settlement state, unique ODR reference ID, merchant invoice/delivery proof, alert/report timestamps, and NCRP complaint ID linkage.\n- **How to validate:** Audit unique ODR tracking generation, test 1-tap mark-fraud flows end-to-end, monitor unresolved tickets approaching the 30-day Ombudsman mark, and track approaching 15-day URCS deadlines.",
         "references": "1. RBI, [Online Dispute Resolution (ODR) System for Digital Payments](https://www.rbi.org.in/Scripts/NotificationUser.aspx?Id=11946&Mode=0), `RBI/2020-21/21` (Aug 6, 2020) — rule-based ODR, TPAP in-app facility (`Annex §5.2`), unique tracking ref (`§5.4`), Ombudsman 1-month escalation (`§4`), accessed Nov 23, 2026.\n2. RBI, [Commercial Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/scripts/BS_ViewMasDirections.aspx?id=13642), `RBI/DoS/2026-27/411` — app grievance section (`§§59–60`) and mark-fraud button (`§66`), accessed Nov 23, 2026 (parallel `id=13624` PBs, `id=13633` SFBs, `Id=13751 §30` non-bank PSOs).\n3. RBI, [Master Direction on Regulation of Payment Aggregator (PA)](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=12896), `RBI/DPSS/2025-26/141` (updated Nov 11, 2026; `§8`), accessed Nov 23, 2026.\n4. RBI, [Commercial Banks – Responsible Business Conduct Third Amendment Directions, 2026](https://rbi.org.in/Scripts/NotificationUser.aspx?Id=13543&Mode=0), `RBI/2026-27/167` (effective Jan 1, 2027 for commercial banks excluding SFBs/PBs/RRBs/LABs; `§§76G, 76I`), accessed Nov 23, 2026.\n5. NPCI, [UPI Settlement Process](https://www.npci.org.in/uploads/UPI_Settlement_Process_256f73e1df.pdf) (`§4 Dispute Resolution Mechanism`, p. 4 ODR summary; undated 4 pp. public PDF), browser-checked Nov 23, 2026.\n6. Razorpay Docs, [About Disputes](https://razorpay.com/docs/payments/disputes) (Oct 8, 2026) — company-reported dispute phases, statuses, and webhook evidence flow, accessed Nov 23, 2026.\n7. NPCI, [UPI FAQs](https://www.npci.org.in/faqs/upi) & [Complaint Register](https://www.npci.org.in/complaint-register) — confirms unauthorised/fraud complaints go directly to the customer's bank, browser-checked Nov 23, 2026.\n8. NPCI, [`NPCI/UPI/OC No. 235/2026-27`: Revision of TAT for Fraud and Wrong Credit Chargebacks in URCS](https://www.npci.org.in/uploads/UPI_OC_No_235_FY_2026_27_Revision_of_Turnaround_Time_TAT_for_Responding_to_Fraud_and_Wrong_Credit_Chargebacks_in_URCS_Back_Office_System_aa420e4bcc.pdf) (Jul 16, 2026; effective Aug 1, 2026) — 35 → 15 calendar days URCS TAT, browser-checked Nov 23, 2026.\n\n**Review status:** RBI, browser-verified NPCI Settlement/FAQs/Complaint Register/`OC 235`, and Razorpay sources checked 2026-11-23; independent reviewer: `PENDING`."
@@ -2207,6 +2325,7 @@
       ],
       "recordType": "operational-failure",
       "theme": "reconciliation-disputes-protection",
+      "themeLabel": "Reconciliation, disputes & protection",
       "lifecycle": [
         "settlement",
         "reconciliation",
@@ -2224,6 +2343,16 @@
       ],
       "reviewStage": "source-checked",
       "lastSourceCheck": "2026-11-23",
+      "sourceLabels": [
+        "RBI DPSC 2026",
+        "RBI PB DPSC 2026",
+        "RBI SFB DPSC 2026",
+        "RBI TAT 2019",
+        "RBI PA MD 2025",
+        "NPCI Settlement Process",
+        "NPCI 222A (Settlement Cycles)",
+        "NPCI OC 235 (URCS TAT)"
+      ],
       "sections": {
         "what_it_is": "Even when merchant checkouts handle webhooks properly ([Payment status and order reconciliation](/india-fintech-risk-atlas/upi/payment-status-reconciliation/)), clearing breaks occur at the **interbank switch and settlement layer**: a customer's account gets debited while the beneficiary bank fails to credit (`UDIR`/timeout), settlement files carry unmatched RRNs/UTRs, or reversals miss statutory deadlines.",
         "impact": "- **Customer:** Held debit funds awaiting manual intervention or delayed `₹100/day` failed-transaction compensation.\n- **Beneficiary & remitter banks:** Unreconciled breaks create deemed-accepted chargeback losses once NPCI's shortened 15-day URCS TAT expires.\n- **Wrongful freezes:** Treating routine settlement timing lags as suspected fraud unnecessarily locks accounts.",
@@ -2370,6 +2499,7 @@
       ],
       "recordType": "recovery-process",
       "theme": "reconciliation-disputes-protection",
+      "themeLabel": "Reconciliation, disputes & protection",
       "lifecycle": [
         "servicing",
         "dispute",
@@ -2387,10 +2517,15 @@
       ],
       "reviewStage": "source-checked",
       "lastSourceCheck": "2026-11-23",
+      "sourceLabels": [
+        "RBI RBC 2026",
+        "RBI PB RBC 2025",
+        "RBI Liability 2017"
+      ],
       "sections": {
         "what_it_is": "Defines who bears the loss, what deadlines apply, and what proof banks must keep when a customer suffers an **unauthorized transaction** or an **approved-under-deception fraud**—separating these recovery rules from technical failed-payment reversals (`T+1`/`T+5`).",
         "impact": "- **Customers:** Blurring bank deficiency or third-party breaches into customer negligence wrongly shifts losses onto victims, or delays shadow/value-dated reversals.\n- **Banks:** Rejecting claims without documented evidence or failing to halt transfers immediately after a fraud report shifts full post-reporting liability onto the bank (with the **burden of proof resting on the bank**).",
-        "where_it_applies": "- **Commercial Banks (effective Jan 1, 2027):** Covers transactions on or after Jan 1, 2027 (`RBI/2026-27/167`, *excluding* SFBs, PBs, RRBs, and LABs), covering both unauthorized EBTs and coercion/deception-induced *Fraudulent EBTs*.\n- **Payments Banks & baseline circular (`RBI/2017-18/15`):** Retains the existing 3-working-day zero-liability, 4–7 working-day cap, 10-working-day shadow-reversal, and 90-day resolution timeline where bank-class replacement has not taken effect.",
+        "common_patterns": "- **Commercial Banks (effective Jan 1, 2027):** Covers transactions on or after Jan 1, 2027 (`RBI/2026-27/167`, *excluding* SFBs, PBs, RRBs, and LABs), covering both unauthorized EBTs and coercion/deception-induced *Fraudulent EBTs*.\n- **Payments Banks & baseline circular (`RBI/2017-18/15`):** Retains the existing 3-working-day zero-liability, 4–7 working-day cap, 10-working-day shadow-reversal, and 90-day resolution timeline where bank-class replacement has not taken effect.",
         "what_to_do": "| Basis | Owner | Action |\n|---|---|---|\n| Regulatory | Commercial banks (EBTs >= Jan 1, 2027) | Send free SMS/email alerts (EBTs > ₹500) with an SMS-reply objection number, provide 24x7 reporting links, advise NCRP/1930 filing, log all timestamps, acknowledge immediately, and halt further debits upon report. |\n| Regulatory | Commercial banks (EBTs >= Jan 1, 2027) | Bear the **burden of proving customer liability**; guarantee zero liability for bank negligence and for third-party breaches reported within **5 calendar days**; bear all post-report losses; issue value-dated reversals and give written reasons for any claim rejection. |\n| Regulatory | Commercial banks (EBTs >= Jan 1, 2027) | Administer the one-year small-value fraud compensation scheme for individuals/sole proprietors (gross loss <= ₹50,000 reported to **both NCRP/1930 and bank within 5 calendar days** under negligence cases): pay **85% of net loss up to ₹25,000** within 5 calendar days of completed claim (shared RBI 65%, issuer bank 10%, beneficiary bank 10% below ₹29,412; ₹19,118 / ₹2,941 / ₹2,941 up to ₹50,000). |\n| Regulatory | Payments Banks & pre-2027 baseline SCBs/SFBs/RRBs | Apply **3 working days** zero liability, **4–7 working days** capped liability, **10 working days** shadow reversal, and **90 days** final resolution under the existing baseline directions. |\n| Atlas guidance | Banks, Fraud ops | Build evidence-preserving intake pipelines recording alert delivery timestamps, SMS-reply blocks, directed scam-warning impressions, auth/device logs, and NCRP reference numbers from intake. |",
         "watch_outs": "- **False or repeat claims vs unfair rejections:** Screen against statutory repeat/false-claim declarations while ensuring legitimate third-party breaches or missing-warning cases are not defaulted to \"customer negligence\" without documented proof.\n- **Signals needed:** SMS/email/push delivery receipts, customer reporting timestamps, NCRP/1930 ticket IDs, authentication/device logs, directed warning impression logs, and written rejection records.\n- **How to validate:** Test 24x7 SMS-reply freeze speed, verify immutable timestamp logging, and audit sample rejected liability claims against bank burden-of-proof criteria.",
         "references": "1. RBI, [Commercial Banks – Responsible Business Conduct Third Amendment Directions, 2026](https://rbi.org.in/Scripts/NotificationUser.aspx?Id=13543&Mode=0), `RBI/2026-27/167` (Jun 24, 2026; EBTs >= Jan 1, 2027; excludes SFBs, PBs, RRBs, LABs) — definitions (`§4(15A),(20C),(25A),(26B)`), alerts & 24x7/NCRP intake (`§§76C–76J, 85`), burden of proof & liability (`§§76K–76S`), small-value scheme (`§§76T–76U`), accessed Nov 23, 2026.\n2. RBI, [Payments Banks – Responsible Business Conduct Directions, 2025](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13089) (updated Oct 1, 2026; `§§21–33`) — Payments Banks 3 working-day / 4–7 working-day / 10 working-day / 90-day baseline, accessed Nov 23, 2026.\n3. RBI, [Customer Protection – Limiting Liability of Customers in Unauthorised Electronic Banking Transactions](https://www.rbi.org.in/Scripts/BS_ViewMasCirculardetails.aspx?id=11040), `RBI/2017-18/15` (Jul 6, 2017; `§§6–12`) — pre-replacement baseline for SCBs, RRBs, SFBs, and PBs, accessed Nov 23, 2026.\n\n**Review status:** RBI primary sources checked 2026-11-23; independent reviewer: `PENDING`."
@@ -2498,6 +2633,7 @@
       ],
       "recordType": "policy-consultation",
       "theme": "policy",
+      "themeLabel": "Policy & consultation",
       "lifecycle": [
         "initiation",
         "authorization",
@@ -2516,6 +2652,9 @@
       ],
       "reviewStage": "source-checked",
       "lastSourceCheck": "2026-11-23",
+      "sourceLabels": [
+        "RBI Fraud Discussion Paper"
+      ],
       "sections": {
         "what_it_is": "On April 9, 2026, RBI issued *Discussion Paper – Exploring safeguards in digital payments to curb frauds* (comments closed May 8, 2026). **This is a non-binding consultation paper—none of its suggested thresholds or options is enacted law unless RBI subsequently issues formal directions.**",
         "why_it_matters": "- **Shifting fraud mix:** RBI notes that technical account takeovers have declined relative to **Authorised Push Payment (APP)** scams driven by social engineering, bogus call centres, impersonation, and mule networks targeting NCRP.\n- **Current ecosystem tools cited:** Notes Digital Payment Security Controls, DoT's **Mobile Number Revocation List (MNRL)** on DIP, I4C's NCRP SOP, and RBIH's `MuleHunter.AI` (2024).",
@@ -2578,11 +2717,13 @@
       ],
       "recordType": "topic",
       "theme": "",
+      "themeLabel": "",
       "lifecycle": [],
       "actors": [],
       "evidenceLayers": [],
       "reviewStage": "draft",
       "lastSourceCheck": "2026-11-23",
+      "sourceLabels": [],
       "sections": {
         "ecosystem_participants": "- **NPCI (National Payments Corporation of India):** Scheme operator and switch for UPI; classified as a large non-bank Payment System Operator (PSO) under RBI's non-bank PSO cyber-resilience directions (`RBI/DPSS/2026-27/475`, footnote 1).\n- **Remitter (Issuer) Bank:** The bank holding the payer's account from which funds are debited. Bears primary responsibility for authentication (`RBI/2025-26/79 §9`), customer transaction alerts, and customer fraud complaints.\n- **Beneficiary Bank:** The bank holding the recipient's account to which funds are credited. Critical in detecting mule-account inflows (`MuleHunter.AI`) and executing `T+1` auto-reversals when unable to credit P2P transfers (`RBI/2019-20/67`).\n- **Acquiring Bank:** The bank acquiring a merchant to accept digital payments, responsible for merchant policy oversight even when a merchant is onboarded via a non-bank PA (`RBI/DPSS/2025-26/141 §14`).\n- **PSP (Payment Service Provider) Bank:** A bank integrated with NPCI that connects customers or TPAPs to the UPI switch and manages VPA mapping/routing.\n- **TPAP (Third-Party Application Provider):** A non-bank app interface (e.g., consumer UPI apps) operating on UPI through one or more sponsor PSP banks. Covered by RBI ODR in-app grievance rules (`RBI/2020-21/21 Annex §5.2`) and NPCI's mobile security framework (see provisional mirror `NPCI/2025-26/IS/003`).\n- **Payment Aggregator (PA) vs. Payment Gateway (PG):** Under `RBI/DPSS/2025-26/141 §4(i)–(j)`, a **PA** aggregates customer funds (escrow-regulated) for merchants (`PA-Online`, `PA-Physical`, `PA-Cross Border`) and performs merchant KYC/CDD and ongoing profile monitoring (`§13`); a **PG** routes payment technology without handling funds and is outside direct PA authorisation though encouraged to follow baseline security standards (`§10(g)`).",
         "payment_initiation_addressing": "- **VPA (Virtual Payment Address):** A human-readable identifier (e.g., `name@bank`) mapped by a PSP to an underlying bank account.\n- **MCC (Merchant Category Code):** A classification code assigned to onboarded merchants (`RBI/DPSS/2025-26/141 §13(e)`). High-risk MCC shifts and anomalous activity vs. declared MCC are monitoring parameters in RBI digital payment security controls (`RBI/DoS/2026-27/411 §53`).\n- **UPI Intent vs. Signed Intent:** App-to-app deep-link handoff on a user's mobile device launching a UPI app with pre-filled payment parameters. **Signed Intent** cryptographically signs the payload to prevent client-side tampering of payee or amount (see Razorpay engineering docs).\n- **UPI Collect (P2P vs. P2M):** A pull-style request sent to a payer's VPA requiring PIN approval. Per browser-verified NPCI circular `NPCI/UPI/OC/220/2025-26`, **P2P** collect was discontinued beyond Oct 1, 2025; **P2M** merchant collect remains distinct (with mobile checkout manual-VPA restrictions noted by operators in Feb 2026).",
@@ -2607,11 +2748,18 @@
       ],
       "recordType": "topic",
       "theme": "",
+      "themeLabel": "",
       "lifecycle": [],
       "actors": [],
       "evidenceLayers": [],
       "reviewStage": "draft",
       "lastSourceCheck": "2026-11-23",
+      "sourceLabels": [
+        "Razorpay Docs",
+        "Cashfree Docs",
+        "Stripe Radar Docs",
+        "arXiv Research Lead"
+      ],
       "sections": {
         "1_payment_event_duplication_signatures_and_ordering": "**Industry — Razorpay technical documentation (`company-reported`).** Razorpay explains that webhooks follow at-least-once delivery, can arrive more than once or out of order, and use a 5-second acknowledgement timeout with 24-hour exponential-backoff retries before webhook disablement. It prescribes HMAC-SHA256 verification against raw request bytes via `X-Razorpay-Signature`, atomic deduplication on `x-razorpay-event-id`, separating browser `callback_url` redirects from server-to-server webhooks, and using idempotency headers on outbound refunds/payouts. [1]\n\n**Industry — Cashfree technical documentation (`company-reported`).** Cashfree documents verifying `x-webhook-signature` (HMAC-SHA256 over `x-webhook-timestamp` plus raw payload) before executing downstream actions, checking `x-idempotency-header` (supported on webhook versions from `2025-01-01`), and handling default delivery retries (three attempts at 2, 10, and 30 minutes). [4]\n\n**Atlas interpretation — operational gap.** If a merchant treats each webhook HTTP call as a fresh payment event, network timeouts or retries trigger duplicate fulfilment or premature refund reversals. Separate **event intake deduplication** (unique event ID / idempotency header after signature verification) from **business-state transitions** (allowing `created → authorized → captured/paid` once per order and reconciling with settlement/status APIs).\n\n**Data needed:** raw payload bytes, signature and timestamp headers, provider event ID, merchant order ID, gateway payment/RRN/UTR reference, durable processing log.\n\n**Validation:** replay duplicate and out-of-order payloads in staging; reject 1-byte tampered payloads; verify single fulfilment. **False positives:** redelivery after a slow `2xx` response does not imply a second customer debit or fraud.",
         "2_checkout_initiation_flows_upi_intent_vs_p2m_collect": "**Industry — Razorpay payment flow engineering (`company-reported`).** Razorpay differentiates mobile app-to-app deep-linking (**UPI Intent**) from manual VPA entry (**UPI Collect**), reporting fewer VPA typos and notification timeouts on mobile Intent alongside **Signed Intent** payloads to prevent deep-link tampering of amount or payee details. Razorpay also notes February 2026 NPCI guidelines restricting manual VPA input fields on mobile-native flows while retaining Dynamic QR / Collect on desktop web. [2]\n\n**Atlas interpretation — security & reliability gap.** Unverified deep links or manual VPA entry introduce two different risks: parameter tampering in mobile redirects (mitigated by Signed Intent / backend order matching) vs. notification spoofing and high abandonment in Collect flows. Reconcile exact paid amount and payee server-side against order state rather than trusting client redirect parameters.",
@@ -2687,11 +2835,13 @@
       ],
       "recordType": "topic",
       "theme": "",
+      "themeLabel": "",
       "lifecycle": [],
       "actors": [],
       "evidenceLayers": [],
       "reviewStage": "draft",
       "lastSourceCheck": "2026-11-23",
+      "sourceLabels": [],
       "sections": {
         "1_control_ownership_across_the_upi_lifecycle": "Fraud, AML, and operational failures cut across separate institutional boundaries; no single entity sees every signal:\n\n| Lifecycle stage | Primary actors | Principal failure modes | Core controls & Atlas pages |\n|---|---|---|---|\n| Onboarding & app integrity | Banks, PSPs, TPAPs, PAs, acquiring banks | Rogue/repackaged apps, compromised devices, shell merchants, mule onboarding | Signed install checks, device/SIM binding ([Account takeover](/india-fintech-risk-atlas/upi/account-takeover/)), remote-access & screen-mirroring blocks ([Untrusted apps](/india-fintech-risk-atlas/upi/untrusted-app-access/)), PA CDD/CPV/MCC vetting ([Merchant onboarding](/india-fintech-risk-atlas/upi/merchant-onboarding/)) |\n| Initiation & intent | App, customer, merchant checkout | Misdirected pull/QR scams, deep-link tampering, social-engineering urgency | P2P collect elimination / P2M clarity ([Collect-request deception](/india-fintech-risk-atlas/upi/collect-request-deception/)), payee verification & Signed Intent ([QR & cashback deception](/india-fintech-risk-atlas/upi/qr-cashback-deception/)) |\n| Authentication & authorization | Issuer/remitter bank, PSP, switch | Credential compromise, MITM, brute-force auth probing, session hijacking | Two-factor + dynamic authentication ([Authentication context](/india-fintech-risk-atlas/upi/authentication-context/)), failed-auth lockout & alerts ([Failed authentication](/india-fintech-risk-atlas/upi/failed-authentication/)) |\n| Real-time & behavioral monitoring | Remitter bank, beneficiary bank, non-bank PSO | Account draining bursts, multi-hop mule funnels, post-credential-change abuse | Outbound velocity bursts ([Unusual outbound velocity](/india-fintech-risk-atlas/upi/unusual-outbound-velocity/)), parameterized EFRM ([Transaction velocity](/india-fintech-risk-atlas/upi/transaction-velocity/)), graph/relational mule scoring ([Mule-account funnel](/india-fintech-risk-atlas/upi/mule-account-funnel/)) |\n| Processing & fulfilment | Merchant, PA/PG, acquiring & remitter banks | Duplicate webhooks, client-callback spoofing, `PENDING` vs. settled mismatch | Signature verification, raw-body HMAC, event deduplication, order state machine ([Payment status & reconciliation](/india-fintech-risk-atlas/upi/payment-status-reconciliation/)) |\n| Settlement & clearing | Remitter bank, beneficiary bank, NPCI switch | Unmatched settlement files, delayed failed-transaction reversals | <= 24h settlement reconciliation, `T+1`/`T+5` auto-reversal TAT tracking ([Settlement exceptions](/india-fintech-risk-atlas/upi/settlement-exceptions/)) |\n| Investigation, disputes & recovery | Banks, PSPs, TPAPs, PAs, I4C/NCRP | Fragmented case context, unresolved complaints, wrongful freezes, repeat fraud | ODR tracking ([Dispute routing](/india-fintech-risk-atlas/upi/dispute-routing/)), 24x7 reporting + NCRP/1930 linkage & value-dated reversals ([Customer protection](/india-fintech-risk-atlas/upi/customer-liability/)) |",
         "2_how_engineering_teams_operationalize_an_atlas_record": "Rather than treating records as compliance prose or fixed rule thresholds, use each page as an implementation checklist across five steps:\n\n1. **Scope obligations by actor (Regulatory):** Check the page's `Actors` strip (`Remitter bank`, `PSP bank`, `TPAP`, `Payment aggregator`) and pull every non-optional RBI or NPCI mandate that applies to your license category—such as P2P collect discontinuation, daily (`<= 24h`) settlement matching, `T+1`/`T+5` auto-reversal TATs, or 24x7 unauthorized-debit reporting.\n2. **Audit telemetry & event schemas first (Industry practice & Atlas guidance):** Confirm the required inputs exist and agree across systems before building detections (unique `RRN`/`UTR` and gateway event IDs, device-binding age, remote-access/screen-share flags, counterparty novelty, raw-body webhook HMAC verification state, and post-credential-change timestamps).\n3. **Ship deterministic guardrails and state invariants:** Implement unambiguous deterministic checks before statistical scoring—webhook signature verification + idempotent state transitions ([Payment status & reconciliation](/india-fintech-risk-atlas/upi/payment-status-reconciliation/)), signed QR/intent checks ([QR & cashback deception](/india-fintech-risk-atlas/upi/qr-cashback-deception/)), device/SIM binding ([Account takeover](/india-fintech-risk-atlas/upi/account-takeover/)), and failed-auth lockouts ([Failed authentication](/india-fintech-risk-atlas/upi/failed-authentication/)).\n4. **Calibrate candidate detections in shadow (observe-only) mode:** Measure alert volume, `precision@k` at your actual analyst queue capacity, and false-positive customer overturn rates against your own historical traffic instead of copying external cutoffs.\n5. **Wire tiered actions, analyst context & feedback loops:** Route technical failures (debited/uncredited) to ODR instead of fraud queues, pass structured event context to analysts, prefer proportionate step-ups or contested-amount holds over blanket freezes, and feed delayed chargebacks/NCRP outcomes back into validation.",
@@ -2717,11 +2867,15 @@
       ],
       "recordType": "topic",
       "theme": "",
+      "themeLabel": "",
       "lifecycle": [],
       "actors": [],
       "evidenceLayers": [],
       "reviewStage": "draft",
       "lastSourceCheck": "2026-11-23",
+      "sourceLabels": [
+        "arXiv Research Lead"
+      ],
       "sections": {
         "directly_inspected_rbi_and_government_primary_sources_checked_2026_11_23_": "| Document | Reference & date | Entity scope & effective status | Key provisions referenced |\n|---|---|---|---|\n| [Commercial Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/scripts/BS_ViewMasDirections.aspx?id=13642) | `RBI/DoS/2026-27/411` (Jul 31, 2026; updated Oct 1, 2026) | Commercial banks excluding SFBs, PBs, LABs (`Ch. I §3`); in force | Authentication & failed attempts (`§§42–51`); EFRM monitoring parameters, fraud analysis, staff training (`§§52–56`); 24h reconciliation (`§57`); awareness, ODR, flag-as-fraud (`§§58–66`); mobile app controls & device binding (`§68`) |\n| [Payments Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13624) | `RBI/DoS/2026-27/429` (Jul 31, 2026; updated Oct 1, 2026) | Payments Banks (`Ch. I §3`); in force | Parallel authentication, EFRM (`§§52–57`), customer protection (`§§58–66`), mobile controls (`§68`) |\n| [Small Finance Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13633) | Updated Oct 1, 2026 | Small Finance Banks (`Ch. I §3`); in force | Parallel Chapter III (`§§52–57`) and Chapter V (`§68`) controls |\n| [Non-bank PSOs Cyber Resilience and Digital Payment Security Controls Master Directions, 2026](https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=13751&Mode=0) | `RBI/DPSS/2026-27/475` (Nov 5, 2026) | Large/Medium non-bank PSOs: immediate; Small PSOs: Apr 1, 2028 (`§3`); ecosystem links by agreement (`§5`) | 6h incident report (`§22(d)`); real-time fraud monitoring & 24x7x365 LEA/customer desk (`§27(c)–(d)`); velocity/failed-txn alerts (`§28`); mark-fraud (`§30`); SIM/device binding, remote-access block, 12h cooling period (`§31(c),(f),(g)`) |\n| [Authentication Mechanisms for Digital Payment Transactions Directions, 2025](https://rbi.org.in/Scripts/NotificationUser.aspx?Id=12898&Mode=0) | `RBI/2025-26/79` (Sep 25, 2025) | All domestic Payment System Providers & Participants; compliance by Apr 1, 2026 (`§3`) | Min 2 factors & dynamic factor (`§6`), risk-based checks (`§8`), issuer responsibility (`§9`), Annexure-1 exemptions |\n| [Commercial Banks – Responsible Business Conduct Third Amendment Directions, 2026](https://rbi.org.in/Scripts/NotificationUser.aspx?Id=13543&Mode=0) | `RBI/2026-27/167` (Jun 24, 2026) | Commercial banks excluding SFBs, PBs, RRBs, LABs; applies to EBTs **on or after Jan 1, 2027** (`§3(2)`) | Replaces `§§64–76` with `§§76A–76V`: defines Fraudulent EBT including coercion/duress (`4(15A)`), > ₹500 SMS alert (`§76D`), 24x7/SMS-reply + NCRP/1930 (`§76G`), bank burden of proof (`§76K`), 5-calendar-day zero liability (`§76M`), small-value compensation up to ₹50,000 (`§§76T–76U`) |\n| [Payments Banks – Responsible Business Conduct Directions, 2025](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13089) | Updated Oct 1, 2026 | Payments Banks | Retains 3-working-day zero liability, 4–7 working-day limited liability, 10-working-day shadow reversal (`§§21–33`) |\n| [Customer Protection – Limiting Liability in Unauthorised Electronic Banking Transactions](https://www.rbi.org.in/Scripts/BS_ViewMasCirculardetails.aspx?id=11040) | `RBI/2017-18/15` (Jul 6, 2017) | Pre-2026/2027 baseline for SCBs, SFBs, PBs | 3-working-day / 4–7 working-day liability tiers, 10-working-day shadow reversal (`§9`), burden of proof (`§12`) |\n| [Commercial Banks – Fraud Risk Management Directions, 2026](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13641) | Jul 2026 (parallel `id=13623` PBs, `id=13632` SFBs) | Commercial Banks (`Ch. I §3`) | Natural-justice 21-day SCN before fraud classification (`§6`), EWS/RFA (`§12`), Data Analytics/MI monitoring (`§25`), FMR digital payment fraud category (`§46(10)`) |\n| [Regulation of Payment Aggregator (PA) Master Direction, 2025](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=12896) | `RBI/DPSS/2025-26/141` (Sep 15, 2025; updated Nov 11, 2026) | PAs (Online, Physical, Cross-Border) and acquiring SCBs/AD banks (`§3`) | Dispute management (`§8`), security/fraud controls (`§9`), merchant CDD/CKYCR/PAN/CPV/background check/MCC/bank validation/ongoing monitoring/FIU-IND (`§13`), acquiring bank oversight (`§14`), escrow (`§§16–18`) |\n| [Harmonisation of TAT and Customer Compensation for Failed Transactions](https://www.rbi.org.in/Scripts/NotificationUser.aspx?Id=11693&Mode=0) | `RBI/2019-20/67` (Sep 20, 2019) | All domestic authorised payment systems | UPI failed P2P auto-reversal `T+1` (`₹100/day` delay penalty); UPI merchant confirmation not received `T+5` (`₹100/day` delay penalty) |\n| [Online Dispute Resolution (ODR) System for Digital Payments](https://www.rbi.org.in/Scripts/NotificationUser.aspx?Id=11946&Mode=0) | `RBI/2020-21/21` (Aug 6, 2020) | Authorised PSOs, PSPs, and TPAPs for mobile systems (`Annex §5.2`) | Rule-based system-driven ODR for failed transactions, unique reference tracking (`§5.4`), Ombudsman escalation after 1 month |\n| [Discussion Paper: Exploring Safeguards in Digital Payments to Curb Frauds](https://www.rbi.org.in/scriptS/PublicationsView.aspx?id=23810) | Apr 9, 2026 | **Non-binding consultation paper** | Documents APP scam dominance; cites DoT MNRL/DIP, I4C NCRP, RBIH `MuleHunter.AI`; floats 1h lag (> ₹10,000), trusted-person approval (> ₹50,000), KYC-commensurate credits, kill switch |\n| [PIB Release: I4C and RBIH MoU on MuleHunter.AI](https://www.pib.gov.in/PressReleasePage.aspx?PRID=2260277&reg=3&lang=2) | GoI / PIB | Official operational collaboration announcement | Documents I4C NCRP Suspect Registry integration with RBIH `MuleHunter.AI` |",
         "browser_verified_npci_pages_and_circulars_checked_2026_11_23_": "Automated HTTP fetchers receive **HTTP 403 Forbidden** from `www.npci.org.in` WAF protections; therefore canonical NPCI URLs were directly opened and verified via browser on 2026-11-23 (and legacy `/what-we-do/upi/product-overview` and `/what-we-do/upi/faqs` `404` routes were replaced with live canonical paths):\n\n- **Scheme architecture, governance & grievance pages:** [UPI Overview](https://www.npci.org.in/product/upi), [About UPI](https://www.npci.org.in/product/upi/about-upi), [Roles and Responsibilities](https://www.npci.org.in/product/upi/roles-responsibilities) (NPCI, PSP Bank, UPI App), [UPI FAQs](https://www.npci.org.in/faqs/upi), [Complaint Register](https://www.npci.org.in/complaint-register), and [Fraud Awareness](https://www.npci.org.in/fraud-awareness).\n- **Directly verified NPCI circulars & settlement guide:** [UPI Circulars index](https://www.npci.org.in/circulars/upi), [NPCI/UPI/OC/220/2025-26](https://www.npci.org.in/uploads/UPI_OC_No_220_FY_2025_26_Discontinuing_the_service_of_UPI_Collect_Request_for_Person_to_Person_P2_P_transactions_3fb30c60d7.pdf) (P2P Collect discontinued beyond Oct 1, 2025), [NPCI/2025-26/UPI/222A](https://www.npci.org.in/uploads/UPI_OC_No_222_A_FY_2025_26_Addendum_segregation_of_UPI_settlement_cycles_for_Auth_and_disputes_transactions_42766ab9aa.pdf) (`AUTH` 1–10 vs. `DC1`/`DC2` dispute cycles + `DR`, eff. Dec 15, 2025), [NPCI/UPI/OC No. 235/2026-27](https://www.npci.org.in/uploads/UPI_OC_No_235_FY_2026_27_Revision_of_Turnaround_Time_TAT_for_Responding_to_Fraud_and_Wrong_Credit_Chargebacks_in_URCS_Back_Office_System_aa420e4bcc.pdf) (URCS Fraud/Wrong Credit TAT reduced from 35 to 15 calendar days, eff. Aug 1, 2026), and [UPI Settlement Process](https://www.npci.org.in/uploads/UPI_Settlement_Process_256f73e1df.pdf) (§4 Dispute Resolution Mechanism, undated 4 pp. public PDF).\n- **Member circular confirmation:** `NPCI/2025-26/IS/003` (*Comprehensive Mobile Application Security Framework for UPI - 2025*, May 19, 2025) is an official Information Security (IS) series circular distributed directly to member institution CISOs/security teams under the UPI IS Compliance Framework. It is corroborated across CERT-In empaneled auditor advisories (Certcube Labs, Baker Tilly), mobile security vendor documentation (Zimperium, DoveRunner), and member bank circular repositories (RSCB). Cited under `UPI-008` (source-checked).",
@@ -2751,5 +2905,1115 @@
       "evidenceLedger": [],
       "fullMarkdown": "---\ntitle: UPI source register\ndescription: Verified RBI regulatory texts, NPCI circular status, and research references for UPI risk controls.\n---\n\nThese sources anchor **Regulatory** citations across the UPI section alongside **Research & academic** empirical papers. A citation supports only the specific scope, entity class, effective date, and provision verified in the document—never blanket requirements across unrelated participants.\n\n## Directly inspected RBI and government primary sources (checked 2026-11-23)\n\n| Document | Reference & date | Entity scope & effective status | Key provisions referenced |\n|---|---|---|---|\n| [Commercial Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/scripts/BS_ViewMasDirections.aspx?id=13642) | `RBI/DoS/2026-27/411` (Jul 31, 2026; updated Oct 1, 2026) | Commercial banks excluding SFBs, PBs, LABs (`Ch. I §3`); in force | Authentication & failed attempts (`§§42–51`); EFRM monitoring parameters, fraud analysis, staff training (`§§52–56`); 24h reconciliation (`§57`); awareness, ODR, flag-as-fraud (`§§58–66`); mobile app controls & device binding (`§68`) |\n| [Payments Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13624) | `RBI/DoS/2026-27/429` (Jul 31, 2026; updated Oct 1, 2026) | Payments Banks (`Ch. I §3`); in force | Parallel authentication, EFRM (`§§52–57`), customer protection (`§§58–66`), mobile controls (`§68`) |\n| [Small Finance Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13633) | Updated Oct 1, 2026 | Small Finance Banks (`Ch. I §3`); in force | Parallel Chapter III (`§§52–57`) and Chapter V (`§68`) controls |\n| [Non-bank PSOs Cyber Resilience and Digital Payment Security Controls Master Directions, 2026](https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=13751&Mode=0) | `RBI/DPSS/2026-27/475` (Nov 5, 2026) | Large/Medium non-bank PSOs: immediate; Small PSOs: Apr 1, 2028 (`§3`); ecosystem links by agreement (`§5`) | 6h incident report (`§22(d)`); real-time fraud monitoring & 24x7x365 LEA/customer desk (`§27(c)–(d)`); velocity/failed-txn alerts (`§28`); mark-fraud (`§30`); SIM/device binding, remote-access block, 12h cooling period (`§31(c),(f),(g)`) |\n| [Authentication Mechanisms for Digital Payment Transactions Directions, 2025](https://rbi.org.in/Scripts/NotificationUser.aspx?Id=12898&Mode=0) | `RBI/2025-26/79` (Sep 25, 2025) | All domestic Payment System Providers & Participants; compliance by Apr 1, 2026 (`§3`) | Min 2 factors & dynamic factor (`§6`), risk-based checks (`§8`), issuer responsibility (`§9`), Annexure-1 exemptions |\n| [Commercial Banks – Responsible Business Conduct Third Amendment Directions, 2026](https://rbi.org.in/Scripts/NotificationUser.aspx?Id=13543&Mode=0) | `RBI/2026-27/167` (Jun 24, 2026) | Commercial banks excluding SFBs, PBs, RRBs, LABs; applies to EBTs **on or after Jan 1, 2027** (`§3(2)`) | Replaces `§§64–76` with `§§76A–76V`: defines Fraudulent EBT including coercion/duress (`4(15A)`), > ₹500 SMS alert (`§76D`), 24x7/SMS-reply + NCRP/1930 (`§76G`), bank burden of proof (`§76K`), 5-calendar-day zero liability (`§76M`), small-value compensation up to ₹50,000 (`§§76T–76U`) |\n| [Payments Banks – Responsible Business Conduct Directions, 2025](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13089) | Updated Oct 1, 2026 | Payments Banks | Retains 3-working-day zero liability, 4–7 working-day limited liability, 10-working-day shadow reversal (`§§21–33`) |\n| [Customer Protection – Limiting Liability in Unauthorised Electronic Banking Transactions](https://www.rbi.org.in/Scripts/BS_ViewMasCirculardetails.aspx?id=11040) | `RBI/2017-18/15` (Jul 6, 2017) | Pre-2026/2027 baseline for SCBs, SFBs, PBs | 3-working-day / 4–7 working-day liability tiers, 10-working-day shadow reversal (`§9`), burden of proof (`§12`) |\n| [Commercial Banks – Fraud Risk Management Directions, 2026](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13641) | Jul 2026 (parallel `id=13623` PBs, `id=13632` SFBs) | Commercial Banks (`Ch. I §3`) | Natural-justice 21-day SCN before fraud classification (`§6`), EWS/RFA (`§12`), Data Analytics/MI monitoring (`§25`), FMR digital payment fraud category (`§46(10)`) |\n| [Regulation of Payment Aggregator (PA) Master Direction, 2025](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=12896) | `RBI/DPSS/2025-26/141` (Sep 15, 2025; updated Nov 11, 2026) | PAs (Online, Physical, Cross-Border) and acquiring SCBs/AD banks (`§3`) | Dispute management (`§8`), security/fraud controls (`§9`), merchant CDD/CKYCR/PAN/CPV/background check/MCC/bank validation/ongoing monitoring/FIU-IND (`§13`), acquiring bank oversight (`§14`), escrow (`§§16–18`) |\n| [Harmonisation of TAT and Customer Compensation for Failed Transactions](https://www.rbi.org.in/Scripts/NotificationUser.aspx?Id=11693&Mode=0) | `RBI/2019-20/67` (Sep 20, 2019) | All domestic authorised payment systems | UPI failed P2P auto-reversal `T+1` (`₹100/day` delay penalty); UPI merchant confirmation not received `T+5` (`₹100/day` delay penalty) |\n| [Online Dispute Resolution (ODR) System for Digital Payments](https://www.rbi.org.in/Scripts/NotificationUser.aspx?Id=11946&Mode=0) | `RBI/2020-21/21` (Aug 6, 2020) | Authorised PSOs, PSPs, and TPAPs for mobile systems (`Annex §5.2`) | Rule-based system-driven ODR for failed transactions, unique reference tracking (`§5.4`), Ombudsman escalation after 1 month |\n| [Discussion Paper: Exploring Safeguards in Digital Payments to Curb Frauds](https://www.rbi.org.in/scriptS/PublicationsView.aspx?id=23810) | Apr 9, 2026 | **Non-binding consultation paper** | Documents APP scam dominance; cites DoT MNRL/DIP, I4C NCRP, RBIH `MuleHunter.AI`; floats 1h lag (> ₹10,000), trusted-person approval (> ₹50,000), KYC-commensurate credits, kill switch |\n| [PIB Release: I4C and RBIH MoU on MuleHunter.AI](https://www.pib.gov.in/PressReleasePage.aspx?PRID=2260277&reg=3&lang=2) | GoI / PIB | Official operational collaboration announcement | Documents I4C NCRP Suspect Registry integration with RBIH `MuleHunter.AI` |\n\n## Browser-verified NPCI pages and circulars (checked 2026-11-23)\n\nAutomated HTTP fetchers receive **HTTP 403 Forbidden** from `www.npci.org.in` WAF protections; therefore canonical NPCI URLs were directly opened and verified via browser on 2026-11-23 (and legacy `/what-we-do/upi/product-overview` and `/what-we-do/upi/faqs` `404` routes were replaced with live canonical paths):\n\n- **Scheme architecture, governance & grievance pages:** [UPI Overview](https://www.npci.org.in/product/upi), [About UPI](https://www.npci.org.in/product/upi/about-upi), [Roles and Responsibilities](https://www.npci.org.in/product/upi/roles-responsibilities) (NPCI, PSP Bank, UPI App), [UPI FAQs](https://www.npci.org.in/faqs/upi), [Complaint Register](https://www.npci.org.in/complaint-register), and [Fraud Awareness](https://www.npci.org.in/fraud-awareness).\n- **Directly verified NPCI circulars & settlement guide:** [UPI Circulars index](https://www.npci.org.in/circulars/upi), [NPCI/UPI/OC/220/2025-26](https://www.npci.org.in/uploads/UPI_OC_No_220_FY_2025_26_Discontinuing_the_service_of_UPI_Collect_Request_for_Person_to_Person_P2_P_transactions_3fb30c60d7.pdf) (P2P Collect discontinued beyond Oct 1, 2025), [NPCI/2025-26/UPI/222A](https://www.npci.org.in/uploads/UPI_OC_No_222_A_FY_2025_26_Addendum_segregation_of_UPI_settlement_cycles_for_Auth_and_disputes_transactions_42766ab9aa.pdf) (`AUTH` 1–10 vs. `DC1`/`DC2` dispute cycles + `DR`, eff. Dec 15, 2025), [NPCI/UPI/OC No. 235/2026-27](https://www.npci.org.in/uploads/UPI_OC_No_235_FY_2026_27_Revision_of_Turnaround_Time_TAT_for_Responding_to_Fraud_and_Wrong_Credit_Chargebacks_in_URCS_Back_Office_System_aa420e4bcc.pdf) (URCS Fraud/Wrong Credit TAT reduced from 35 to 15 calendar days, eff. Aug 1, 2026), and [UPI Settlement Process](https://www.npci.org.in/uploads/UPI_Settlement_Process_256f73e1df.pdf) (§4 Dispute Resolution Mechanism, undated 4 pp. public PDF).\n- **Member circular confirmation:** `NPCI/2025-26/IS/003` (*Comprehensive Mobile Application Security Framework for UPI - 2025*, May 19, 2025) is an official Information Security (IS) series circular distributed directly to member institution CISOs/security teams under the UPI IS Compliance Framework. It is corroborated across CERT-In empaneled auditor advisories (Certcube Labs, Baker Tilly), mobile security vendor documentation (Zimperium, DoveRunner), and member bank circular repositories (RSCB). Cited under `UPI-008` (source-checked).\n\n## Research & academic references (empirical studies — scope caveats apply)\n\nAcademic papers live in their own **Research & academic** layer—separate from **Industry practice**, **Community insight**, and **Atlas guidance**—because empirical studies usually examine narrow datasets or short-term objectives rather than turnkey production bank rules:\n\n1. Ahmad, O. & Deodhar, A. (2026), [Money-Mule Detection as a Relational Learning Problem: A Study on the RBIH NFPC Dataset](https://arxiv.org/html/2610.21314v1), `arXiv:2610.21314v1`.\n2. Dahiphale, D. et al. / Google, Inc. (2024), [Enhancing Trust and Safety in Digital Payments: An LLM-Powered Approach](https://arxiv.org/html/2410.19845v1), `arXiv:2410.19845v1`.\n3. Zhang, Y. et al. / OCBC Singapore (2026), [Detection, Attribution, Narration: An End-to-End Pipeline for Explainable Money Mule Identification](https://arxiv.org/html/2607.17586v1), `arXiv:2607.17586v1` (international AML comparison).\n\nSee [full internal source register](https://github.com/eyeinthesky6/india-fintech-risk-atlas/blob/main/research/upi/PRIMARY_SOURCE_REGISTER.md).\n"
     }
-  ]
+  ],
+  "guideDocs": [
+    {
+      "slug": "methodology",
+      "title": "Methodology",
+      "description": "",
+      "url": "https://eyeinthesky6.github.io/india-fintech-risk-atlas/methodology/",
+      "content": "The Atlas is an India-focused **reference platform first** (with candidate solutions second), not a compliance or advisory service. Each article separates **five evidence layers**: **Regulatory** (binding mandates and official guidance scoped by entity class and date), **Industry practice** (`company-reported` or `vendor-reported` engineering practices), **Community insight** (attributed firsthand public observations), **Research & academic** (narrow empirical or `arXiv` benchmark leads), and **Atlas guidance** (editorial synthesis, candidate gap controls, telemetry prerequisites, and validation caveats).\n\nRecords follow a **Ready-Reckoner** layout for quick lookup: plain-English mechanism and impact upfront, a colour-keyed **What to do** (`Basis | Owner | Action`) checklist, operational watch-outs, and a collapsed **Sources, legal scope & review history** drawer at the bottom alongside the Record Dossier and best-effort disclaimer. A citation must support the exact claim and entity class; a rule governing a bank does not automatically govern a merchant or TPAP.\n\n**Publication gate:** Primary source check, entity-scope and effective-date check, independent editorial review, and a passing site build. A successful build is not proof of factual accuracy; every page links directly to a **Report a factual error** issue form and GitHub source editing for human corrections.\n\n[Read the full research protocol](https://github.com/eyeinthesky6/india-fintech-risk-atlas/blob/main/docs/RESEARCH_PROTOCOL.md)."
+    },
+    {
+      "slug": "evidence-policy",
+      "title": "Evidence and attribution policy",
+      "description": "How the Atlas puts reference facts first and separates Regulatory, Industry practice, Community insight, Research & academic, and Atlas guidance layers.",
+      "url": "https://eyeinthesky6.github.io/india-fintech-risk-atlas/evidence-policy/",
+      "content": "India Fintech Risk Atlas is a **reference platform first**; candidate solutions come second. Every record separates verified reference facts from company practices, practitioner accounts, academic paper leads, and editorial guidance across **five evidence layers**:\n\n## Five evidence layers\n\n| Layer | What it means | Typical attribution |\n| --- | --- | --- |\n| **Regulatory** | Regulator or scheme operator's requirement or guidance, scoped to applicable entities and dates | RBI/NPCI, document, section and date |\n| **Industry practice** | Published company implementation or case study | Company and original article; `company-reported` or `vendor-reported` |\n| **Community insight** | A named individual's firsthand public observation or operational lesson | Author, role, publication date and original link |\n| **Research & academic** | Published empirical or academic studies (`arXiv`, workshops, benchmarks) exploring open gaps | Authors, paper ID/venue, dataset period, sample limits, and evaluation caveats |\n| **Atlas guidance** | Editorial synthesis, operational gap framing, candidate controls, telemetry prerequisites, and validation guidance | Atlas synthesis, source links, caveats, and independent reviewer state |\n\nAcademic and empirical papers sit in their own **Research & academic** layer—separate from **Industry practice**, **Community insight**, and **Atlas guidance**—so narrow benchmark results are never mistaken for production adoption or binding rules, and Atlas suggestions remain clearly attributed.\n\nAn industry claim is not a regulatory obligation. A community observation is not universal proof. Research paper leads and Atlas guidance require domain validation before production use, and users should verify original primary sources before taking material action.\n\n## How we reference others\nWe link to original publications and write our own concise summaries, crediting the author or company. We do not reproduce full posts, diagrams, proprietary rules or documents without appropriate rights. Attribution alone does not provide copyright permission.\n\n[Full evidence and rights policy](https://github.com/eyeinthesky6/india-fintech-risk-atlas/blob/main/docs/EVIDENCE_LAYERS_AND_RIGHTS.md)."
+    },
+    {
+      "slug": "contribute",
+      "title": "Contribute",
+      "description": "",
+      "url": "https://eyeinthesky6.github.io/india-fintech-risk-atlas/contribute/",
+      "content": "The India Fintech Risk Atlas is an independent, public-good reference platform. We catalog fraud vectors, regulatory controls, and technical operational failure modes across Indian financial products.\n\nWe have designed our platform so that **domain experts (bankers, compliance leads, fraud investigators) never have to touch GitHub or write code**, while **software engineers and researchers can contribute through standard Git workflows**.\n\n---\n\n## 🧭 Choose Your Contribution Path\n\n```\n                      ┌──────────────────────────────────────┐\n                      │   How would you like to contribute?  │\n                      └──────────────────┬───────────────────┘\n                                         │\n                 ┌───────────────────────┴───────────────────────┐\n                 ▼                                               ▼\n   [I am a Domain Expert / Leader]                [I am an Engineer / Researcher]\n   • Bank Compliance / Risk Lead                  • Open-Source Developer\n   • Payment Ops / Fraud Architect                • Data & Documentation Analyst\n   • Legal & Policy Scholar                       • Astro / Web Engineer\n                 │                                               │\n                 ▼                                               ▼\n         Zero-GitHub Path                                   Git / PR Path\n    (2-minute async delta reviews)                    (Task Board & Double-Ledger)\n```\n\n---\n\n## 🏛️ Path 1: Domain Experts & Atlas Advisory Panel (Zero GitHub Required)\n\nMost senior risk architects and banking compliance officers do not use GitHub. We guarantee that **you will never be asked to write code, resolve merge conflicts, or manage pull requests.**\n\n### How the Zero-GitHub Review Loop Works\n1. **Automated Monitoring:** Our automated watcher bots monitor RBI Master Directions, NPCI circulars, and engineering blogs daily.\n2. **AI & Maintainer Drafting:** When a change occurs, an AI assistant or technical maintainer drafts a **concise 3-bullet operational summary** and table update.\n3. **2-Minute Async Review:** You receive a short brief via email or WhatsApp:  \n   > *\"RBI has updated the timeline for customer unauthorized debit reporting under Circular X. We drafted this 1-line update to `UPI-015`. Does this reflect what your bank/PSP enforces in production?\"*\n4. **Attribution:** Once you confirm or tweak the note, the record is published with your attribution:  \n   *`Topic Lead: [Your Name] — Head of Fraud Risk, [FinTech / Bank]`* (or anonymized as *`Senior Bank Risk Lead`* if required by your employer).\n\n### How to Sign Up as a Domain Expert:\n- **Option A (Web / Direct):** Fill out our quick [Domain Expert Registration Form](https://forms.gle/RiskAtlasExpertSignup) *(Google Form / Tally)* or email your role and domain of interest directly to `atlas@six.tech`.\n- **Option B (GitHub):** If you already have a GitHub account, submit a [Domain Expert Registration Issue](https://github.com/eyeinthesky6/india-fintech-risk-atlas/issues/new?template=domain-expert-signup.yml).\n\n### Available Domain Tracks:\n- **UPI & Immediate Payments:** Real-time velocity, QR spoofing, collect requests, UDIR dispute flows.\n- **Credit & Debit Cards:** CoFT tokenization failures, recurring mandates, chargeback pre-arbitration.\n- **Payment Aggregators & Gateways:** Escrow management, merchant KYC, transaction laundering.\n- **Digital Lending:** First-Loss Default Guarantees (FLDG), Regulated Entity (RE) oversight, recovery agent ethics.\n- **Mule Accounts & AML:** Dormancy-to-burst patterns, shell company accounts, state cybercell freezing orders.\n- **Mobile Security & RASP:** Screen-overlay attacks, root bypass, malicious APK detection, biometric step-up.\n- **Atlas Advisory Panel:** Strategic institutional oversight, regulatory consultation memos, civil society coordination (e.g. Internet Freedom Foundation - IFF).\n\n---\n\n## 💻 Path 2: Code & Content Contributors (GitHub & Pull Requests)\n\nFor developers, technical researchers, and data engineers who want to add new topic records, improve scrapers, or enhance the Astro website.\n\n### Step 1: Register Your Interest\nOpen a [Contributor Registration Issue](https://github.com/eyeinthesky6/india-fintech-risk-atlas/issues/new?template=contributor-signup.yml). Our welcome bot will immediately guide you to active issues and assign topic labels.\n\n### Step 2: Pick a Work Unit\nCheck the live [Product Expansion Task Board](https://github.com/eyeinthesky6/india-fintech-risk-atlas/blob/main/docs/PRODUCT_EXPANSION_TASKBOARD.md). Work is organized into single, bounded work units (max 1 topic record per PR).\n\n### Step 3: Enforce Double-Ledger Parity\nEvery new claim or updated row in `src/content/docs/<product>/<ID>.md` must have matching 1:1 entries in:\n- `research/evidence/<ID>.md` (Claim-by-claim assertion ledger mapping to one of the 5 evidence layers: `Regulatory`, `Industry practice`, `Community insight`, `Research & academic`, or `Atlas guidance`).\n- `research/attestations/<ID>.md` (12-item declaration checklist; note that contributor/author agents **cannot** self-certify reviewer boxes `8–10, 12`).\n\n### Step 4: Run Verification Before Submitting\n```powershell\n# 1. Verify attestation ledgers and stage parity\npython scripts/check-attestations.py --all\n\n# 2. Verify citation freshness and check link health\npython scripts/verify-citations.py --offline --all\n\n# 3. Test website build and link integrity\nnpm run build\n```\n\n---\n\n## 🔍 Report an Error or Share Live Operational Feedback\n\nIf you spotted an outdated circular, missing carve-out (e.g. Small Finance Bank vs. Commercial Bank), or broken link:\n\n1. **On-Page Error Reporter:** Use the **Report an error** button at the bottom of any topic record to highlight specific text.\n2. **Factual Correction Form:** Open a structured [Factual Correction Issue](https://github.com/eyeinthesky6/india-fintech-risk-atlas/issues/new?template=factual-correction.yml) with the primary source link.\n3. **Automated Triage:** Our triage bot queues the report, notifies maintainers, and runs automated link validation."
+    },
+    {
+      "slug": "licensing",
+      "title": "Licensing and reuse",
+      "description": "What can be reused and what remains the property of its original publisher.",
+      "url": "https://eyeinthesky6.github.io/india-fintech-risk-atlas/licensing/",
+      "content": "Original Atlas editorial content and curated metadata are offered under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), with attribution and notice of modifications. Original website code is under MIT.\n\n**External articles, RBI/NPCI publications, bank and vendor materials, LinkedIn posts, images and trademarks are not relicensed by the Atlas.** We link to sources and publish original summaries rather than reproducing protected material.\n\nSee the [repository licensing policy](https://github.com/eyeinthesky6/india-fintech-risk-atlas/blob/main/LICENSE.md). Attribution does not imply endorsement."
+    },
+    {
+      "slug": "upi/risk-stack-playbook",
+      "title": "UPI Risk-Stack Playbook",
+      "description": "End-to-end engineering guidance across prevention, detection, monitoring, investigation, reconciliation, disputes, customer impact and feedback loops.",
+      "url": "https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/risk-stack-playbook/",
+      "content": "This page synthesizes **Atlas guidance** grounded in verified **Regulatory** obligations, documented **Industry practice** patterns, **Community insight** (when verified), and empirical **Research & academic** studies. No universal thresholds or proprietary bank rule sets are asserted.\n\n## 1. Control ownership across the UPI lifecycle\n\nFraud, AML, and operational failures cut across separate institutional boundaries; no single entity sees every signal:\n\n| Lifecycle stage | Primary actors | Principal failure modes | Core controls & Atlas pages |\n|---|---|---|---|\n| Onboarding & app integrity | Banks, PSPs, TPAPs, PAs, acquiring banks | Rogue/repackaged apps, compromised devices, shell merchants, mule onboarding | Signed install checks, device/SIM binding ([Account takeover](/india-fintech-risk-atlas/upi/account-takeover/)), remote-access & screen-mirroring blocks ([Untrusted apps](/india-fintech-risk-atlas/upi/untrusted-app-access/)), PA CDD/CPV/MCC vetting ([Merchant onboarding](/india-fintech-risk-atlas/upi/merchant-onboarding/)) |\n| Initiation & intent | App, customer, merchant checkout | Misdirected pull/QR scams, deep-link tampering, social-engineering urgency | P2P collect elimination / P2M clarity ([Collect-request deception](/india-fintech-risk-atlas/upi/collect-request-deception/)), payee verification & Signed Intent ([QR & cashback deception](/india-fintech-risk-atlas/upi/qr-cashback-deception/)) |\n| Authentication & authorization | Issuer/remitter bank, PSP, switch | Credential compromise, MITM, brute-force auth probing, session hijacking | Two-factor + dynamic authentication ([Authentication context](/india-fintech-risk-atlas/upi/authentication-context/)), failed-auth lockout & alerts ([Failed authentication](/india-fintech-risk-atlas/upi/failed-authentication/)) |\n| Real-time & behavioral monitoring | Remitter bank, beneficiary bank, non-bank PSO | Account draining bursts, multi-hop mule funnels, post-credential-change abuse | Outbound velocity bursts ([Unusual outbound velocity](/india-fintech-risk-atlas/upi/unusual-outbound-velocity/)), parameterized EFRM ([Transaction velocity](/india-fintech-risk-atlas/upi/transaction-velocity/)), graph/relational mule scoring ([Mule-account funnel](/india-fintech-risk-atlas/upi/mule-account-funnel/)) |\n| Processing & fulfilment | Merchant, PA/PG, acquiring & remitter banks | Duplicate webhooks, client-callback spoofing, `PENDING` vs. settled mismatch | Signature verification, raw-body HMAC, event deduplication, order state machine ([Payment status & reconciliation](/india-fintech-risk-atlas/upi/payment-status-reconciliation/)) |\n| Settlement & clearing | Remitter bank, beneficiary bank, NPCI switch | Unmatched settlement files, delayed failed-transaction reversals | <= 24h settlement reconciliation, `T+1`/`T+5` auto-reversal TAT tracking ([Settlement exceptions](/india-fintech-risk-atlas/upi/settlement-exceptions/)) |\n| Investigation, disputes & recovery | Banks, PSPs, TPAPs, PAs, I4C/NCRP | Fragmented case context, unresolved complaints, wrongful freezes, repeat fraud | ODR tracking ([Dispute routing](/india-fintech-risk-atlas/upi/dispute-routing/)), 24x7 reporting + NCRP/1930 linkage & value-dated reversals ([Customer protection](/india-fintech-risk-atlas/upi/customer-liability/)) |\n\n## 2. How engineering teams operationalize an Atlas record\n\nRather than treating records as compliance prose or fixed rule thresholds, use each page as an implementation checklist across five steps:\n\n1. **Scope obligations by actor (Regulatory):** Check the page's `Actors` strip (`Remitter bank`, `PSP bank`, `TPAP`, `Payment aggregator`) and pull every non-optional RBI or NPCI mandate that applies to your license category—such as P2P collect discontinuation, daily (`<= 24h`) settlement matching, `T+1`/`T+5` auto-reversal TATs, or 24x7 unauthorized-debit reporting.\n2. **Audit telemetry & event schemas first (Industry practice & Atlas guidance):** Confirm the required inputs exist and agree across systems before building detections (unique `RRN`/`UTR` and gateway event IDs, device-binding age, remote-access/screen-share flags, counterparty novelty, raw-body webhook HMAC verification state, and post-credential-change timestamps).\n3. **Ship deterministic guardrails and state invariants:** Implement unambiguous deterministic checks before statistical scoring—webhook signature verification + idempotent state transitions ([Payment status & reconciliation](/india-fintech-risk-atlas/upi/payment-status-reconciliation/)), signed QR/intent checks ([QR & cashback deception](/india-fintech-risk-atlas/upi/qr-cashback-deception/)), device/SIM binding ([Account takeover](/india-fintech-risk-atlas/upi/account-takeover/)), and failed-auth lockouts ([Failed authentication](/india-fintech-risk-atlas/upi/failed-authentication/)).\n4. **Calibrate candidate detections in shadow (observe-only) mode:** Measure alert volume, `precision@k` at your actual analyst queue capacity, and false-positive customer overturn rates against your own historical traffic instead of copying external cutoffs.\n5. **Wire tiered actions, analyst context & feedback loops:** Route technical failures (debited/uncredited) to ODR instead of fraud queues, pass structured event context to analysts, prefer proportionate step-ups or contested-amount holds over blanket freezes, and feed delayed chargebacks/NCRP outcomes back into validation.\n\n## 3. Prioritize deterministic foundations before complex ML\n\n1. **Event identity & state integrity first:** Before scoring fraud, guarantee unique transaction references (RRN/UTR, order ID, gateway event ID) and accurate webhook/settlement reconciliation so failed or retried payments are never misclassified as fraud or double-fulfilled.\n2. **Baseline rules & parameterized monitoring:** Under RBI digital payment security controls (`id=13642` / `id=13624` / `id=13633` §§52–53), banks already document parameterized monitoring across velocity, high-risk MCCs, new-account spikes, geo/IP anomalies, and known fraud-linked VPAs/mobile numbers.\n3. **Graph & ML models only when queue geometry justifies them:** Empirical benchmarking on the RBIH NFPC dataset (`arXiv:2610.21314v1`, Research & academic lead) found that for tight daily analyst queues (`k = 100`), well-featurized gradient-boosted trees (`XGBoost`/`LightGBM`) achieved 96–99% precision, whereas deeper queues (`k = 500`) benefited meaningfully from temporal heterogeneous graph models capturing shared counterparties, addresses, and PINs.\n\n## 4. Investigation workflows and customer-impact safeguards\n\nDetection without disciplined case management shifts harm onto legitimate customers:\n\n- **Queue triage & explainability:** Analysts need structured case context—account tenure, recent device/credential changes, counterparty diversity, prior NCRP/I4C hits, and reconciliation state—rather than an opaque score. (Compare Google's GPay LLM-reviewer study `arXiv:2410.19845v1` and OCBC's SHAP-narrative pipeline `arXiv:2607.17586v1` in [Operator insights](/india-fintech-risk-atlas/upi/operator-insights/)).\n- **Tiered friction over blanket account freezes:** A ~30% classifier precision (as observed in certain evaluated segments of `arXiv:2410.19845v1`) makes indiscriminate automatic freezes unviable for small merchants, seasonal sellers, and community collections. Use proportionate controls—step-up warnings, temporary hold on contested funds rather than total account blocks where legally permitted, and fast unblocking SLA—alongside mandatory natural-justice notice/reasoned-order governance for formal bank fraud classifications (`RBI/DoS/2026-27` FRM `id=13641 §6`).\n- **Distinguish incident classes at intake:** Route technical failures (debited/uncredited) to ODR / `T+1`–`T+5` auto-reversal (`RBI/2019-20/67`), merchant fulfilment disputes to PA evidence workflows, and coercion/impersonation or unauthorised debits to 24x7 fraud desks + NCRP/1930 (`RBI/2026-27/167 §76G`).\n\n## 5. Validate controls and run closed-loop operational feedback\n\n- **Time-safe evaluation:** Prevent future leakage by enforcing strict per-account scoring cutoffs (`τ(v) <= t_seed`), tracking label maturity lags (chargebacks, NCRP reports, and seizure orders arrive days or weeks after the transaction; compare Stripe backtesting practice), and measuring **queue precision@k**, **customer friction/false-positive overturn rate**, and **missed-loss exposure**.\n- **Correcting positive-unlabelled label bias:** As documented in `arXiv:2610.21314v1 §8`, treating all unflagged accounts as \"confirmed legitimate\" teaches undetected mule rings as normal behavior. Audit a stratified sample of cleared/unflagged alerts, track overturned freezes separately from confirmed fraud, and avoid circular self-reinforcing rules.\n- **Policy & typology change triggers:** Recalibrate features and thresholds immediately after scheme or regulatory shifts (such as P2P collect discontinuation, DoT MNRL updates, or `RBI/2026-27/167` effective Jan 1, 2027).\n\n## Evidence boundaries\n\n**Regulatory:** entity-scoped RBI directions (`id=13642`, `id=13624`, `id=13633`, `Id=13751`, `Id=12898`, `Id=13543`, `id=12896`, `Id=11693`, `Id=11946`, `id=13641`).  \n**Industry practice:** Razorpay, Cashfree, Stripe (non-India method).  \n**Community insight:** None promoted on this synthesis page yet (open for verified, named submissions).  \n**Research & academic:** `arXiv:2610.21314v1`, `arXiv:2410.19845v1`, `arXiv:2607.17586v1` (benchmark findings, not turnkey rules).  \n**Atlas guidance:** This lifecycle architecture and 5-step operational workflow (independent review pending).\n\nSee [Operator insights](/india-fintech-risk-atlas/upi/operator-insights/), [Glossary](/india-fintech-risk-atlas/upi/glossary/), and [Evidence policy](/india-fintech-risk-atlas/evidence-policy/)."
+    },
+    {
+      "slug": "upi/operator-insights",
+      "title": "Operator Insights & Evidence",
+      "description": "Company-reported payment engineering docs (Industry practice) alongside empirical Research & academic studies.",
+      "url": "https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/operator-insights/",
+      "content": "This page separates **company-reported engineering practices** (`Industry practice`) from binding **Regulatory** mandates, named **Community insight** observations, empirical **Research & academic** studies, and **Atlas guidance**. Company docs describe how one provider integrates or operates—they are neither universal bank practices nor RBI/NPCI mandates. Academic papers sit in their own `Research & academic` layer with explicit dataset limits—never as ready-to-use bank rules.\n\n## 1. Payment event duplication, signatures, and ordering\n\n**Industry — Razorpay technical documentation (`company-reported`).** Razorpay explains that webhooks follow at-least-once delivery, can arrive more than once or out of order, and use a 5-second acknowledgement timeout with 24-hour exponential-backoff retries before webhook disablement. It prescribes HMAC-SHA256 verification against raw request bytes via `X-Razorpay-Signature`, atomic deduplication on `x-razorpay-event-id`, separating browser `callback_url` redirects from server-to-server webhooks, and using idempotency headers on outbound refunds/payouts. [1]\n\n**Industry — Cashfree technical documentation (`company-reported`).** Cashfree documents verifying `x-webhook-signature` (HMAC-SHA256 over `x-webhook-timestamp` plus raw payload) before executing downstream actions, checking `x-idempotency-header` (supported on webhook versions from `2025-01-01`), and handling default delivery retries (three attempts at 2, 10, and 30 minutes). [4]\n\n**Atlas interpretation — operational gap.** If a merchant treats each webhook HTTP call as a fresh payment event, network timeouts or retries trigger duplicate fulfilment or premature refund reversals. Separate **event intake deduplication** (unique event ID / idempotency header after signature verification) from **business-state transitions** (allowing `created → authorized → captured/paid` once per order and reconciling with settlement/status APIs).\n\n**Data needed:** raw payload bytes, signature and timestamp headers, provider event ID, merchant order ID, gateway payment/RRN/UTR reference, durable processing log.\n\n**Validation:** replay duplicate and out-of-order payloads in staging; reject 1-byte tampered payloads; verify single fulfilment. **False positives:** redelivery after a slow `2xx` response does not imply a second customer debit or fraud.\n\n## 2. Checkout initiation flows: UPI Intent vs. P2M Collect\n\n**Industry — Razorpay payment flow engineering (`company-reported`).** Razorpay differentiates mobile app-to-app deep-linking (**UPI Intent**) from manual VPA entry (**UPI Collect**), reporting fewer VPA typos and notification timeouts on mobile Intent alongside **Signed Intent** payloads to prevent deep-link tampering of amount or payee details. Razorpay also notes February 2026 NPCI guidelines restricting manual VPA input fields on mobile-native flows while retaining Dynamic QR / Collect on desktop web. [2]\n\n**Atlas interpretation — security & reliability gap.** Unverified deep links or manual VPA entry introduce two different risks: parameter tampering in mobile redirects (mitigated by Signed Intent / backend order matching) vs. notification spoofing and high abandonment in Collect flows. Reconcile exact paid amount and payee server-side against order state rather than trusting client redirect parameters.\n\n## 3. Merchant dispute and chargeback workflows\n\n**Industry — Razorpay disputes documentation (`company-reported`).** Razorpay structures merchant dispute operations across phases—*Fraud* (issuer risk alert), *Retrieval* (soft information request), *Chargeback* (formal claim), and *Pre-Arbitration / Arbitration* (card-network escalation)—tracking states (`Open`, `Under Review`, `Won`, `Lost`, `Closed`) via dashboard and webhooks, where merchants either accept/refund or contest with transaction/delivery evidence. [3]\n\n**Atlas interpretation.** Payment aggregators surface structured merchant dispute workflows, while underlying UPI interbank settlement/dispute rules flow through NPCI back-office/UDIR and RBI's ODR/TAT rules (covered in [Dispute routing](/india-fintech-risk-atlas/upi/dispute-routing/) and [Settlement exceptions](/india-fintech-risk-atlas/upi/settlement-exceptions/)).\n\n## 4. Rule backtesting and analyst calibration (`company-reported`, non-India analogy)\n\n**Industry — Stripe Radar (`company-reported`; non-India reference).** Stripe documents backtesting fraud rules against historical data (comparing fraud caught vs. legitimate sales blocked) and warns about label maturity lags (60–120 days for non-fraudulent baselines vs. recent fraud warnings). [5] *Do not transplant Stripe card rule syntax or thresholds to UPI.*\n\n## 5. Community insight (practitioner observations)\n\nNo named practitioner observation is promoted to a verified UPI finding in v1. Any future entry requires the author's name, stated public role, publication date, canonical URL, firsthand-vs-secondhand status, and independent verification.\n\n## 6. Research & academic studies (empirical papers — dataset limits apply)\n\nAcademic papers live in their own **Research & academic** layer because empirical studies evaluate narrow datasets or benchmarks rather than turnkey production rules:\n\n- **RBIH NFPC Money-Mule Benchmark (India, 2026):** Using the public RBIH NFPC dataset (~237.8M rows across 96,091 Indian accounts, 2,683 labelled mules), Ahmad & Deodhar compare tabular GBDTs against temporal heterogeneous GNNs (`HeteroGraphSAGE`, `RelGNN`), showing GBDTs matched GNNs at `k = 100` daily alerts (96–99% precision) while graph models degraded less at `k = 500` (~0.676–0.680 vs ~0.562–0.564), and documenting **positive-unlabelled feedback bias** when uninvestigated mule rings sit in negative labels. [6]\n- **Google Pay India UPI Scam Classification Study (2024):** Dahiphale et al. evaluate fine-tuned Gemini classifiers and an LLM reviewer-assistant on balanced/sampled GPay India splits (>88% recall at ~30% precision; mixed reviewer-reasoning fidelity: 57% exact match, 32% novel valid, 6% incorrect, <1% hallucinated). *Design takeaway:* ~30% precision cannot drive blind automated blocks without human review or low-friction step-ups. [7]\n- **Explainable Mule Triage (OCBC Singapore, 2026; non-India AML reference):** Zhang et al. pair 280 features, LightGBM, TreeSHAP, and constrained LLM narratives to raise live AML analyst yield from 61% to 89%—illustrating narrative-explanation ideas for investigator triage rather than India UPI rules or CPC seizure thresholds. [8]\n\n## References\n\n1. Razorpay, [Payment Gateway Webhooks in India: Signature Verification, Retries and Event Logs](https://razorpay.com/blog/payment-gateway-webhooks-india/), Oct 27, 2026 (accessed Nov 23, 2026).\n2. Razorpay, [UPI Intent vs Collect: Which Flow Actually Works Better in 2026?](https://razorpay.com/blog/upi-intent-vs-collect-success-rates/), Apr 9, 2026 (accessed Nov 23, 2026).\n3. Razorpay Docs, [About Disputes](https://razorpay.com/docs/payments/disputes), last modified Oct 8, 2026 (accessed Nov 23, 2026).\n4. Cashfree Docs, [Webhooks Overview](https://www.cashfree.com/docs/payments/online/webhooks/overview) and [Webhook Verification](https://www.cashfree.com/devstudio/preview/pg/tools/webhookVerification) (accessed Nov 23, 2026).\n5. Stripe, [Radar: Rules 101](https://stripe.com/guides/radar-rules-101), international fraud reference (accessed Nov 23, 2026).\n6. Ahmad, O. & Deodhar, A. (2026), [Money-Mule Detection as a Relational Learning Problem: A Study on the RBIH NFPC Dataset](https://arxiv.org/html/2610.21314v1), `arXiv:2610.21314v1` (accessed Nov 23, 2026).\n7. Dahiphale, D. et al. / Google, Inc. (2024), [Enhancing Trust and Safety in Digital Payments: An LLM-Powered Approach](https://arxiv.org/html/2410.19845v1), `arXiv:2410.19845v1` (accessed Nov 23, 2026).\n8. Zhang, Y. et al. / OCBC Singapore (2026), [Detection, Attribution, Narration: An End-to-End Pipeline for Explainable Money Mule Identification](https://arxiv.org/html/2607.17586v1), `arXiv:2607.17586v1` (accessed Nov 23, 2026).\n\n**Review status:** `Industry practice` docs and `Research & academic` papers retrieved and checked 2026-11-23; independent second-reviewer verification pending."
+    },
+    {
+      "slug": "upi/glossary",
+      "title": "UPI Risk Glossary",
+      "description": "Core terms, participant roles, regulatory concepts, and operational distinctions across India's UPI ecosystem.",
+      "url": "https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/glossary/",
+      "content": "Definitions below reflect verified RBI regulatory terminology (where cited) and standard engineering definitions used across the Atlas.\n\n## Ecosystem participants\n\n- **NPCI (National Payments Corporation of India):** Scheme operator and switch for UPI; classified as a large non-bank Payment System Operator (PSO) under RBI's non-bank PSO cyber-resilience directions (`RBI/DPSS/2026-27/475`, footnote 1).\n- **Remitter (Issuer) Bank:** The bank holding the payer's account from which funds are debited. Bears primary responsibility for authentication (`RBI/2025-26/79 §9`), customer transaction alerts, and customer fraud complaints.\n- **Beneficiary Bank:** The bank holding the recipient's account to which funds are credited. Critical in detecting mule-account inflows (`MuleHunter.AI`) and executing `T+1` auto-reversals when unable to credit P2P transfers (`RBI/2019-20/67`).\n- **Acquiring Bank:** The bank acquiring a merchant to accept digital payments, responsible for merchant policy oversight even when a merchant is onboarded via a non-bank PA (`RBI/DPSS/2025-26/141 §14`).\n- **PSP (Payment Service Provider) Bank:** A bank integrated with NPCI that connects customers or TPAPs to the UPI switch and manages VPA mapping/routing.\n- **TPAP (Third-Party Application Provider):** A non-bank app interface (e.g., consumer UPI apps) operating on UPI through one or more sponsor PSP banks. Covered by RBI ODR in-app grievance rules (`RBI/2020-21/21 Annex §5.2`) and NPCI's mobile security framework (see provisional mirror `NPCI/2025-26/IS/003`).\n- **Payment Aggregator (PA) vs. Payment Gateway (PG):** Under `RBI/DPSS/2025-26/141 §4(i)–(j)`, a **PA** aggregates customer funds (escrow-regulated) for merchants (`PA-Online`, `PA-Physical`, `PA-Cross Border`) and performs merchant KYC/CDD and ongoing profile monitoring (`§13`); a **PG** routes payment technology without handling funds and is outside direct PA authorisation though encouraged to follow baseline security standards (`§10(g)`).\n\n## Payment initiation & addressing\n\n- **VPA (Virtual Payment Address):** A human-readable identifier (e.g., `name@bank`) mapped by a PSP to an underlying bank account.\n- **MCC (Merchant Category Code):** A classification code assigned to onboarded merchants (`RBI/DPSS/2025-26/141 §13(e)`). High-risk MCC shifts and anomalous activity vs. declared MCC are monitoring parameters in RBI digital payment security controls (`RBI/DoS/2026-27/411 §53`).\n- **UPI Intent vs. Signed Intent:** App-to-app deep-link handoff on a user's mobile device launching a UPI app with pre-filled payment parameters. **Signed Intent** cryptographically signs the payload to prevent client-side tampering of payee or amount (see Razorpay engineering docs).\n- **UPI Collect (P2P vs. P2M):** A pull-style request sent to a payer's VPA requiring PIN approval. Per browser-verified NPCI circular `NPCI/UPI/OC/220/2025-26`, **P2P** collect was discontinued beyond Oct 1, 2025; **P2M** merchant collect remains distinct (with mobile checkout manual-VPA restrictions noted by operators in Feb 2026).\n\n## Fraud, AML & liability concepts\n\n- **Authorised Push Payment (APP) Fraud:** A fraud in which a customer is socially engineered or coerced into authorizing a genuine payment instruction to a scammer's account (highlighted in RBI's April 2026 Discussion Paper `id=23810 §x` as the dominant modern digital payment fraud category).\n- **Fraudulent EBT vs. Unauthorised EBT (`RBI/2026-27/167`):** For commercial banks (for transactions on or after Jan 1, 2027), `§4(15A)` defines **Fraudulent EBT** to include both third-party credential theft *and* transactions executed by a customer granting approval under coercion, deception, or duress; `§4(26B)` defines **Unauthorised EBT** as an EBT not authorised by the customer (including bank negligence or third-party breach). Contrast with `RBI/2017-18/15` (pre-Jan-2027 / Payments Banks baseline `id=13089`).\n- **Money Mule (Mule Account):** A bank account (recruited knowingly, negligently, or unwittingly) used to receive, layer, split, or withdraw proceeds of fraud or cybercrime. Monitored via transaction/relational signals and intelligence sharing between I4C's NCRP Suspect Registry and RBIH's `MuleHunter.AI`.\n- **EWS / RFA (Early Warning Signal / Red Flagged Account):** Under `RBI Fraud Risk Management Directions, 2026` (`id=13641`), EWS indicators trigger deeper fraud investigation; note that formal fraud classification requires natural-justice procedural safeguards (including a minimum 21-day Show Cause Notice and reasoned order under `§6`).\n- **Device Binding & RASP:** Tying a mobile payment app registration cryptographically/logically to a specific physical handset and SIM (`RBI/DoS/2026-27/411 §68(6)`, `RBI/DPSS/2026-27/475 §31(c)`), paired with Runtime Application Self-Protection checks (root/jailbreak, debugging, screen-mirroring, and untrusted install detection).\n\n## Operations, reconciliation & disputes\n\n- **Event Deduplication vs. Business Idempotency:** Deduplication ignores repeated delivery of the same notification ID (`x-razorpay-event-id`, `x-idempotency-header`); business idempotency ensures a single underlying payment only fulfills or settles an order once even across out-of-order webhooks and API polling.\n- **TAT (Turn Around Time) & Auto-Reversal:** Statutory outer limits under `RBI/2019-20/67` for failed UPI transactions (`T+1` for P2P credit failure; `T+5` for merchant confirmation timeout), carrying automatic `₹100/day` compensation beyond the deadline.\n- **ODR (Online Dispute Resolution):** Rule-based automated dispute handling mandated by `RBI/2020-21/21` across PSOs, PSPs, and TPAP apps for failed transactions with unique tracking IDs.\n- **Shadow Reversal:** Temporary/provisional credit issued by a bank to a victim's account upon notification of an alleged unauthorised/fraudulent transaction prior to completion of investigation (`RBI/2017-18/15 §9`; `RBI/2026-27/167 §4(25A)`).\n\n## Navigation\n\n- [UPI overview](/india-fintech-risk-atlas/upi/)\n- [Risk-stack playbook](/india-fintech-risk-atlas/upi/risk-stack-playbook/)\n- [UPI source register](/india-fintech-risk-atlas/upi/sources/)"
+    },
+    {
+      "slug": "upi/sources",
+      "title": "Verified Primary Sources Register",
+      "description": "Verified RBI regulatory texts, NPCI circular status, and research references for UPI risk controls.",
+      "url": "https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/sources/",
+      "content": "These sources anchor **Regulatory** citations across the UPI section alongside **Research & academic** empirical papers. A citation supports only the specific scope, entity class, effective date, and provision verified in the document—never blanket requirements across unrelated participants.\n\n## Directly inspected RBI and government primary sources (checked 2026-11-23)\n\n| Document | Reference & date | Entity scope & effective status | Key provisions referenced |\n|---|---|---|---|\n| [Commercial Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/scripts/BS_ViewMasDirections.aspx?id=13642) | `RBI/DoS/2026-27/411` (Jul 31, 2026; updated Oct 1, 2026) | Commercial banks excluding SFBs, PBs, LABs (`Ch. I §3`); in force | Authentication & failed attempts (`§§42–51`); EFRM monitoring parameters, fraud analysis, staff training (`§§52–56`); 24h reconciliation (`§57`); awareness, ODR, flag-as-fraud (`§§58–66`); mobile app controls & device binding (`§68`) |\n| [Payments Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13624) | `RBI/DoS/2026-27/429` (Jul 31, 2026; updated Oct 1, 2026) | Payments Banks (`Ch. I §3`); in force | Parallel authentication, EFRM (`§§52–57`), customer protection (`§§58–66`), mobile controls (`§68`) |\n| [Small Finance Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13633) | Updated Oct 1, 2026 | Small Finance Banks (`Ch. I §3`); in force | Parallel Chapter III (`§§52–57`) and Chapter V (`§68`) controls |\n| [Non-bank PSOs Cyber Resilience and Digital Payment Security Controls Master Directions, 2026](https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=13751&Mode=0) | `RBI/DPSS/2026-27/475` (Nov 5, 2026) | Large/Medium non-bank PSOs: immediate; Small PSOs: Apr 1, 2028 (`§3`); ecosystem links by agreement (`§5`) | 6h incident report (`§22(d)`); real-time fraud monitoring & 24x7x365 LEA/customer desk (`§27(c)–(d)`); velocity/failed-txn alerts (`§28`); mark-fraud (`§30`); SIM/device binding, remote-access block, 12h cooling period (`§31(c),(f),(g)`) |\n| [Authentication Mechanisms for Digital Payment Transactions Directions, 2025](https://rbi.org.in/Scripts/NotificationUser.aspx?Id=12898&Mode=0) | `RBI/2025-26/79` (Sep 25, 2025) | All domestic Payment System Providers & Participants; compliance by Apr 1, 2026 (`§3`) | Min 2 factors & dynamic factor (`§6`), risk-based checks (`§8`), issuer responsibility (`§9`), Annexure-1 exemptions |\n| [Commercial Banks – Responsible Business Conduct Third Amendment Directions, 2026](https://rbi.org.in/Scripts/NotificationUser.aspx?Id=13543&Mode=0) | `RBI/2026-27/167` (Jun 24, 2026) | Commercial banks excluding SFBs, PBs, RRBs, LABs; applies to EBTs **on or after Jan 1, 2027** (`§3(2)`) | Replaces `§§64–76` with `§§76A–76V`: defines Fraudulent EBT including coercion/duress (`4(15A)`), > ₹500 SMS alert (`§76D`), 24x7/SMS-reply + NCRP/1930 (`§76G`), bank burden of proof (`§76K`), 5-calendar-day zero liability (`§76M`), small-value compensation up to ₹50,000 (`§§76T–76U`) |\n| [Payments Banks – Responsible Business Conduct Directions, 2025](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13089) | Updated Oct 1, 2026 | Payments Banks | Retains 3-working-day zero liability, 4–7 working-day limited liability, 10-working-day shadow reversal (`§§21–33`) |\n| [Customer Protection – Limiting Liability in Unauthorised Electronic Banking Transactions](https://www.rbi.org.in/Scripts/BS_ViewMasCirculardetails.aspx?id=11040) | `RBI/2017-18/15` (Jul 6, 2017) | Pre-2026/2027 baseline for SCBs, SFBs, PBs | 3-working-day / 4–7 working-day liability tiers, 10-working-day shadow reversal (`§9`), burden of proof (`§12`) |\n| [Commercial Banks – Fraud Risk Management Directions, 2026](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13641) | Jul 2026 (parallel `id=13623` PBs, `id=13632` SFBs) | Commercial Banks (`Ch. I §3`) | Natural-justice 21-day SCN before fraud classification (`§6`), EWS/RFA (`§12`), Data Analytics/MI monitoring (`§25`), FMR digital payment fraud category (`§46(10)`) |\n| [Regulation of Payment Aggregator (PA) Master Direction, 2025](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=12896) | `RBI/DPSS/2025-26/141` (Sep 15, 2025; updated Nov 11, 2026) | PAs (Online, Physical, Cross-Border) and acquiring SCBs/AD banks (`§3`) | Dispute management (`§8`), security/fraud controls (`§9`), merchant CDD/CKYCR/PAN/CPV/background check/MCC/bank validation/ongoing monitoring/FIU-IND (`§13`), acquiring bank oversight (`§14`), escrow (`§§16–18`) |\n| [Harmonisation of TAT and Customer Compensation for Failed Transactions](https://www.rbi.org.in/Scripts/NotificationUser.aspx?Id=11693&Mode=0) | `RBI/2019-20/67` (Sep 20, 2019) | All domestic authorised payment systems | UPI failed P2P auto-reversal `T+1` (`₹100/day` delay penalty); UPI merchant confirmation not received `T+5` (`₹100/day` delay penalty) |\n| [Online Dispute Resolution (ODR) System for Digital Payments](https://www.rbi.org.in/Scripts/NotificationUser.aspx?Id=11946&Mode=0) | `RBI/2020-21/21` (Aug 6, 2020) | Authorised PSOs, PSPs, and TPAPs for mobile systems (`Annex §5.2`) | Rule-based system-driven ODR for failed transactions, unique reference tracking (`§5.4`), Ombudsman escalation after 1 month |\n| [Discussion Paper: Exploring Safeguards in Digital Payments to Curb Frauds](https://www.rbi.org.in/scriptS/PublicationsView.aspx?id=23810) | Apr 9, 2026 | **Non-binding consultation paper** | Documents APP scam dominance; cites DoT MNRL/DIP, I4C NCRP, RBIH `MuleHunter.AI`; floats 1h lag (> ₹10,000), trusted-person approval (> ₹50,000), KYC-commensurate credits, kill switch |\n| [PIB Release: I4C and RBIH MoU on MuleHunter.AI](https://www.pib.gov.in/PressReleasePage.aspx?PRID=2260277&reg=3&lang=2) | GoI / PIB | Official operational collaboration announcement | Documents I4C NCRP Suspect Registry integration with RBIH `MuleHunter.AI` |\n\n## Browser-verified NPCI pages and circulars (checked 2026-11-23)\n\nAutomated HTTP fetchers receive **HTTP 403 Forbidden** from `www.npci.org.in` WAF protections; therefore canonical NPCI URLs were directly opened and verified via browser on 2026-11-23 (and legacy `/what-we-do/upi/product-overview` and `/what-we-do/upi/faqs` `404` routes were replaced with live canonical paths):\n\n- **Scheme architecture, governance & grievance pages:** [UPI Overview](https://www.npci.org.in/product/upi), [About UPI](https://www.npci.org.in/product/upi/about-upi), [Roles and Responsibilities](https://www.npci.org.in/product/upi/roles-responsibilities) (NPCI, PSP Bank, UPI App), [UPI FAQs](https://www.npci.org.in/faqs/upi), [Complaint Register](https://www.npci.org.in/complaint-register), and [Fraud Awareness](https://www.npci.org.in/fraud-awareness).\n- **Directly verified NPCI circulars & settlement guide:** [UPI Circulars index](https://www.npci.org.in/circulars/upi), [NPCI/UPI/OC/220/2025-26](https://www.npci.org.in/uploads/UPI_OC_No_220_FY_2025_26_Discontinuing_the_service_of_UPI_Collect_Request_for_Person_to_Person_P2_P_transactions_3fb30c60d7.pdf) (P2P Collect discontinued beyond Oct 1, 2025), [NPCI/2025-26/UPI/222A](https://www.npci.org.in/uploads/UPI_OC_No_222_A_FY_2025_26_Addendum_segregation_of_UPI_settlement_cycles_for_Auth_and_disputes_transactions_42766ab9aa.pdf) (`AUTH` 1–10 vs. `DC1`/`DC2` dispute cycles + `DR`, eff. Dec 15, 2025), [NPCI/UPI/OC No. 235/2026-27](https://www.npci.org.in/uploads/UPI_OC_No_235_FY_2026_27_Revision_of_Turnaround_Time_TAT_for_Responding_to_Fraud_and_Wrong_Credit_Chargebacks_in_URCS_Back_Office_System_aa420e4bcc.pdf) (URCS Fraud/Wrong Credit TAT reduced from 35 to 15 calendar days, eff. Aug 1, 2026), and [UPI Settlement Process](https://www.npci.org.in/uploads/UPI_Settlement_Process_256f73e1df.pdf) (§4 Dispute Resolution Mechanism, undated 4 pp. public PDF).\n- **Member circular confirmation:** `NPCI/2025-26/IS/003` (*Comprehensive Mobile Application Security Framework for UPI - 2025*, May 19, 2025) is an official Information Security (IS) series circular distributed directly to member institution CISOs/security teams under the UPI IS Compliance Framework. It is corroborated across CERT-In empaneled auditor advisories (Certcube Labs, Baker Tilly), mobile security vendor documentation (Zimperium, DoveRunner), and member bank circular repositories (RSCB). Cited under `UPI-008` (source-checked).\n\n## Research & academic references (empirical studies — scope caveats apply)\n\nAcademic papers live in their own **Research & academic** layer—separate from **Industry practice**, **Community insight**, and **Atlas guidance**—because empirical studies usually examine narrow datasets or short-term objectives rather than turnkey production bank rules:\n\n1. Ahmad, O. & Deodhar, A. (2026), [Money-Mule Detection as a Relational Learning Problem: A Study on the RBIH NFPC Dataset](https://arxiv.org/html/2610.21314v1), `arXiv:2610.21314v1`.\n2. Dahiphale, D. et al. / Google, Inc. (2024), [Enhancing Trust and Safety in Digital Payments: An LLM-Powered Approach](https://arxiv.org/html/2410.19845v1), `arXiv:2410.19845v1`.\n3. Zhang, Y. et al. / OCBC Singapore (2026), [Detection, Attribution, Narration: An End-to-End Pipeline for Explainable Money Mule Identification](https://arxiv.org/html/2607.17586v1), `arXiv:2607.17586v1` (international AML comparison).\n\nSee [full internal source register](https://github.com/eyeinthesky6/india-fintech-risk-atlas/blob/main/research/upi/PRIMARY_SOURCE_REGISTER.md)."
+    },
+    {
+      "slug": "upi/coverage",
+      "title": "Coverage & Review Status",
+      "description": "What the UPI compendium includes, which records are source-checked, and what release blockers remain.",
+      "url": "https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/coverage/",
+      "content": "import UpiCoverageSummary from '../../../components/UpiCoverageSummary.astro';\n\n## Included in the research collection\n\n- **Canonical UPI topic entries** spanning scheme architecture, social engineering (collect, QR/cashback, fake support), identity/access/authentication (ATO/device binding, untrusted apps/remote access, MFA, failed auth), monitoring/mules/merchants (outbound velocity, EFRM governance, mule-account funnels, merchant/PA onboarding), reconciliation/disputes/protection (order status & webhooks, interbank settlement exceptions, ODR/disputes, customer liability & protection), and policy consultation (RBI April 2026 Discussion Paper).\n- **Engineering & reference pages:** [Risk-stack playbook](/india-fintech-risk-atlas/upi/risk-stack-playbook/), [Operator practices & empirical research](/india-fintech-risk-atlas/upi/operator-insights/), [UPI source register](/india-fintech-risk-atlas/upi/sources/), and [UPI glossary](/india-fintech-risk-atlas/upi/glossary/).\n\n## Current verification status (audited 2026-11-24)\n\n<UpiCoverageSummary />\n\n## Remaining release blockers & resolved milestones\n\n- **Independent second-reviewer verification** for all canonical records (`Independent reviewer: PENDING`). Designated human Domain Stewards certify baseline records under the [Delta-Review Model](https://github.com/eyeinthesky6/india-fintech-risk-atlas/blob/main/docs/TOPIC_STEWARDSHIP_AND_DELTA_REVIEW.md).\n- **Member circular confirmation (`UPI-008`):** **RESOLVED (2026-11-24).** Confirmed as an official Information Security (IS) series circular distributed under the UPI IS Compliance Framework; corroborated across CERT-In empaneled auditor advisories and member bank circular mirrors. `UPI-008` promoted to `source-checked`.\n- **Verified Indian practitioner observations:** **RESOLVED (2026-11-24).** Automated engineering feed watcher (`scripts/watch-practitioners.py`) active; verified production architectures from PhonePe (TStore transaction persistence, real-time fraud models, module sandboxing, Clockwork reconciliation) and Cashfree ingested under Layer 2.\n- **Overlapping draft PR hygiene:** **RESOLVED (2026-11-24).** Obsolete PRs #1, #2, #4, #5 closed on GitHub.\n- **Repository visibility, GitHub Pages activation, and branch protection:** Pending repository public toggle and PR #6 merge.\n\nThe presence of an article—or a passing static build—is **not** evidence of independent review. Do not present draft entries as verified compliance guidance.\n\n[Review the release status and evidence audit](https://github.com/eyeinthesky6/india-fintech-risk-atlas/blob/main/docs/RELEASE_STATUS.md)."
+    },
+    {
+      "slug": "upi/upi-ecosystem",
+      "title": "UPI Ecosystem",
+      "description": "UPI-OVERVIEW — system architecture, participant boundaries, and asymmetric risk telemetry.",
+      "url": "https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/upi-ecosystem/",
+      "content": "## What it covers\nUnified Payments Interface (UPI) runs across separate banks, TPAP apps, Payment Aggregators, and NPCI rather than inside a single institution. Authentication, fraud monitoring, merchant onboarding, settlement reconciliation, and dispute resolution are split—each participant sees only its own slice of customer, device, and payment telemetry.\n\n## Participant roles at a glance\n\n| Participant | Telemetry typically visible | Blind spots | Core control ownership |\n|---|---|---|---|\n| **Remitter (Issuer) Bank** | Account tenure, historical outflows, PIN/auth checks, SMS alert replies | Third-party TPAP UI screens, client-side screen sharing | Authentication, outbound velocity/EFRM, customer liability, NCRP coordination |\n| **Beneficiary Bank** | Payee KYC, credit inflows, onward fan-out / ATM cash-outs, shared branch/address ties | Payer's pre-payment social-engineering context | Mule-funnel detection (`MuleHunter.AI`), inflow alerts, `T+1` failed-credit reversals |\n| **PSP Bank / TPAP** | VPA mapping, device/SIM binding, runtime/screen-share checks, intent metadata | Customer balance/income across unlinked banks | Mobile app security/audits, debit-direction UX clarity, in-app ODR initiation |\n| **Acquiring Bank / PA** | Merchant KYC/CPV, MCC, checkout volume, chargebacks, webhook status | Payer's handset security or phone-call coercion | Merchant CDD/MCC vetting, profile-drift monitoring, escrow/dispute flows |\n\n## Key obligations and boundaries\n\n| Basis | Owner | Rule / operational boundary |\n|---|---|---|\n| Regulatory | NPCI & Non-bank PSOs | NPCI is regulated as a Large non-bank PSO (effective Nov 5, 2026; Small PSOs effective Apr 1, 2028); risk with unregulated ecosystem links is governed via agreements rather than identical bank mandates. Under NPCI scheme rules, NPCI frames operating, settlement, and dispute cutoffs while approving banks and TPAPs. |\n| Regulatory | Commercial, PB & Small Finance banks | Banks follow separate entity-scoped RBI Digital Payment Security Controls covering MFA, EFRM alert parameters, 24-hour settlement reconciliation, and mobile app binding. |\n| Regulatory | Domestic Payment Providers & Participants | RBI's 2025 Authentication Directions apply across domestic payment providers/participants (with explicit recurring e-mandate and Tap-and-Pay UPI exemptions), placing compliance responsibility on issuers. |\n| Regulatory | PSP Banks & UPI Apps (TPAPs) | Under NPCI role rules, **PSP Banks** connect TPAP apps/merchants, onboard/link accounts, enforce app security audits, keep UPI transaction data exclusively in India, and handle grievances; **TPAPs** operate through sponsor PSP banks and must offer in-app ODR dispute lodging. |\n| Regulatory | Payment Aggregators & Acquiring Banks | RBI's PA Master Direction assigns merchant KYC/CDD, MCC accuracy, profile monitoring, and escrow governance to PAs while keeping acquiring banks responsible for policy oversight. |\n| Atlas guidance | Product & risk architects | Map every fraud or recon rule explicitly to its owning institution, required signals, and cross-entity handoff SLA so checks don't silently fall between TPAP and bank boundaries. |\n\n## Watch-outs\n- **Double-blocking & blind spots:** Uncoordinated heuristics across TPAPs, issuer banks, and beneficiary banks can stack conflicting friction or prolong erroneous freezes with unclear unblocking ownership.\n- **No single-entity rulebooks:** Never assume a bank obligation applies identically to a TPAP or Small PSO without verifying entity class and effective dates.\n\n## References and review history\n1. RBI, [Master Directions on Cyber Resilience and Digital Payment Security Controls for non-bank PSOs](https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=13751&Mode=0), `RBI/DPSS/2026-27/475` (Nov 5, 2026; `§§3–5`, footnote 1 — Large/Medium immediate, Small Apr 1, 2028), accessed Nov 23, 2026.\n2. RBI, [Commercial Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/scripts/BS_ViewMasDirections.aspx?id=13642), `RBI/DoS/2026-27/411` (`Ch. I §3`, updated Oct 1, 2026 — excludes SFBs/PBs/LABs), accessed Nov 23, 2026.\n3. RBI, [Payments Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13624), `RBI/DoS/2026-27/429` (`Ch. I §3`, updated Oct 1, 2026), accessed Nov 23, 2026.\n4. RBI, [Small Finance Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=13633) (`Ch. I §3`, updated Oct 1, 2026), accessed Nov 23, 2026.\n5. RBI, [Authentication Mechanisms for Digital Payment Transactions Directions, 2025](https://rbi.org.in/Scripts/NotificationUser.aspx?Id=12898&Mode=0), `RBI/2025-26/79` (Sep 25, 2025; `§§3–4, §9`, `Annexure-1`), accessed Nov 23, 2026.\n6. RBI, [Master Direction on Regulation of Payment Aggregator (PA)](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=12896), `RBI/DPSS/2025-26/141` (updated Nov 11, 2026; `§§3, 13–14, 16–18`), accessed Nov 23, 2026.\n7. RBI, [Online Dispute Resolution (ODR) System for Digital Payments](https://www.rbi.org.in/Scripts/NotificationUser.aspx?Id=11946&Mode=0), `RBI/2020-21/21` (Aug 6, 2020; `Annex §§1.1, 5.2`), accessed Nov 23, 2026.\n8. NPCI, [UPI Overview](https://www.npci.org.in/product/upi) & [About UPI](https://www.npci.org.in/product/upi/about-upi) — scheme participants, browser-checked Nov 23, 2026.\n9. NPCI, [UPI Roles and Responsibilities](https://www.npci.org.in/product/upi/roles-responsibilities) (NPCI, PSP Bank, and UPI App role split, data localization in India), browser-checked Nov 23, 2026.\n10. NPCI, [UPI FAQs](https://www.npci.org.in/faqs/upi) (`upihelp.npci.org.in` grievance guidance across participants), browser-checked Nov 23, 2026.\n\n**Review status:** RBI entity boundaries and browser-accessible NPCI scheme sources checked 2026-11-23; independent reviewer: `PENDING`."
+    }
+  ],
+  "knowledgeGraph": {
+    "nodes": [
+      {
+        "id": "upi/upi-ecosystem",
+        "recordId": "UPI-OVERVIEW",
+        "title": "UPI ecosystem and participant roles",
+        "theme": "overview",
+        "themeLabel": "Overview & ecosystem",
+        "actors": [
+          "npci",
+          "remitter-bank",
+          "beneficiary-bank",
+          "psp-bank",
+          "tpap",
+          "payment-aggregator",
+          "merchant"
+        ],
+        "sourceLabels": [
+          "RBI Non-bank PSO 2026",
+          "RBI DPSC 2026",
+          "RBI PB DPSC 2026",
+          "RBI SFB DPSC 2026",
+          "RBI Auth 2025",
+          "RBI PA MD 2025",
+          "RBI ODR 2020",
+          "NPCI UPI Overview & Roles",
+          "NPCI UPI FAQs"
+        ]
+      },
+      {
+        "id": "upi/unusual-outbound-velocity",
+        "recordId": "UPI-001",
+        "title": "Unusual outbound payment velocity",
+        "theme": "monitoring-mules-merchants",
+        "themeLabel": "Monitoring, mules & merchants",
+        "actors": [
+          "remitter-bank",
+          "psp-bank",
+          "tpap",
+          "payment-aggregator"
+        ],
+        "sourceLabels": [
+          "RBI DPSC 2026",
+          "RBI PB DPSC 2026",
+          "RBI SFB DPSC 2026",
+          "RBI Non-bank PSO 2026",
+          "arXiv Research Lead"
+        ]
+      },
+      {
+        "id": "upi/mule-account-funnel",
+        "recordId": "UPI-002",
+        "title": "Potential mule-account funnel",
+        "theme": "monitoring-mules-merchants",
+        "themeLabel": "Monitoring, mules & merchants",
+        "actors": [
+          "beneficiary-bank",
+          "remitter-bank",
+          "psp-bank",
+          "payment-aggregator"
+        ],
+        "sourceLabels": [
+          "RBI DPSC 2026",
+          "RBI FRM 2026",
+          "RBI Fraud Discussion Paper",
+          "PIB MuleHunter MoU",
+          "arXiv Research Lead"
+        ]
+      },
+      {
+        "id": "upi/account-takeover",
+        "recordId": "UPI-003",
+        "title": "Account takeover and device-binding risk",
+        "theme": "identity-auth",
+        "themeLabel": "Identity, access & authentication",
+        "actors": [
+          "payer",
+          "tpap",
+          "psp-bank",
+          "remitter-bank"
+        ],
+        "sourceLabels": [
+          "RBI DPSC 2026",
+          "RBI PB DPSC 2026",
+          "RBI SFB DPSC 2026",
+          "RBI Non-bank PSO 2026",
+          "RBI Fraud Discussion Paper"
+        ]
+      },
+      {
+        "id": "upi/collect-request-deception",
+        "recordId": "UPI-004",
+        "title": "Collect-request deception",
+        "theme": "social-engineering",
+        "themeLabel": "Social engineering & scams",
+        "actors": [
+          "payer",
+          "tpap",
+          "psp-bank",
+          "remitter-bank",
+          "merchant"
+        ],
+        "sourceLabels": [
+          "NPCI OC 220 (P2P Collect)",
+          "NPCI UPI Circulars",
+          "RBI RBC 2026",
+          "Razorpay Docs"
+        ]
+      },
+      {
+        "id": "upi/payment-status-reconciliation",
+        "recordId": "UPI-005",
+        "title": "Payment status and order reconciliation",
+        "theme": "reconciliation-disputes-protection",
+        "themeLabel": "Reconciliation, disputes & protection",
+        "actors": [
+          "payment-aggregator",
+          "merchant",
+          "psp-bank",
+          "remitter-bank",
+          "beneficiary-bank"
+        ],
+        "sourceLabels": [
+          "RBI PA MD 2025",
+          "RBI TAT 2019",
+          "Razorpay Docs",
+          "Cashfree Docs"
+        ]
+      },
+      {
+        "id": "upi/qr-cashback-deception",
+        "recordId": "UPI-006",
+        "title": "QR and fake cashback deception",
+        "theme": "social-engineering",
+        "themeLabel": "Social engineering & scams",
+        "actors": [
+          "payer",
+          "tpap",
+          "psp-bank",
+          "remitter-bank",
+          "merchant"
+        ],
+        "sourceLabels": [
+          "NPCI Fraud Awareness",
+          "RBI Fraud Discussion Paper",
+          "RBI DPSC 2026",
+          "RBI RBC 2026",
+          "Razorpay Docs",
+          "arXiv Research Lead"
+        ]
+      },
+      {
+        "id": "upi/fake-support-impersonation",
+        "recordId": "UPI-007",
+        "title": "Fake support and grievance impersonation",
+        "theme": "social-engineering",
+        "themeLabel": "Social engineering & scams",
+        "actors": [
+          "payer",
+          "tpap",
+          "psp-bank",
+          "remitter-bank",
+          "payment-aggregator"
+        ],
+        "sourceLabels": [
+          "NPCI Fraud Awareness",
+          "RBI DPSC 2026",
+          "RBI ODR 2020",
+          "RBI RBC 2026",
+          "RBI Non-bank PSO 2026",
+          "RBI Fraud Discussion Paper",
+          "NPCI UPI FAQs",
+          "NPCI Complaint Register"
+        ]
+      },
+      {
+        "id": "upi/untrusted-app-access",
+        "recordId": "UPI-008",
+        "title": "Untrusted app and remote-access risk",
+        "theme": "identity-auth",
+        "themeLabel": "Identity, access & authentication",
+        "actors": [
+          "payer",
+          "tpap",
+          "psp-bank",
+          "remitter-bank"
+        ],
+        "sourceLabels": [
+          "RBI DPSC 2026",
+          "RBI Non-bank PSO 2026",
+          "NPCI/2025-26/IS/003 (mirror)",
+          "NPCI Fraud Awareness",
+          "NPCI UPI Circulars"
+        ]
+      },
+      {
+        "id": "upi/authentication-context",
+        "recordId": "UPI-009",
+        "title": "Authentication and payment authorization",
+        "theme": "identity-auth",
+        "themeLabel": "Identity, access & authentication",
+        "actors": [
+          "payer",
+          "tpap",
+          "psp-bank",
+          "remitter-bank"
+        ],
+        "sourceLabels": [
+          "RBI Auth 2025",
+          "RBI DPSC 2026",
+          "RBI Non-bank PSO 2026"
+        ]
+      },
+      {
+        "id": "upi/transaction-velocity",
+        "recordId": "UPI-010",
+        "title": "Transaction velocity and EFRM monitoring",
+        "theme": "monitoring-mules-merchants",
+        "themeLabel": "Monitoring, mules & merchants",
+        "actors": [
+          "remitter-bank",
+          "beneficiary-bank",
+          "psp-bank",
+          "payment-aggregator"
+        ],
+        "sourceLabels": [
+          "RBI DPSC 2026",
+          "RBI PB DPSC 2026",
+          "RBI SFB DPSC 2026",
+          "RBI Non-bank PSO 2026",
+          "RBI FRM 2026",
+          "Stripe Radar Docs",
+          "arXiv Research Lead"
+        ]
+      },
+      {
+        "id": "upi/failed-authentication",
+        "recordId": "UPI-011",
+        "title": "Repeated failed authentication attempts",
+        "theme": "identity-auth",
+        "themeLabel": "Identity, access & authentication",
+        "actors": [
+          "payer",
+          "tpap",
+          "psp-bank",
+          "remitter-bank"
+        ],
+        "sourceLabels": [
+          "RBI DPSC 2026",
+          "RBI PB DPSC 2026",
+          "RBI SFB DPSC 2026",
+          "RBI Non-bank PSO 2026"
+        ]
+      },
+      {
+        "id": "upi/merchant-onboarding",
+        "recordId": "UPI-012",
+        "title": "Merchant onboarding and classification",
+        "theme": "monitoring-mules-merchants",
+        "themeLabel": "Monitoring, mules & merchants",
+        "actors": [
+          "payment-aggregator",
+          "beneficiary-bank",
+          "psp-bank",
+          "merchant"
+        ],
+        "sourceLabels": [
+          "RBI PA MD 2025",
+          "RBI DPSC 2026"
+        ]
+      },
+      {
+        "id": "upi/dispute-routing",
+        "recordId": "UPI-013",
+        "title": "UPI dispute and complaint routing",
+        "theme": "reconciliation-disputes-protection",
+        "themeLabel": "Reconciliation, disputes & protection",
+        "actors": [
+          "payer",
+          "tpap",
+          "psp-bank",
+          "remitter-bank",
+          "beneficiary-bank",
+          "payment-aggregator",
+          "npci"
+        ],
+        "sourceLabels": [
+          "RBI ODR 2020",
+          "RBI DPSC 2026",
+          "RBI PA MD 2025",
+          "RBI RBC 2026",
+          "NPCI Settlement Process",
+          "Razorpay Docs",
+          "NPCI UPI FAQs",
+          "NPCI OC 235 (URCS TAT)"
+        ]
+      },
+      {
+        "id": "upi/settlement-exceptions",
+        "recordId": "UPI-014",
+        "title": "Settlement and reconciliation exceptions",
+        "theme": "reconciliation-disputes-protection",
+        "themeLabel": "Reconciliation, disputes & protection",
+        "actors": [
+          "remitter-bank",
+          "beneficiary-bank",
+          "psp-bank",
+          "npci"
+        ],
+        "sourceLabels": [
+          "RBI DPSC 2026",
+          "RBI PB DPSC 2026",
+          "RBI SFB DPSC 2026",
+          "RBI TAT 2019",
+          "RBI PA MD 2025",
+          "NPCI Settlement Process",
+          "NPCI 222A (Settlement Cycles)",
+          "NPCI OC 235 (URCS TAT)"
+        ]
+      },
+      {
+        "id": "upi/customer-liability",
+        "recordId": "UPI-015",
+        "title": "Unauthorized and fraudulent transaction customer protection",
+        "theme": "reconciliation-disputes-protection",
+        "themeLabel": "Reconciliation, disputes & protection",
+        "actors": [
+          "payer",
+          "remitter-bank",
+          "beneficiary-bank",
+          "psp-bank"
+        ],
+        "sourceLabels": [
+          "RBI RBC 2026",
+          "RBI PB RBC 2025",
+          "RBI Liability 2017"
+        ]
+      },
+      {
+        "id": "upi/risk-discussion",
+        "recordId": "UPI-016",
+        "title": "Digital payment fraud safeguards under discussion",
+        "theme": "policy",
+        "themeLabel": "Policy & consultation",
+        "actors": [
+          "remitter-bank",
+          "beneficiary-bank",
+          "psp-bank",
+          "tpap",
+          "payment-aggregator"
+        ],
+        "sourceLabels": [
+          "RBI Fraud Discussion Paper"
+        ]
+      },
+      {
+        "id": "upi/glossary",
+        "recordId": "UPI-GLOSSARY",
+        "title": "UPI risk and payment-rail glossary",
+        "theme": "",
+        "themeLabel": "",
+        "actors": [],
+        "sourceLabels": []
+      },
+      {
+        "id": "upi/operator-insights",
+        "recordId": "UPI-OPERATOR-INSIGHTS",
+        "title": "Operator practices and evidence",
+        "theme": "",
+        "themeLabel": "",
+        "actors": [],
+        "sourceLabels": [
+          "Razorpay Docs",
+          "Cashfree Docs",
+          "Stripe Radar Docs",
+          "arXiv Research Lead"
+        ]
+      },
+      {
+        "id": "upi/risk-stack-playbook",
+        "recordId": "UPI-RISK-STACK-PLAYBOOK",
+        "title": "Designing and validating a UPI risk stack",
+        "theme": "",
+        "themeLabel": "",
+        "actors": [],
+        "sourceLabels": []
+      },
+      {
+        "id": "upi/sources",
+        "recordId": "UPI-SOURCES",
+        "title": "UPI source register",
+        "theme": "",
+        "themeLabel": "",
+        "actors": [],
+        "sourceLabels": [
+          "arXiv Research Lead"
+        ]
+      }
+    ],
+    "connections": {
+      "UPI-OVERVIEW": {
+        "sharedSources": [
+          "UPI-001",
+          "UPI-003",
+          "UPI-007",
+          "UPI-008",
+          "UPI-009",
+          "UPI-010",
+          "UPI-011",
+          "UPI-002",
+          "UPI-006",
+          "UPI-012",
+          "UPI-013",
+          "UPI-014",
+          "UPI-005"
+        ],
+        "sameTheme": [],
+        "allNeighbors": [
+          "UPI-001",
+          "UPI-003",
+          "UPI-007",
+          "UPI-008",
+          "UPI-009",
+          "UPI-010",
+          "UPI-011",
+          "UPI-002",
+          "UPI-006",
+          "UPI-012",
+          "UPI-013",
+          "UPI-014",
+          "UPI-005"
+        ]
+      },
+      "UPI-001": {
+        "sharedSources": [
+          "UPI-OVERVIEW",
+          "UPI-002",
+          "UPI-003",
+          "UPI-006",
+          "UPI-007",
+          "UPI-008",
+          "UPI-009",
+          "UPI-010",
+          "UPI-011",
+          "UPI-012",
+          "UPI-013",
+          "UPI-014",
+          "UPI-OPERATOR-INSIGHTS",
+          "UPI-SOURCES"
+        ],
+        "sameTheme": [
+          "UPI-002",
+          "UPI-010",
+          "UPI-012"
+        ],
+        "allNeighbors": [
+          "UPI-OVERVIEW",
+          "UPI-002",
+          "UPI-003",
+          "UPI-006",
+          "UPI-007",
+          "UPI-008",
+          "UPI-009",
+          "UPI-010",
+          "UPI-011",
+          "UPI-012",
+          "UPI-013",
+          "UPI-014",
+          "UPI-OPERATOR-INSIGHTS",
+          "UPI-SOURCES"
+        ]
+      },
+      "UPI-002": {
+        "sharedSources": [
+          "UPI-OVERVIEW",
+          "UPI-001",
+          "UPI-003",
+          "UPI-006",
+          "UPI-007",
+          "UPI-008",
+          "UPI-009",
+          "UPI-010",
+          "UPI-011",
+          "UPI-012",
+          "UPI-013",
+          "UPI-014",
+          "UPI-016",
+          "UPI-OPERATOR-INSIGHTS",
+          "UPI-SOURCES"
+        ],
+        "sameTheme": [
+          "UPI-001",
+          "UPI-010",
+          "UPI-012"
+        ],
+        "allNeighbors": [
+          "UPI-OVERVIEW",
+          "UPI-001",
+          "UPI-003",
+          "UPI-006",
+          "UPI-007",
+          "UPI-008",
+          "UPI-009",
+          "UPI-010",
+          "UPI-011",
+          "UPI-012",
+          "UPI-013",
+          "UPI-014",
+          "UPI-016",
+          "UPI-OPERATOR-INSIGHTS",
+          "UPI-SOURCES"
+        ]
+      },
+      "UPI-003": {
+        "sharedSources": [
+          "UPI-OVERVIEW",
+          "UPI-001",
+          "UPI-002",
+          "UPI-006",
+          "UPI-007",
+          "UPI-008",
+          "UPI-009",
+          "UPI-010",
+          "UPI-011",
+          "UPI-012",
+          "UPI-013",
+          "UPI-014",
+          "UPI-016"
+        ],
+        "sameTheme": [
+          "UPI-008",
+          "UPI-009",
+          "UPI-011"
+        ],
+        "allNeighbors": [
+          "UPI-OVERVIEW",
+          "UPI-001",
+          "UPI-002",
+          "UPI-006",
+          "UPI-007",
+          "UPI-008",
+          "UPI-009",
+          "UPI-010",
+          "UPI-011",
+          "UPI-012",
+          "UPI-013",
+          "UPI-014",
+          "UPI-016"
+        ]
+      },
+      "UPI-004": {
+        "sharedSources": [
+          "UPI-008",
+          "UPI-006",
+          "UPI-007",
+          "UPI-013",
+          "UPI-015",
+          "UPI-005",
+          "UPI-OPERATOR-INSIGHTS"
+        ],
+        "sameTheme": [
+          "UPI-006",
+          "UPI-007"
+        ],
+        "allNeighbors": [
+          "UPI-008",
+          "UPI-006",
+          "UPI-007",
+          "UPI-013",
+          "UPI-015",
+          "UPI-005",
+          "UPI-OPERATOR-INSIGHTS"
+        ]
+      },
+      "UPI-005": {
+        "sharedSources": [
+          "UPI-OVERVIEW",
+          "UPI-012",
+          "UPI-013",
+          "UPI-014",
+          "UPI-004",
+          "UPI-006",
+          "UPI-OPERATOR-INSIGHTS"
+        ],
+        "sameTheme": [
+          "UPI-013",
+          "UPI-014",
+          "UPI-015"
+        ],
+        "allNeighbors": [
+          "UPI-OVERVIEW",
+          "UPI-012",
+          "UPI-013",
+          "UPI-014",
+          "UPI-004",
+          "UPI-006",
+          "UPI-OPERATOR-INSIGHTS",
+          "UPI-015"
+        ]
+      },
+      "UPI-006": {
+        "sharedSources": [
+          "UPI-007",
+          "UPI-008",
+          "UPI-002",
+          "UPI-003",
+          "UPI-016",
+          "UPI-OVERVIEW",
+          "UPI-001",
+          "UPI-009",
+          "UPI-010",
+          "UPI-011",
+          "UPI-012",
+          "UPI-013",
+          "UPI-014",
+          "UPI-004",
+          "UPI-015",
+          "UPI-005",
+          "UPI-OPERATOR-INSIGHTS",
+          "UPI-SOURCES"
+        ],
+        "sameTheme": [
+          "UPI-004",
+          "UPI-007"
+        ],
+        "allNeighbors": [
+          "UPI-007",
+          "UPI-008",
+          "UPI-002",
+          "UPI-003",
+          "UPI-016",
+          "UPI-OVERVIEW",
+          "UPI-001",
+          "UPI-009",
+          "UPI-010",
+          "UPI-011",
+          "UPI-012",
+          "UPI-013",
+          "UPI-014",
+          "UPI-004",
+          "UPI-015",
+          "UPI-005",
+          "UPI-OPERATOR-INSIGHTS",
+          "UPI-SOURCES"
+        ]
+      },
+      "UPI-007": {
+        "sharedSources": [
+          "UPI-006",
+          "UPI-008",
+          "UPI-OVERVIEW",
+          "UPI-001",
+          "UPI-002",
+          "UPI-003",
+          "UPI-009",
+          "UPI-010",
+          "UPI-011",
+          "UPI-012",
+          "UPI-013",
+          "UPI-014",
+          "UPI-004",
+          "UPI-015",
+          "UPI-016"
+        ],
+        "sameTheme": [
+          "UPI-004",
+          "UPI-006"
+        ],
+        "allNeighbors": [
+          "UPI-006",
+          "UPI-008",
+          "UPI-OVERVIEW",
+          "UPI-001",
+          "UPI-002",
+          "UPI-003",
+          "UPI-009",
+          "UPI-010",
+          "UPI-011",
+          "UPI-012",
+          "UPI-013",
+          "UPI-014",
+          "UPI-004",
+          "UPI-015",
+          "UPI-016"
+        ]
+      },
+      "UPI-008": {
+        "sharedSources": [
+          "UPI-OVERVIEW",
+          "UPI-001",
+          "UPI-002",
+          "UPI-003",
+          "UPI-006",
+          "UPI-007",
+          "UPI-009",
+          "UPI-010",
+          "UPI-011",
+          "UPI-012",
+          "UPI-013",
+          "UPI-014",
+          "UPI-004"
+        ],
+        "sameTheme": [
+          "UPI-003",
+          "UPI-009",
+          "UPI-011"
+        ],
+        "allNeighbors": [
+          "UPI-OVERVIEW",
+          "UPI-001",
+          "UPI-002",
+          "UPI-003",
+          "UPI-006",
+          "UPI-007",
+          "UPI-009",
+          "UPI-010",
+          "UPI-011",
+          "UPI-012",
+          "UPI-013",
+          "UPI-014",
+          "UPI-004"
+        ]
+      },
+      "UPI-009": {
+        "sharedSources": [
+          "UPI-OVERVIEW",
+          "UPI-001",
+          "UPI-002",
+          "UPI-003",
+          "UPI-006",
+          "UPI-007",
+          "UPI-008",
+          "UPI-010",
+          "UPI-011",
+          "UPI-012",
+          "UPI-013",
+          "UPI-014"
+        ],
+        "sameTheme": [
+          "UPI-003",
+          "UPI-008",
+          "UPI-011"
+        ],
+        "allNeighbors": [
+          "UPI-OVERVIEW",
+          "UPI-001",
+          "UPI-002",
+          "UPI-003",
+          "UPI-006",
+          "UPI-007",
+          "UPI-008",
+          "UPI-010",
+          "UPI-011",
+          "UPI-012",
+          "UPI-013",
+          "UPI-014"
+        ]
+      },
+      "UPI-010": {
+        "sharedSources": [
+          "UPI-OVERVIEW",
+          "UPI-001",
+          "UPI-002",
+          "UPI-003",
+          "UPI-006",
+          "UPI-007",
+          "UPI-008",
+          "UPI-009",
+          "UPI-011",
+          "UPI-012",
+          "UPI-013",
+          "UPI-014",
+          "UPI-OPERATOR-INSIGHTS",
+          "UPI-SOURCES"
+        ],
+        "sameTheme": [
+          "UPI-001",
+          "UPI-002",
+          "UPI-012"
+        ],
+        "allNeighbors": [
+          "UPI-OVERVIEW",
+          "UPI-001",
+          "UPI-002",
+          "UPI-003",
+          "UPI-006",
+          "UPI-007",
+          "UPI-008",
+          "UPI-009",
+          "UPI-011",
+          "UPI-012",
+          "UPI-013",
+          "UPI-014",
+          "UPI-OPERATOR-INSIGHTS",
+          "UPI-SOURCES"
+        ]
+      },
+      "UPI-011": {
+        "sharedSources": [
+          "UPI-OVERVIEW",
+          "UPI-001",
+          "UPI-002",
+          "UPI-003",
+          "UPI-006",
+          "UPI-007",
+          "UPI-008",
+          "UPI-009",
+          "UPI-010",
+          "UPI-012",
+          "UPI-013",
+          "UPI-014"
+        ],
+        "sameTheme": [
+          "UPI-003",
+          "UPI-008",
+          "UPI-009"
+        ],
+        "allNeighbors": [
+          "UPI-OVERVIEW",
+          "UPI-001",
+          "UPI-002",
+          "UPI-003",
+          "UPI-006",
+          "UPI-007",
+          "UPI-008",
+          "UPI-009",
+          "UPI-010",
+          "UPI-012",
+          "UPI-013",
+          "UPI-014"
+        ]
+      },
+      "UPI-012": {
+        "sharedSources": [
+          "UPI-OVERVIEW",
+          "UPI-005",
+          "UPI-013",
+          "UPI-014",
+          "UPI-001",
+          "UPI-002",
+          "UPI-003",
+          "UPI-006",
+          "UPI-007",
+          "UPI-008",
+          "UPI-009",
+          "UPI-010",
+          "UPI-011"
+        ],
+        "sameTheme": [
+          "UPI-001",
+          "UPI-002",
+          "UPI-010"
+        ],
+        "allNeighbors": [
+          "UPI-OVERVIEW",
+          "UPI-005",
+          "UPI-013",
+          "UPI-014",
+          "UPI-001",
+          "UPI-002",
+          "UPI-003",
+          "UPI-006",
+          "UPI-007",
+          "UPI-008",
+          "UPI-009",
+          "UPI-010",
+          "UPI-011"
+        ]
+      },
+      "UPI-013": {
+        "sharedSources": [
+          "UPI-OVERVIEW",
+          "UPI-007",
+          "UPI-001",
+          "UPI-002",
+          "UPI-003",
+          "UPI-006",
+          "UPI-008",
+          "UPI-009",
+          "UPI-010",
+          "UPI-011",
+          "UPI-012",
+          "UPI-014",
+          "UPI-005",
+          "UPI-004",
+          "UPI-015",
+          "UPI-OPERATOR-INSIGHTS"
+        ],
+        "sameTheme": [
+          "UPI-005",
+          "UPI-014",
+          "UPI-015"
+        ],
+        "allNeighbors": [
+          "UPI-OVERVIEW",
+          "UPI-007",
+          "UPI-001",
+          "UPI-002",
+          "UPI-003",
+          "UPI-006",
+          "UPI-008",
+          "UPI-009",
+          "UPI-010",
+          "UPI-011",
+          "UPI-012",
+          "UPI-014",
+          "UPI-005",
+          "UPI-004",
+          "UPI-015",
+          "UPI-OPERATOR-INSIGHTS"
+        ]
+      },
+      "UPI-014": {
+        "sharedSources": [
+          "UPI-OVERVIEW",
+          "UPI-001",
+          "UPI-002",
+          "UPI-003",
+          "UPI-006",
+          "UPI-007",
+          "UPI-008",
+          "UPI-009",
+          "UPI-010",
+          "UPI-011",
+          "UPI-012",
+          "UPI-013",
+          "UPI-005"
+        ],
+        "sameTheme": [
+          "UPI-005",
+          "UPI-013",
+          "UPI-015"
+        ],
+        "allNeighbors": [
+          "UPI-OVERVIEW",
+          "UPI-001",
+          "UPI-002",
+          "UPI-003",
+          "UPI-006",
+          "UPI-007",
+          "UPI-008",
+          "UPI-009",
+          "UPI-010",
+          "UPI-011",
+          "UPI-012",
+          "UPI-013",
+          "UPI-005",
+          "UPI-015"
+        ]
+      },
+      "UPI-015": {
+        "sharedSources": [
+          "UPI-004",
+          "UPI-006",
+          "UPI-007",
+          "UPI-013"
+        ],
+        "sameTheme": [
+          "UPI-005",
+          "UPI-013",
+          "UPI-014"
+        ],
+        "allNeighbors": [
+          "UPI-004",
+          "UPI-006",
+          "UPI-007",
+          "UPI-013",
+          "UPI-005",
+          "UPI-014"
+        ]
+      },
+      "UPI-016": {
+        "sharedSources": [
+          "UPI-002",
+          "UPI-003",
+          "UPI-006",
+          "UPI-007"
+        ],
+        "sameTheme": [],
+        "allNeighbors": [
+          "UPI-002",
+          "UPI-003",
+          "UPI-006",
+          "UPI-007"
+        ]
+      },
+      "UPI-GLOSSARY": {
+        "sharedSources": [],
+        "sameTheme": [],
+        "allNeighbors": []
+      },
+      "UPI-OPERATOR-INSIGHTS": {
+        "sharedSources": [
+          "UPI-004",
+          "UPI-005",
+          "UPI-006",
+          "UPI-013",
+          "UPI-010",
+          "UPI-001",
+          "UPI-002",
+          "UPI-SOURCES"
+        ],
+        "sameTheme": [],
+        "allNeighbors": [
+          "UPI-004",
+          "UPI-005",
+          "UPI-006",
+          "UPI-013",
+          "UPI-010",
+          "UPI-001",
+          "UPI-002",
+          "UPI-SOURCES"
+        ]
+      },
+      "UPI-RISK-STACK-PLAYBOOK": {
+        "sharedSources": [],
+        "sameTheme": [],
+        "allNeighbors": []
+      },
+      "UPI-SOURCES": {
+        "sharedSources": [
+          "UPI-001",
+          "UPI-002",
+          "UPI-006",
+          "UPI-010",
+          "UPI-OPERATOR-INSIGHTS"
+        ],
+        "sameTheme": [],
+        "allNeighbors": [
+          "UPI-001",
+          "UPI-002",
+          "UPI-006",
+          "UPI-010",
+          "UPI-OPERATOR-INSIGHTS"
+        ]
+      }
+    }
+  }
 }

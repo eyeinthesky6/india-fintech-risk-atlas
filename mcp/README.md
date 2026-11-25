@@ -1,6 +1,6 @@
 # India Fintech Risk Atlas — Model Context Protocol (MCP) Server
 
-Official Model Context Protocol (MCP) server for **India Fintech Risk Atlas**. Enables AI coding assistants, risk intelligence agents, and developers (Claude Desktop, Cursor, Antigravity, ChatGPT, OpenCode, Kilo) to query authoritative, source-cited fintech fraud patterns, statutory RBI/NPCI directions, and candidate controls.
+Official Model Context Protocol (MCP) server for **India Fintech Risk Atlas**. Provides AI coding assistants, compliance agents, and risk engineering teams (Claude Desktop, Cursor, Antigravity, ChatGPT, OpenCode, Kilo) with 100% feature parity with the web application: full-text search, Ready-Reckoner controls, claim-level evidence ledgers, interactive knowledge graph navigation, persona filtering, gap-audit checklists, and private correction submission.
 
 ---
 
@@ -52,16 +52,22 @@ Add to `%APPDATA%\Claude\claude_desktop_config.json` (Windows) or `~/Library/App
 
 ---
 
-## 🛠️ Available MCP Tools
+## 🛠️ Complete Toolset (100% Parity with Web UI)
 
-| Tool | Parameters | Description |
-|---|---|---|
-| `search_risk_records` | `query`, `product`, `actor`, `evidence_layer`, `limit` | Full-text and faceted search across all canonical risk topics, candidate controls, and impact assessments. |
-| `get_record` | `record_id` (e.g. `UPI-004`) | Fetch the complete Ready-Reckoner record, including What it is, Impact, Common patterns, What to do (rules/mitigations table), and Watch-outs. |
-| `get_evidence_ledger` | `record_id` | Retrieve claim-level primary source verification, section locators, entity scopes, and effective dates. |
-| `list_sources` | `record_id`, `product` | Extract browser-verified RBI Master Directions, NPCI circulars, and academic preprints. |
-| `list_taxonomy` | *(none)* | Retrieve classification schema (5 evidence layers, products, themes, actors, review stages). |
-| `submit_correction` | `record_id`, `reason`, `quote`, `note`, `source_url` | Safely route suggested factual corrections or circular updates into the private triage queue via Cloudflare Worker. |
+| Category | Tool | Parameters | UI Feature Parity |
+|---|---|---|---|
+| **Search & Discovery** | `search_risk_records` | `query`, `product`, `actor`, `evidence_layer`, `limit` | Full-text & faceted search bar (`Ctrl+K` + Pagefind filters) |
+| **Record Retrieval** | `get_record` | `record_id` | Ready-Reckoner article view (What it is, Impact, Patterns, Controls, Watch-outs) |
+| **Knowledge Graph** | `explore_knowledge_graph` | `record_id`, `relation_type` | Interactive SVG Graph drawer (`> Knowledge graph [Expand]`), theme clusters, and co-cited circulars |
+| **Persona Filtering** | `get_persona_controls` | `actor`, `basis` | Role-based table filtering (e.g. view only `TPAP`, `Remitter Bank`, or `Merchant` obligations) |
+| **Pre-Audit & Gaps** | `generate_gap_checklist` | `actor`, `product`, `format` | Actionable Markdown/JSON audit checklist matrix for engineering and risk teams |
+| **Clean Export** | `get_clean_markdown` | `record_id` | `[Copy]` button parity — extracts clean markdown stripped of UI widgets + canonical source citation |
+| **Verification & Trust**| `mark_record_accurate` | `record_id` | `[✓ Looks accurate]` button parity — attests record validity |
+| **Evidence Audit** | `get_evidence_ledger` | `record_id` | Bottom `Record Dossier` & claim-level primary source audit table |
+| **Primary Sources** | `list_sources` | `record_id`, `product` | Collapsible `Sources, legal scope & review history` drawer & `sources.md` register |
+| **Policies & Guides** | `get_guide_doc` | `doc_id` | Top navigation tabs: `evidence-policy`, `methodology`, `risk-stack-playbook`, `glossary`, `sources`, etc. |
+| **Taxonomy** | `list_taxonomy` | *(none)* | 5 evidence layers, themes, actors, products, and review stages |
+| **Feedback & Triage** | `submit_correction` | `record_id`, `section`, `reason`, `quote`, `note`, `source_url` | Guided Selection & `[Report an error]` dialog -> routes to Cloudflare Worker & private triage queue |
 
 ---
 
@@ -72,12 +78,25 @@ Add to `%APPDATA%\Claude\claude_desktop_config.json` (Windows) or `~/Library/App
 | `atlas://taxonomy` | Full JSON taxonomy of evidence layers, products, actors, and stages. |
 | `atlas://llms-txt` | Clean plain-text Markdown index optimized for LLM context ingestion. |
 | `atlas://records/{recordId}` | Direct access to individual record payloads (e.g. `atlas://records/UPI-004`). |
+| `atlas://guides/{slug}` | Direct access to guide playbooks (e.g. `atlas://guides/evidence-policy`). |
 
 ---
 
 ## 🧪 Testing
 
-Run the in-memory test suite:
+The MCP server is tested with both unit tests and mathematical **property-based tests** via `fast-check`:
+
 ```bash
+cd mcp
 npm test
 ```
+
+* **Unit Tests:** Verifies all 12 tools and resource handlers.
+* **Property Tests (`fast-check`):**
+  1. *Search Invariant & Limit Bounding:* Bounds limits to `[1, 50]` across 100 random runs.
+  2. *Structural Conservation:* Verifies 100% of records satisfy 5-layer basis and schema rules.
+  3. *Idempotence & Case Invariance:* Ensures case/whitespace permutations return identical records.
+  4. *Knowledge Graph Invariants:* Proves no self-loops, union completeness, and referential integrity.
+  5. *Fuzzing & Injection Robustness:* Verifies stability under arbitrary strings, Unicode, and SQL/XSS payloads.
+  6. *Gap Checklist Invariant:* Guarantees well-formed tables across Markdown and JSON formats.
+  7. *Submission Validation Gate:* Enforces required fields before triage forwarding.

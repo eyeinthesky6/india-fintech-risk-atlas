@@ -13,6 +13,37 @@ const ATTESTATIONS_DIR = path.join(ROOT_DIR, 'research', 'attestations');
 
 const taxonomy = JSON.parse(fs.readFileSync(TAXONOMY_PATH, 'utf8'));
 
+const SOURCE_MATCHERS = [
+  [/[?&]id=13642\b/i, 'RBI DPSC 2026'],
+  [/[?&]id=13624\b/i, 'RBI PB DPSC 2026'],
+  [/[?&]id=13633\b/i, 'RBI SFB DPSC 2026'],
+  [/[?&]id=13751\b/i, 'RBI Non-bank PSO 2026'],
+  [/[?&]id=13543\b/i, 'RBI RBC 2026'],
+  [/[?&]id=12898\b/i, 'RBI Auth 2025'],
+  [/[?&]id=12896\b/i, 'RBI PA MD 2025'],
+  [/[?&]id=11946\b/i, 'RBI ODR 2020'],
+  [/[?&]id=11693\b/i, 'RBI TAT 2019'],
+  [/[?&]id=13641\b/i, 'RBI FRM 2026'],
+  [/[?&]id=23810\b/i, 'RBI Fraud Discussion Paper'],
+  [/[?&]id=13089\b/i, 'RBI PB RBC 2025'],
+  [/[?&]id=11040\b/i, 'RBI Liability 2017'],
+  [/PRID=2260277\b/i, 'PIB MuleHunter MoU'],
+  [/npci\.org\.in\/fraud-awareness/i, 'NPCI Fraud Awareness'],
+  [/npci\.org\.in\/faqs\/upi/i, 'NPCI UPI FAQs'],
+  [/npci\.org\.in\/complaint-register/i, 'NPCI Complaint Register'],
+  [/npci\.org\.in\/circulars\/upi/i, 'NPCI UPI Circulars'],
+  [/npci\.org\.in\/product\/upi/i, 'NPCI UPI Overview & Roles'],
+  [/UPI_Settlement_Process/i, 'NPCI Settlement Process'],
+  [/UPI_OC_No_235/i, 'NPCI OC 235 (URCS TAT)'],
+  [/UPI_OC_No_220/i, 'NPCI OC 220 (P2P Collect)'],
+  [/UPI_OC_No_222/i, 'NPCI 222A (Settlement Cycles)'],
+  [/rscb\.bank\.in\/Content\/pdf\/npcicircular\.pdf/i, 'NPCI/2025-26/IS/003 (mirror)'],
+  [/razorpay\.com/i, 'Razorpay Docs'],
+  [/cashfree\.com/i, 'Cashfree Docs'],
+  [/stripe\.com/i, 'Stripe Radar Docs'],
+  [/arxiv\.org/i, 'arXiv Research Lead'],
+];
+
 function parseFrontmatter(raw) {
   const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!match) return { meta: {}, body: raw.trim() };
@@ -92,6 +123,19 @@ function parseReferences(markdown) {
   return refs;
 }
 
+function extractSourceLabels(refs) {
+  const labels = new Set();
+  for (const ref of refs) {
+    const url = ref.url || ref.raw;
+    for (const [pattern, label] of SOURCE_MATCHERS) {
+      if (pattern.test(url)) {
+        labels.add(label);
+      }
+    }
+  }
+  return Array.from(labels);
+}
+
 function parseEvidenceLedger(recordId) {
   const file = path.join(EVIDENCE_DIR, `${recordId}.md`);
   if (!fs.existsSync(file)) return [];
@@ -149,7 +193,12 @@ function buildRecord(fileRelPath) {
       sections['what_it_is'] = secBody;
     } else if (headingLower.startsWith('impact')) {
       sections['impact'] = secBody;
-    } else if (headingLower.includes('pattern') || headingLower.includes('failure mode') || headingLower.includes('when it applies')) {
+    } else if (
+      headingLower.includes('pattern') ||
+      headingLower.includes('failure mode') ||
+      headingLower.includes('when it applies') ||
+      headingLower.includes('where it applies')
+    ) {
       sections['common_patterns'] = secBody;
     } else if (headingLower.includes('watch-out')) {
       sections['watch_outs'] = secBody;
@@ -163,6 +212,7 @@ function buildRecord(fileRelPath) {
 
   const recordId = meta.recordId || slug.toUpperCase().replace(/\//g, '-');
   const evidenceLedger = parseEvidenceLedger(recordId);
+  const sourceLabels = extractSourceLabels(references);
 
   return {
     recordId,
@@ -174,17 +224,104 @@ function buildRecord(fileRelPath) {
     products: meta.products || [product],
     recordType: meta.recordType || 'topic',
     theme: meta.theme || '',
+    themeLabel: taxonomy.themes[meta.theme] || meta.theme || '',
     lifecycle: meta.lifecycle || [],
     actors: meta.actors || [],
     evidenceLayers: meta.evidenceLayers || [],
     reviewStage: meta.reviewStage || 'draft',
     lastSourceCheck: meta.lastSourceCheck || '2026-11-23',
+    sourceLabels,
     sections,
     controls: whatToDoControls,
     references,
     evidenceLedger,
     fullMarkdown: raw,
   };
+}
+
+function buildGuideDocs() {
+  const guideFiles = [
+    { slug: 'methodology', rel: 'methodology.md', title: 'Methodology' },
+    { slug: 'evidence-policy', rel: 'evidence-policy.md', title: 'Evidence and attribution policy' },
+    { slug: 'contribute', rel: 'contribute.md', title: 'Contribute' },
+    { slug: 'licensing', rel: 'licensing.md', title: 'Licensing and reuse' },
+    { slug: 'upi/risk-stack-playbook', rel: path.join('upi', 'risk-stack-playbook.md'), title: 'UPI Risk-Stack Playbook' },
+    { slug: 'upi/operator-insights', rel: path.join('upi', 'operator-insights.md'), title: 'Operator Insights & Evidence' },
+    { slug: 'upi/glossary', rel: path.join('upi', 'glossary.md'), title: 'UPI Risk Glossary' },
+    { slug: 'upi/sources', rel: path.join('upi', 'sources.md'), title: 'Verified Primary Sources Register' },
+    { slug: 'upi/coverage', rel: path.join('upi', 'coverage.mdx'), title: 'Coverage & Review Status' },
+    { slug: 'upi/upi-ecosystem', rel: path.join('upi', 'upi-ecosystem.md'), title: 'UPI Ecosystem' },
+  ];
+
+  return guideFiles.map((g) => {
+    const absPath = path.join(DOCS_DIR, g.rel);
+    let body = '';
+    let description = '';
+    if (fs.existsSync(absPath)) {
+      const raw = fs.readFileSync(absPath, 'utf8');
+      const parsed = parseFrontmatter(raw);
+      body = parsed.body;
+      description = parsed.meta.description || '';
+    }
+    return {
+      slug: g.slug,
+      title: g.title,
+      description,
+      url: `https://eyeinthesky6.github.io/india-fintech-risk-atlas/${g.slug}/`,
+      content: body,
+    };
+  });
+}
+
+function buildKnowledgeGraph(records) {
+  const nodes = records.map((r) => ({
+    id: r.slug,
+    recordId: r.recordId,
+    title: r.title,
+    theme: r.theme,
+    themeLabel: r.themeLabel,
+    actors: r.actors,
+    sourceLabels: r.sourceLabels,
+  }));
+
+  const bySource = new Map();
+  const byTheme = new Map();
+
+  for (const r of records) {
+    for (const src of r.sourceLabels) {
+      if (!bySource.has(src)) bySource.set(src, []);
+      bySource.get(src).push(r.recordId);
+    }
+    if (r.theme) {
+      if (!byTheme.has(r.theme)) byTheme.set(r.theme, []);
+      byTheme.get(r.theme).push(r.recordId);
+    }
+  }
+
+  const connections = {};
+  for (const r of records) {
+    const sharedSources = new Set();
+    const sameTheme = new Set();
+
+    for (const src of r.sourceLabels) {
+      for (const other of bySource.get(src) || []) {
+        if (other !== r.recordId) sharedSources.add(other);
+      }
+    }
+    if (r.theme) {
+      for (const other of byTheme.get(r.theme) || []) {
+        if (other !== r.recordId) sameTheme.add(other);
+      }
+    }
+
+    connections[r.recordId] = {
+      sharedSources: Array.from(sharedSources),
+      sameTheme: Array.from(sameTheme),
+      allNeighbors: Array.from(new Set([...sharedSources, ...sameTheme])),
+    };
+  }
+
+  return { nodes, connections };
 }
 
 export function generateAllData() {
@@ -196,12 +333,14 @@ export function generateAllData() {
 
   const records = files.map((f) => buildRecord(f));
 
-  // Sort canonical records
   records.sort((a, b) => {
     if (a.recordId === 'UPI-OVERVIEW') return -1;
     if (b.recordId === 'UPI-OVERVIEW') return 1;
     return a.recordId.localeCompare(b.recordId);
   });
+
+  const guideDocs = buildGuideDocs();
+  const knowledgeGraph = buildKnowledgeGraph(records);
 
   const dataset = {
     metadata: {
@@ -211,6 +350,7 @@ export function generateAllData() {
       baseUrl: 'https://eyeinthesky6.github.io/india-fintech-risk-atlas/',
       triageWorkerUrl: 'https://atlas-report-triage.6edroid.workers.dev',
       totalRecords: records.length,
+      totalGuideDocs: guideDocs.length,
       evidenceLayers: [
         { id: 'official', label: 'Regulatory', authority: 'RBI / NPCI binding mandates & official directions' },
         { id: 'industry', label: 'Industry practice', authority: 'Company documentation & published engineering postmortems' },
@@ -221,6 +361,8 @@ export function generateAllData() {
       taxonomy,
     },
     records,
+    guideDocs,
+    knowledgeGraph,
   };
 
   // 1. Write public/atlas-records.json
@@ -252,15 +394,12 @@ export function generateAllData() {
     ),
     '',
     '## Documentation & Policies',
-    '- [Methodology](https://eyeinthesky6.github.io/india-fintech-risk-atlas/methodology/): 5-layer evidence framework and Ready-Reckoner design',
-    '- [Evidence Policy](https://eyeinthesky6.github.io/india-fintech-risk-atlas/evidence-policy/): Primary source standards and attribution rules',
-    '- [Risk-Stack Playbook](https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/risk-stack-playbook/): End-to-end lifecycle controls and investigation safeguards',
-    '- [Sources](https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/sources/): Browser-verified RBI and NPCI circular register',
+    ...guideDocs.map((g) => `- [${g.title}](${g.url}): ${g.description || g.title}`),
   ].join('\n');
 
   fs.writeFileSync(path.join(publicDir, 'llms.txt'), llmsTxt, 'utf8');
 
-  // 4. Write public/llms-full.txt (consolidated knowledge pack for LLMs)
+  // 4. Write public/llms-full.txt
   const fullDocs = [
     '# India Fintech Risk Atlas — Consolidated Knowledge Pack',
     `Generated: ${new Date().toISOString()}`,
@@ -283,11 +422,7 @@ export function generateAllData() {
 
   fs.writeFileSync(path.join(publicDir, 'llms-full.txt'), fullDocs, 'utf8');
 
-  console.log(`Successfully generated Atlas data for ${records.length} records.`);
-  console.log(`- public/atlas-records.json`);
-  console.log(`- mcp/data/atlas-records.json`);
-  console.log(`- public/llms.txt`);
-  console.log(`- public/llms-full.txt`);
+  console.log(`Successfully generated Atlas data for ${records.length} records and ${guideDocs.length} guide documents.`);
 }
 
 generateAllData();

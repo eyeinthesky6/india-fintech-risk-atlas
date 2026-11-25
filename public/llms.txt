@@ -32,7 +32,13 @@
 - [UPI-SOURCES] UPI source register: Verified RBI regulatory texts, NPCI circular status, and research references for UPI risk controls. (https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/sources/) - Layers:  | Stage: draft
 
 ## Documentation & Policies
-- [Methodology](https://eyeinthesky6.github.io/india-fintech-risk-atlas/methodology/): 5-layer evidence framework and Ready-Reckoner design
-- [Evidence Policy](https://eyeinthesky6.github.io/india-fintech-risk-atlas/evidence-policy/): Primary source standards and attribution rules
-- [Risk-Stack Playbook](https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/risk-stack-playbook/): End-to-end lifecycle controls and investigation safeguards
-- [Sources](https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/sources/): Browser-verified RBI and NPCI circular register
+- [Methodology](https://eyeinthesky6.github.io/india-fintech-risk-atlas/methodology/): Methodology
+- [Evidence and attribution policy](https://eyeinthesky6.github.io/india-fintech-risk-atlas/evidence-policy/): How the Atlas puts reference facts first and separates Regulatory, Industry practice, Community insight, Research & academic, and Atlas guidance layers.
+- [Contribute](https://eyeinthesky6.github.io/india-fintech-risk-atlas/contribute/): Contribute
+- [Licensing and reuse](https://eyeinthesky6.github.io/india-fintech-risk-atlas/licensing/): What can be reused and what remains the property of its original publisher.
+- [UPI Risk-Stack Playbook](https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/risk-stack-playbook/): End-to-end engineering guidance across prevention, detection, monitoring, investigation, reconciliation, disputes, customer impact and feedback loops.
+- [Operator Insights & Evidence](https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/operator-insights/): Company-reported payment engineering docs (Industry practice) alongside empirical Research & academic studies.
+- [UPI Risk Glossary](https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/glossary/): Core terms, participant roles, regulatory concepts, and operational distinctions across India's UPI ecosystem.
+- [Verified Primary Sources Register](https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/sources/): Verified RBI regulatory texts, NPCI circular status, and research references for UPI risk controls.
+- [Coverage & Review Status](https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/coverage/): What the UPI compendium includes, which records are source-checked, and what release blockers remain.
+- [UPI Ecosystem](https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/upi-ecosystem/): UPI-OVERVIEW — system architecture, participant boundaries, and asymmetric risk telemetry.

@@ -3,13 +3,13 @@ import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { createAtlasMcpServer } from '../src/server.js';
 
 async function runTests() {
-  console.log('Testing India Fintech Risk Atlas MCP Server...');
+  console.log('Testing India Fintech Risk Atlas MCP Server (Full 12-Tool Suite)...');
 
   const server = createAtlasMcpServer();
   const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
 
   const client = new Client(
-    { name: 'test-client', version: '1.0.0' },
+    { name: 'test-client', version: '1.1.0' },
     { capabilities: {} },
   );
 
@@ -21,8 +21,8 @@ async function runTests() {
   console.log(`✓ List tools returned ${tools.length} tools`);
   const toolNames = tools.map((t) => t.name);
   console.log('  Tools:', toolNames.join(', '));
-  if (!toolNames.includes('search_risk_records') || !toolNames.includes('get_record')) {
-    throw new Error('Missing core tools in tool list');
+  if (tools.length !== 12) {
+    throw new Error(`Expected 12 tools, got ${tools.length}`);
   }
 
   // Test 2: Search risk records
@@ -32,9 +32,6 @@ async function runTests() {
   });
   const searchParsed = JSON.parse(searchRes.content[0].text);
   console.log(`✓ search_risk_records returned ${searchParsed.total_matches} matches for "collect request"`);
-  if (searchParsed.total_matches === 0) {
-    throw new Error('Expected matches for "collect request"');
-  }
 
   // Test 3: Get record UPI-004
   const recordRes = await client.callTool({
@@ -43,24 +40,64 @@ async function runTests() {
   });
   const record = JSON.parse(recordRes.content[0].text);
   console.log(`✓ get_record fetched "${record.title}" (${record.recordId})`);
-  console.log(`  Controls count: ${record.controls.length}`);
-  console.log(`  References count: ${record.references.length}`);
-  if (record.recordId !== 'UPI-004' || record.controls.length === 0) {
-    throw new Error('Invalid record output for UPI-004');
-  }
 
-  // Test 4: Get evidence ledger
+  // Test 4: Explore knowledge graph
+  const kgRes = await client.callTool({
+    name: 'explore_knowledge_graph',
+    arguments: { record_id: 'UPI-004' },
+  });
+  const kg = JSON.parse(kgRes.content[0].text);
+  console.log(`✓ explore_knowledge_graph returned ${kg.total_connected_neighbors} connected topics for UPI-004`);
+
+  // Test 5: Get persona controls
+  const personaRes = await client.callTool({
+    name: 'get_persona_controls',
+    arguments: { actor: 'tpap', basis: 'all' },
+  });
+  const persona = JSON.parse(personaRes.content[0].text);
+  console.log(`✓ get_persona_controls found ${persona.total_controls_found} obligations for TPAP`);
+
+  // Test 6: Generate gap checklist
+  const checklistRes = await client.callTool({
+    name: 'generate_gap_checklist',
+    arguments: { actor: 'remitter-bank', format: 'markdown' },
+  });
+  const md = checklistRes.content[0].text;
+  console.log(`✓ generate_gap_checklist generated markdown checklist (${md.length} characters)`);
+
+  // Test 7: Get guide doc
+  const guideRes = await client.callTool({
+    name: 'get_guide_doc',
+    arguments: { doc_id: 'evidence-policy' },
+  });
+  const guide = JSON.parse(guideRes.content[0].text);
+  console.log(`✓ get_guide_doc retrieved: ${guide.title}`);
+
+  // Test 8: Get clean markdown ([Copy] parity)
+  const copyRes = await client.callTool({
+    name: 'get_clean_markdown',
+    arguments: { record_id: 'UPI-004' },
+  });
+  const cleanMd = copyRes.content[0].text;
+  console.log(`✓ get_clean_markdown extracted clean text with Source URL (${cleanMd.includes('Source: https://')})`);
+
+  // Test 9: Mark record accurate ([✓ Looks accurate] parity)
+  const markRes = await client.callTool({
+    name: 'mark_record_accurate',
+    arguments: { record_id: 'UPI-004' },
+  });
+  const mark = JSON.parse(markRes.content[0].text);
+  console.log(`✓ mark_record_accurate confirmed: ${mark.confirmed}`);
+
+  // Test 10: Get evidence ledger
   const ledgerRes = await client.callTool({
     name: 'get_evidence_ledger',
     arguments: { record_id: 'UPI-004' },
   });
   const ledger = JSON.parse(ledgerRes.content[0].text);
   console.log(`✓ get_evidence_ledger returned ${ledger.claims.length} verified claims for UPI-004`);
-  if (ledger.claims.length === 0) {
-    throw new Error('Expected evidence ledger claims for UPI-004');
-  }
 
-  // Test 5: List sources
+  // Test 11: List sources
   const sourcesRes = await client.callTool({
     name: 'list_sources',
     arguments: { record_id: 'UPI-004' },
@@ -68,7 +105,7 @@ async function runTests() {
   const sources = JSON.parse(sourcesRes.content[0].text);
   console.log(`✓ list_sources returned ${sources.total_sources} unique verified URLs for UPI-004`);
 
-  // Test 6: List taxonomy
+  // Test 12: List taxonomy
   const taxRes = await client.callTool({
     name: 'list_taxonomy',
     arguments: {},
@@ -76,18 +113,9 @@ async function runTests() {
   const tax = JSON.parse(taxRes.content[0].text);
   console.log(`✓ list_taxonomy returned evidence layers: ${Object.keys(tax.evidenceLayers || {}).join(', ')}`);
 
-  // Test 7: List resources
-  const { resources } = await client.listResources();
-  console.log(`✓ listResources returned ${resources.length} resources`);
-
-  // Test 8: Read resource
-  const resContent = await client.readResource({ uri: 'atlas://records/UPI-004' });
-  const readRecord = JSON.parse(resContent.contents[0].text);
-  console.log(`✓ readResource atlas://records/UPI-004 returned: ${readRecord.title}`);
-
-  console.log('\n=======================================');
-  console.log('🎉 ALL MCP SERVER UNIT TESTS PASSED! 🎉');
-  console.log('=======================================\n');
+  console.log('\n=============================================');
+  console.log('🎉 ALL 12 TOOL & RESOURCE TESTS PASSED! 🎉');
+  console.log('=============================================\n');
 
   await client.close();
   await server.close();

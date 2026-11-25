@@ -88,7 +88,7 @@ Contributors and agents maintain quality through five connected layers rather th
 
 ## Required Verification Commands (Run After Final Edit)
 
-From `C:\Projects\india-fintech-risk-atlas`:
+From the repository root:
 
 ```powershell
 # 1. Structure, frontmatter parity, and date format

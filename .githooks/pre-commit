@@ -1,5 +1,14 @@
 #!/bin/sh
 # Opt-in: git config core.hooksPath .githooks
+
+# Pre-commit secret scanning with Gitleaks if installed
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks protect --staged || {
+    echo "Gitleaks detected potential secret in staged files. Commit aborted." >&2
+    exit 1
+  }
+fi
+
 if python3 -c "import sys; assert sys.version_info >= (3, 8)" >/dev/null 2>&1; then
   PY=python3
 elif python -c "import sys; assert sys.version_info >= (3, 8)" >/dev/null 2>&1; then

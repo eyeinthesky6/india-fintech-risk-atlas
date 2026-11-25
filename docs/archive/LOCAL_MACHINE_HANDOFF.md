@@ -2,13 +2,13 @@
 
 ## Where the work is
 - Repository: https://github.com/eyeinthesky6/india-fintech-risk-atlas
-- Local checkout: `C:\Projects\india-fintech-risk-atlas`
+- Local checkout: `.` (repository root)
 - Working branch: `release/upi-v1-freeze` (synced cleanly with `main`)
 - Consolidation PR: https://github.com/eyeinthesky6/india-fintech-risk-atlas/pull/6
 
 ## Verified local commands
 ```powershell
-cd C:\Projects\india-fintech-risk-atlas
+# From repository root:
 git config core.hooksPath .githooks
 npm ci --no-audit --no-fund
 python scripts/check-attestations.py --all

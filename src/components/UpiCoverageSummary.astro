@@ -37,18 +37,21 @@ const { total, sourceChecked, drafts, reviewed } = splitUpiRecordsByStage(record
         </td>
       </tr>
       <tr>
-        <td><strong>Drafts with non-public source blockers</strong></td>
+        <td><strong>Research drafts</strong></td>
         <td>{drafts.length}</td>
         <td>
           {drafts.length === 0 ? 'None' : drafts.map((entry, idx) => (
             <>
               {idx > 0 && ', '}
               <a href={`${base}/${entry.id}/`}><code>{entry.data.recordId}</code></a>
+              {entry.data.blockerNote ? ` (${entry.data.blockerNote})` : ''}
             </>
           ))}
         </td>
         <td>
-          RBI directions and <code>npci.org.in/fraud-awareness</code> directly checked; <code>NPCI/2025-26/IS/003</code> is absent from public <code>npci.org.in</code> circular indexes (provisional bank mirror used).
+          {drafts.length === 0
+            ? 'No open source blockers or unverified drafts.'
+            : 'In-progress drafts awaiting primary source verification or blocker resolution.'}
         </td>
       </tr>
       <tr>

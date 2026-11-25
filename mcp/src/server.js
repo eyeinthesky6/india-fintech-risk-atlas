@@ -79,7 +79,6 @@ function matchesActorRole(ownerText, queryRole) {
 }
 
 export function createAtlasMcpServer(snapshotPath) {
-  // CLI selects one validated snapshot per process; in-memory tests retain bundled data.
   const snapshot = snapshotPath ? JSON.parse(fs.readFileSync(snapshotPath, 'utf8')) : null;
   const getData = () => snapshot || loadAtlasData();
   const server = new Server(
@@ -102,7 +101,7 @@ export function createAtlasMcpServer(snapshotPath) {
         {
           name: 'search_risk_records',
           description:
-            'Search the India Fintech Risk Atlas for fraud schemes, controls, and operational risks across UPI, Cards, PA/PG, and Lending. Filter by keyword, product, actor, evidence layer, or review stage.',
+            'Search the India Fintech Risk Atlas for fraud schemes, controls, and operational risks across currently represented products in a research preview. Filter by keyword, product, actor, evidence layer, or review stage.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -123,6 +122,7 @@ export function createAtlasMcpServer(snapshotPath) {
                 enum: ['official', 'industry', 'practitioner', 'research', 'atlas'],
                 description: 'Filter by evidence layer: "official" (Regulatory/RBI/NPCI), "industry" (Company docs), "practitioner" (Community insight), "research" (Academic/arXiv), "atlas" (Atlas guidance)',
               },
+              review_stage: { type: 'string', description: 'Exact record review stage, e.g. source-checked' },
               limit: {
                 type: 'number',
                 description: 'Maximum number of results to return (default: 10, max: 50)',
@@ -181,7 +181,7 @@ export function createAtlasMcpServer(snapshotPath) {
         {
           name: 'explore_knowledge_graph',
           description:
-            'Explore the interconnected knowledge graph for a topic: discover connected neighbor records, shared statutory circulars, theme clusters, and outgoing/incoming relationships (exact parity with the Atlas Graph UI).',
+            'Explore the interconnected knowledge graph for a topic: discover connected neighbor records, shared statutory circulars, theme clusters, and outgoing/incoming relationships (co-citation and theme relationships are not proof of operational dependency).',
           inputSchema: {
             type: 'object',
             properties: {
@@ -191,7 +191,7 @@ export function createAtlasMcpServer(snapshotPath) {
               },
               relation_type: {
                 type: 'string',
-                enum: ['all', 'shared-sources', 'same-theme'],
+                enum: ['all', 'shared-sources', 'same-theme', 'direct-links'],
                 description: 'Filter connection type: "all" (default), "shared-sources" (co-cited RBI/NPCI rules), or "same-theme" (lifecycle cluster)',
               },
             },
@@ -201,7 +201,7 @@ export function createAtlasMcpServer(snapshotPath) {
         {
           name: 'get_persona_controls',
           description:
-            'Extract all statutory obligations, candidate controls, and mitigations tailored specifically to an entity role (e.g. "TPAP", "Remitter Bank", "PSP Bank", "Merchant", "Payment Aggregator") across the entire Atlas.',
+            'Extract source-attributed candidate controls and regulatory material (verify applicability and effective dates independently) tailored specifically to an entity role (e.g. "TPAP", "Remitter Bank", "PSP Bank", "Merchant", "Payment Aggregator") across the entire Atlas.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -221,7 +221,7 @@ export function createAtlasMcpServer(snapshotPath) {
         {
           name: 'generate_gap_checklist',
           description:
-            'Generate an actionable gap-audit checklist for fintech engineering and risk teams preparing for RBI compliance or internal risk pre-audits.',
+            'Generate a preliminary, non-certified gap-audit checklist for fintech engineering and risk teams preparing for RBI compliance or internal risk pre-audits.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -352,9 +352,11 @@ export function createAtlasMcpServer(snapshotPath) {
         const product = (args?.product || '').toLowerCase().trim();
         const actor = (args?.actor || '').toLowerCase().trim();
         const layer = (args?.evidence_layer || '').toLowerCase().trim();
-        const limit = typeof args?.limit === 'number' && !isNaN(args.limit) ? Math.max(1, Math.min(args.limit, 50)) : 10;
+        const stage = String(args?.review_stage || '').toLowerCase().trim();
+        const limit = typeof args?.limit === 'number' && !isNaN(args.limit) ? Math.max(1, Math.min(Math.floor(args.limit), 50)) : 10;
 
         let results = data.records.filter((r) => {
+          if (stage && r.reviewStage !== stage) return false;
           if (product && !r.products.map((p) => p.toLowerCase()).includes(product)) return false;
           if (actor && !r.actors.map((a) => a.toLowerCase()).includes(actor)) return false;
           if (layer && !r.evidenceLayers.map((l) => l.toLowerCase()).includes(layer)) return false;
@@ -366,6 +368,7 @@ export function createAtlasMcpServer(snapshotPath) {
               r.description,
               r.sections?.what_it_is || '',
               r.sections?.impact || '',
+              r.fullMarkdown || '',
               ...(r.controls || []).map((c) => `${c.basis} ${c.owner} ${c.action}`),
             ]
               .join(' ')
@@ -375,6 +378,7 @@ export function createAtlasMcpServer(snapshotPath) {
           return true;
         });
 
+        const totalMatches = results.length;
         results = results.slice(0, limit);
 
         const formatted = results.map((r) => ({
@@ -386,6 +390,7 @@ export function createAtlasMcpServer(snapshotPath) {
           actors: r.actors,
           evidence_layers: r.evidenceLayers,
           review_stage: r.reviewStage,
+          last_source_check: r.lastSourceCheck,
           controls_count: r.controls?.length || 0,
           citations_count: r.references?.length || 0,
         }));
@@ -396,7 +401,10 @@ export function createAtlasMcpServer(snapshotPath) {
               type: 'text',
               text: JSON.stringify(
                 {
-                  total_matches: results.length,
+                  total_matches: totalMatches,
+                  returned_matches: results.length,
+                  dataset_generated_at: data.metadata.generatedAt,
+                  verification_notice: data.metadata.verificationNotice,
                   results: formatted,
                 },
                 null,
@@ -462,6 +470,8 @@ export function createAtlasMcpServer(snapshotPath) {
         let neighbors = [];
         if (relation === 'shared-sources') {
           neighbors = connections.sharedSources;
+        } else if (relation === 'direct-links') {
+          neighbors = connections.directLinks || [];
         } else if (relation === 'same-theme') {
           neighbors = connections.sameTheme;
         } else {
@@ -477,6 +487,7 @@ export function createAtlasMcpServer(snapshotPath) {
             theme: nr ? nr.themeLabel : '',
             shared_sources: connections.sharedSources.includes(nid),
             same_theme: connections.sameTheme.includes(nid),
+            direct_link: (connections.directLinks || []).includes(nid),
           };
         });
 
@@ -639,11 +650,12 @@ export function createAtlasMcpServer(snapshotPath) {
 
         const cleanBody = record.fullMarkdown
           .replace(/^---\r?\n[\s\S]*?\r?\n---/, '')
-          .replace(/<details[\s\S]*?<\/details>/gi, '')
-          .replace(/<[a-zA-Z][^>]*>[\s\S]*?<\/[a-zA-Z]+>/g, '')
+          .replace(/<\/?details\b[^>]*>/gi, '')
+          .replace(/<\/?summary\b[^>]*>/gi, '')
+          .replace(/<a\b[^>]*>([\s\S]*?)<\/a>/gi, '$1')
           .trim();
 
-        const exportOutput = `${record.title}\n\n${record.description}\n\n${cleanBody}\n\nSource: ${record.url}`;
+        const exportOutput = `${record.title}\n\n${record.description}\n\nReview stage: ${record.reviewStage}; last source check: ${record.lastSourceCheck ?? 'unknown'}. Research preview, not certified compliance advice.\n\n${cleanBody}\n\nSource: ${record.url}`;
 
         return {
           content: [{ type: 'text', text: exportOutput }],

@@ -27,7 +27,7 @@ const reportErrorUrl = `https://github.com/eyeinthesky6/india-fintech-risk-atlas
 
 const isSplash = data.template === 'splash';
 const renderedHtml = isSplash ? '' : transformAtlasContentHtml(await Astro.slots.render('default'), {
-  hideInlineCitations: Boolean(data.recordId),
+  compactCitationLinks: Boolean(data.recordId),
 });
 const isReviewed = stage === 'published' || stage === 'reviewed';
 const isSourceChecked = stage === 'source-checked';

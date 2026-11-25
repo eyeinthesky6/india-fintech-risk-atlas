@@ -60,6 +60,8 @@ The Atlas is a public research reference. Draft and source-checked records may a
 
 Pull requests that change site content, research ledgers, public exports, or their publication controls require the maintainer to approve the current Actions run through **Review deployments**. The Telegram alert links to that run when GitHub reports a pending decision. The required **Content attestation** check waits for GitHub's approval. New commits require approval of the new run. Pages publishes from `main` and checks the attestations, citations, and regenerated exports before uploading the site. Feed watchers and corrections create triage items for consideration.
 
+To resend a missing approval alert, open **Actions → Content approval notification → Run workflow** on `main` and enter the ID of the waiting **Validate site** run. The alert sends the GitHub approval link. After publication, the release message links directly to changed pages, source ledgers, code, docs, generated exports, and the full diff.
+
 The public **Human checked** label requires the `reviewed` or `published` stage, a complete evidence ledger and checklist, an attestation by a distinct human reviewer for the exact article and evidence revision, and human merge approval. Use a stable reviewer identifier in the attestation and keep the link to the person's identity with maintainers. The site and exports show the status without a reviewer name. Readers should consult the original source for authoritative wording and applicability.
 
 ## Current source scope

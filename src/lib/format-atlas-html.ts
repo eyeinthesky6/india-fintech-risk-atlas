@@ -55,12 +55,13 @@ function enhanceBasisCells(html: string): string {
 
 function addReferenceAnchors(refsHtml: string): { html: string; maxRef: number } {
   let maxRef = 0;
+  const explicitIds = new Set([...refsHtml.matchAll(/\bid=["']ref-(\d+)["']/g)].map((match) => Number(match[1])));
   const html = refsHtml.replace(/<ol\b([^>]*)>([\s\S]*?)<\/ol>/, (_m, olAttrs: string, inner: string) => {
     let idx = 0;
     const anchored = inner.replace(/<li\b([^>]*)>/g, (_liMatch, liAttrs: string) => {
       idx += 1;
       maxRef = idx;
-      if (/\bid\s*=/.test(liAttrs)) {
+      if (/\bid\s*=/.test(liAttrs) || explicitIds.has(idx)) {
         return `<li${liAttrs}>`;
       }
       return `<li id="ref-${idx}"${liAttrs}>`;
@@ -70,19 +71,30 @@ function addReferenceAnchors(refsHtml: string): { html: string; maxRef: number }
   return { html, maxRef };
 }
 
-function linkInlineCitations(html: string, maxRef: number): string {
+function formatInlineCitations(html: string, maxRef: number, compactLinks: boolean): string {
   if (maxRef <= 0) return html;
+  const cite = (n: number) => `<a href="#ref-${n}" class="atlas-cite" aria-label="Reference ${n}">${n}</a>`;
   const tokenRe = /(<code\b[\s\S]*?<\/code>|<pre\b[\s\S]*?<\/pre>|<a\b[\s\S]*?<\/a>|<[^>]+>)/gi;
   return html
     .split(tokenRe)
     .map((part) => {
-      if (!part || part.startsWith('<')) {
+      if (part.startsWith('<')) {
+        if (compactLinks) {
+          const link = /^<a\b[^>]*\shref=(["'])#ref-(\d+)\1[^>]*>([\s\S]*?)<\/a>$/i.exec(part);
+          if (link) {
+            const n = Number(link[2]);
+            const label = link[3].replace(/<[^>]+>/g, '').trim();
+            if (n >= 1 && n <= maxRef && /^(?:\[\d+\]|\d+|(?:Reference|Source)\s+\d+)$/i.test(label)) {
+              return cite(n);
+            }
+          }
+        }
         return part;
       }
       return part.replace(/\[(\d{1,2})\]/g, (match, numStr: string) => {
         const n = Number(numStr);
         if (n >= 1 && n <= maxRef) {
-          return `<a href="#ref-${n}" class="atlas-cite" aria-label="Reference ${n}">${n}</a>`;
+          return cite(n);
         }
         return match;
       });
@@ -157,7 +169,7 @@ function formatH2Chunk(wrapperHtml: string, bodyHtml: string): { html: string; i
   return { html: `${wrapperHtml}${bodyHtml}`, isRefs: false, maxRef: 0 };
 }
 
-export function transformAtlasContentHtml(html: string): string {
+export function transformAtlasContentHtml(html: string, { compactCitationLinks = false } = {}): string {
   const withEnhancedHtml = enhanceBasisCells(wrapBareTables(html));
   const matches = [...withEnhancedHtml.matchAll(H2_WRAPPER_RE)];
 
@@ -183,6 +195,6 @@ export function transformAtlasContentHtml(html: string): string {
   }
 
   return chunks
-    .map((chunk) => (chunk.isRefs ? chunk.html : linkInlineCitations(chunk.html, maxRef)))
+    .map((chunk) => (chunk.isRefs ? chunk.html : formatInlineCitations(chunk.html, maxRef, compactCitationLinks)))
     .join('');
 }

@@ -6,6 +6,9 @@ on:
     branches: [main]
   pull_request_review:
     types: [submitted]
+  workflow_run:
+    workflows: [Validate site]
+    types: [completed]
 
 permissions:
   contents: read
@@ -57,3 +60,50 @@ jobs:
             --title "Atlas PR #$PR_NUMBER received an approval" \
             --message "$PR_TITLE"$'\n\n'"See GitHub for required checks and merge readiness." \
             --url "$PR_URL" --url-label "Open pull request"
+  notify-ready:
+    name: Notify the Atlas owner when a PR is ready to merge
+    if: >-
+      github.event_name == 'workflow_run' && github.ref == 'refs/heads/main' &&
+      github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success'
+    permissions:
+      contents: read
+      pull-requests: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Verify the current PR and send the ready-to-merge link
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
+          REVISION: ${{ github.event.workflow_run.head_sha }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          [[ "$REVISION" =~ ^[a-f0-9]{40}$ ]]
+          if [ -z "$PR_NUMBER" ]; then
+            PR_NUMBER=$(gh api "repos/$GITHUB_REPOSITORY/commits/$REVISION/pulls" \
+              --jq '[.[] | select(.state == "open" and .base.ref == "main")] | if length == 1 then .[0].number else empty end')
+          fi
+          if [ -z "$PR_NUMBER" ]; then exit 0; fi
+          [[ "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]]
+
+          for attempt in {1..6}; do
+            PR_FACTS=$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" \
+              --json headRefOid,state,isDraft,baseRefName,mergeStateStatus \
+              --jq '[.headRefOid,.state,.isDraft,.baseRefName,.mergeStateStatus] | @tsv')
+            IFS=$'\t' read -r HEAD STATE DRAFT BASE MERGE_STATE <<< "$PR_FACTS"
+            if [ "$HEAD" != "$REVISION" ] || [ "$STATE" != OPEN ] || [ "$DRAFT" != false ] || [ "$BASE" != main ]; then exit 0; fi
+            if [ "$MERGE_STATE" = CLEAN ]; then
+              PR_TITLE=$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json title --jq .title)
+              python3 scripts/notify-telegram.py \
+                --title "Atlas PR #$PR_NUMBER is ready to merge" \
+                --message="$PR_TITLE"$'\n\n'"Revision ${REVISION:0:12}. GitHub confirms the required checks and approvals are complete." \
+                --url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/pull/$PR_NUMBER" --url-label 'Review and merge PR'
+              exit 0
+            fi
+            case "$MERGE_STATE" in BLOCKED|UNKNOWN) sleep 5 ;; *) exit 0 ;; esac
+          done
+          echo 'GitHub did not confirm this revision was ready to merge.' >> "$GITHUB_STEP_SUMMARY"

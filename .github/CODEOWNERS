@@ -1,0 +1,21 @@
+# GitHub CODEOWNERS for India Fintech Risk Atlas
+# Defines who reviews and signs off on changes across code, infrastructure, and content.
+
+# Global default: Technical Maintainers own repository governance, CI, and build tools
+* @eyeinthesky6
+
+# Core repository infrastructure & automations
+/.github/ @eyeinthesky6
+/scripts/ @eyeinthesky6
+/workers/ @eyeinthesky6
+
+# Website UI & Astro components
+/src/components/ @eyeinthesky6
+/src/styles/ @eyeinthesky6
+/astro.config.mjs @eyeinthesky6
+
+# Content & Evidence (Requires Domain Expert / Content Maintainer sign-off)
+# Maker-Checker principle: Content updates require double-ledger evidence verification.
+/src/content/docs/ @eyeinthesky6
+/research/evidence/ @eyeinthesky6
+/research/attestations/ @eyeinthesky6

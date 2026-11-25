@@ -1,12 +1,14 @@
 # India Fintech Risk Atlas — Model Context Protocol (MCP) Server
 
-Official Model Context Protocol (MCP) server for **India Fintech Risk Atlas**. Provides AI coding assistants, compliance agents, and risk engineering teams (Claude Desktop, Cursor, Antigravity, ChatGPT, OpenCode, Kilo) with 100% feature parity with the web application: full-text search, Ready-Reckoner controls, claim-level evidence ledgers, interactive knowledge graph navigation, persona filtering, gap-audit checklists, and private correction submission.
+Official Model Context Protocol (MCP) server for **India Fintech Risk Atlas**. Provides AI coding assistants, compliance agents, and risk engineering teams (Claude Desktop, Cursor, Antigravity, ChatGPT, OpenCode, Kilo) with a subset of web application capabilities: full-text search, Ready-Reckoner controls, claim-level evidence ledgers, interactive knowledge graph navigation, persona filtering, gap-audit checklists, and private correction submission.
 
 ---
 
 ## 🚀 Quick Setup
 
 ### 1. Claude Desktop (`claude_desktop_config.json`)
+First clone the repository, install dependencies with `cd mcp && npm ci`, then run `npm run data` from the repository root. This is a research preview; neither source-checking nor user feedback is independent certification.
+
 Add to `%APPDATA%\Claude\claude_desktop_config.json` (Windows) or `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS):
 
 ```json
@@ -52,7 +54,7 @@ Add to `%APPDATA%\Claude\claude_desktop_config.json` (Windows) or `~/Library/App
 
 ---
 
-## 🛠️ Complete Toolset (100% Parity with Web UI)
+## 🛠️ Available tools
 
 | Category | Tool | Parameters | UI Feature Parity |
 |---|---|---|---|
@@ -106,9 +108,13 @@ npm test
 ## 🌐 Remote MCP vs. Local stdio Evaluation
 
 This server is packaged intentionally as a **local stdio process** rather than a publicly exposed remote HTTP/SSE endpoint.
-* **Web & Chat Users (ChatGPT, Gemini Web, Perplexity):** Covered with zero friction and zero compute cost via our static CDN index at [`/llms.txt`](https://eyeinthesky6.github.io/india-fintech-risk-atlas/llms.txt) and [`/atlas-records.json`](https://eyeinthesky6.github.io/india-fintech-risk-atlas/atlas-records.json).
-* **Developer & IDE Users (Cursor, Claude Desktop, Antigravity, VS Code):** Covered via local stdio with sub-2ms response times and offline capability.
+* **Web & Chat Users (ChatGPT, Gemini Web, Perplexity):** Can attempt to retrieve public data via the static CDN index (client-dependent; not automatic discovery or an MCP connection) at [`/llms.txt`](https://eyeinthesky6.github.io/india-fintech-risk-atlas/llms.txt) and [`/atlas-records.json`](https://eyeinthesky6.github.io/india-fintech-risk-atlas/atlas-records.json).
+* **Developer & IDE Users (Cursor, Claude Desktop, Antigravity, VS Code):** Supported via local stdio and a bundled offline dataset. Refresh by pulling the latest repository and running `npm run data` from the repository root. Restart the MCP process to reload the snapshot.
 
 For the full architectural decision record, security requirements, and activation triggers for when to deploy a remote Cloudflare Worker SSE endpoint, see [docs/REMOTE_MCP_EVALUATION.md](../docs/REMOTE_MCP_EVALUATION.md).
   6. *Gap Checklist Invariant:* Guarantees well-formed tables across Markdown and JSON formats.
   7. *Submission Validation Gate:* Enforces required fields before triage forwarding.
+
+## Snapshot freshness
+
+The CLI checks the fixed GitHub Pages JSON endpoint on startup (cached for six hours). It selects a validated snapshot, rejects older generation timestamps, and falls back to the newest valid cached or bundled snapshot on network failure. Use `--offline` or `ATLAS_OFFLINE=1` to disable the network check; `--refresh` bypasses the cache interval. Restart the process to refresh an existing session. Dataset generation time is not a regulatory verification date. Network access for correction submissions is separate from dataset refresh.

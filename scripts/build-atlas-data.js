@@ -1,3 +1,4 @@
+import { buildRelationships } from '../src/lib/atlas-relationships.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -286,54 +287,17 @@ function buildGuideDocs() {
 }
 
 function buildKnowledgeGraph(records) {
-  const nodes = records.map((r) => ({
-    id: r.slug,
-    recordId: r.recordId,
-    title: r.title,
-    theme: r.theme,
-    themeLabel: r.themeLabel,
-    actors: r.actors,
-    sourceLabels: r.sourceLabels,
+  const nodes = records.map(r => ({id:r.slug, slug:r.slug, recordId:r.recordId,title:r.title,theme:r.theme,themeLabel:r.themeLabel,actors:r.actors,sourceLabels:r.sourceLabels}));
+  const edges = buildRelationships(records.map(r => ({...r,body:r.fullMarkdown})), '/india-fintech-risk-atlas');
+  const ids = new Map(nodes.map(n=>[n.slug,n.recordId]));
+  const neighbors = (list, slug) => list.filter(e=>e.source===slug || e.target===slug).map(e=>ids.get(e.source===slug?e.target:e.source));
+  const connections = Object.fromEntries(nodes.map(n=>{
+    const sharedSources=neighbors(edges.sourceEdges,n.slug);
+    const sameTheme=neighbors(edges.themeEdges,n.slug);
+    const directLinks=neighbors(edges.directEdges,n.slug);
+    return [n.recordId,{sharedSources,sameTheme,directLinks,allNeighbors:[...new Set([...sharedSources,...sameTheme,...directLinks])]}];
   }));
-
-  const bySource = new Map();
-  const byTheme = new Map();
-
-  for (const r of records) {
-    for (const src of r.sourceLabels) {
-      if (!bySource.has(src)) bySource.set(src, []);
-      bySource.get(src).push(r.recordId);
-    }
-    if (r.theme) {
-      if (!byTheme.has(r.theme)) byTheme.set(r.theme, []);
-      byTheme.get(r.theme).push(r.recordId);
-    }
-  }
-
-  const connections = {};
-  for (const r of records) {
-    const sharedSources = new Set();
-    const sameTheme = new Set();
-
-    for (const src of r.sourceLabels) {
-      for (const other of bySource.get(src) || []) {
-        if (other !== r.recordId) sharedSources.add(other);
-      }
-    }
-    if (r.theme) {
-      for (const other of byTheme.get(r.theme) || []) {
-        if (other !== r.recordId) sameTheme.add(other);
-      }
-    }
-
-    connections[r.recordId] = {
-      sharedSources: Array.from(sharedSources),
-      sameTheme: Array.from(sameTheme),
-      allNeighbors: Array.from(new Set([...sharedSources, ...sameTheme])),
-    };
-  }
-
-  return { nodes, connections };
+  return {nodes,connections,...edges};
 }
 
 export function generateAllData() {

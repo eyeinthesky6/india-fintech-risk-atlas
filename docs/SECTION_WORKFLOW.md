@@ -14,8 +14,20 @@ One product + one topic/record, or at most five closely related records. Start w
 4. Write atomic claims with source locators in `research/evidence/<record-id>.md`. Do not claim verification from a search-result snippet.
 5. Draft one record in the Ready-Reckoner 6-part layout; explain counterexamples, limitations and data access constraints.
 6. Create `research/attestations/<record-id>.md` from the template. Check only steps actually completed. **Unchecked boxes are permitted for draft work**; do not falsely check a box to pass a gate.
-7. Separate reviewer reopens primary sources, records discrepancies and signs the independent review item. Researcher must not self-certify review.
-8. Open PR with the checklist. Stop and report blockers. Never merge autonomously.
+7. Open the PR with the work unit and its source evidence. Run the agent review against the exact revision before requesting maintainer approval.
+8. Report blockers and the review verdict. Leave the merge decision with the maintainer.
+
+## Agent review before requesting approval
+
+Run this as a separate pass after drafting. The executing agent can run both passes in the same chat. Begin the review with the work unit, the base and head commits, the actual diff, and the original sources. Treat the draft's summary and completed checkboxes as claims to verify. For code-only changes, trace the entry points, callers, permissions, and prior behavior that the diff affects.
+
+1. **Scope and preservation.** Read the whole diff, including deletions, renamed paths, and generated files. Compare it with the request and adjacent records. Check that existing caveats, cross-links, stable IDs, and controls still have a home.
+2. **Claim and source checks.** Trace each added or changed material claim to its ledger row and exact primary-source passage. Check publisher, product and actor scope, effective dates, exceptions, and supersession. Keep corroboration and Atlas suggestions in their proper evidence layers. Record inaccessible sources, unsupported wording, and unresolved evidence gaps.
+3. **Publication and approval.** Check that the article, ledger, attestation, and exported status agree. Trace the changed publication paths and confirm the visible status and blockers. Check that missing approval or stale review evidence still blocks the applicable action and that edits invalidate approval for the earlier revision.
+4. **Verification.** Run the applicable checks below and exercise the changed path. For changed gates, test both an accepted case and a rejected case. Record the results and any checks that remain open.
+5. **Verdict.** Report `Ready for maintainer`, `Fix before merge`, or `Needs evidence` with the reviewed head SHA, file or source locators for findings, checks run, and remaining blockers. After fixes or a new commit, review the affected diff again and update the receipt to the new SHA.
+
+An agent review leaves the independent-human declarations untouched. If a source remains blocked, record it and keep the affected record at the appropriate research stage. A distinct human must reopen the sources and sign the independent attestation to promote a record to **Human checked**.
 
 ## Hard versus soft gates
 - **Hard (machine-verifiable):** Attestation exists for changed published-content records (`scripts/check-attestations.py`), required checklist sections are present, frontmatter passes Zod schema (`src/taxonomy.json`), double-ledger reference URL parity is confirmed, and build/link checks pass (`npm run build`).
@@ -46,7 +58,7 @@ npm run build
 ## Publication policy
 The Atlas is a public research reference. Draft and source-checked records may appear in the site, search and machine exports with their review stage and source blockers. Keep provisional claims labeled alongside their citations and outside compliance checklists. The five evidence layers distinguish attributed material from Atlas suggestions.
 
-Pull requests that change site content, research ledgers, public exports, or their publication controls require the maintainer to approve the current Actions run through **Review deployments**. The required **Content attestation** check waits for that approval. New commits require approval of the new run. Pages publishes from `main` and checks the attestations, citations, and regenerated exports before uploading the site. Feed watchers and corrections create triage items for consideration.
+Pull requests that change site content, research ledgers, public exports, or their publication controls require the maintainer to approve the current Actions run through **Review deployments**. The Telegram alert links to that run when GitHub reports a pending decision. The required **Content attestation** check waits for GitHub's approval. New commits require approval of the new run. Pages publishes from `main` and checks the attestations, citations, and regenerated exports before uploading the site. Feed watchers and corrections create triage items for consideration.
 
 The public **Human checked** label requires the `reviewed` or `published` stage, a complete evidence ledger and checklist, an attestation by a distinct human reviewer for the exact article and evidence revision, and human merge approval. Use a stable reviewer identifier in the attestation and keep the link to the person's identity with maintainers. The site and exports show the status without a reviewer name. Readers should consult the original source for authoritative wording and applicability.
 

@@ -69,15 +69,15 @@ jobs:
         env:
           REVISION: ${{ steps.approval.outputs.revision }}
           PR_NUMBER: ${{ steps.approval.outputs.pr_number }}
+          COMMENT_APPROVAL_ENABLED: ${{ vars.ATLAS_COMMENT_APPROVAL_ENABLED }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          CHANGE="Revision ${REVISION:0:12}"
-          if [ -n "$PR_NUMBER" ]; then
-            CHANGE="PR #$PR_NUMBER ($CHANGE)"
-          fi
+          SUMMARY="$RUNNER_TEMP/atlas-approval-telegram.json"
+          python3 scripts/telegram-update.py approval \
+            --repo-url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" \
+            --run "$VALIDATION_RUN_ID" --revision "$REVISION" --pr "${PR_NUMBER:-}" \
+            --comment-approval "${COMMENT_APPROVAL_ENABLED:-}" > "$SUMMARY"
           python3 scripts/notify-telegram.py \
             --title 'Atlas content is waiting for approval' \
-            --message "$CHANGE is waiting for the maintainer. Open GitHub and select Review deployments, then atlas-content-approval." \
-            --url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$VALIDATION_RUN_ID" \
-            --url-label 'Review this revision on GitHub'
+            --summary-file "$SUMMARY"

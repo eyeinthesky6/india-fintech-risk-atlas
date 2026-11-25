@@ -21,6 +21,21 @@ notify = load_script('notify-telegram')
 
 
 class NotificationTests(unittest.TestCase):
+    def test_approval_links_to_both_screens_and_only_offers_enabled_commands(self):
+        args = argparse.Namespace(repo_url='https://github.com/owner/atlas', run='1234',
+                                  revision='a' * 40, pr='20', comment_approval='true')
+        summary = update.approval(args)
+        self.assertIn(f'approved 1234 {args.revision}', summary['message'])
+        self.assertEqual(summary['links'], [
+            ['Open PR in GitHub', 'https://github.com/owner/atlas/pull/20'],
+            ['Approve on GitHub (browser)', 'https://github.com/owner/atlas/actions/runs/1234'],
+        ])
+        args.comment_approval = ''
+        self.assertNotIn('approved 1234', update.approval(args)['message'])
+        args.pr, args.comment_approval = '', 'true'
+        self.assertEqual(len(update.approval(args)['links']), 1)
+        self.assertNotIn('approved 1234', update.approval(args)['message'])
+
     def test_release_summary_describes_the_changed_copy_and_links_the_record(self):
         before, after = 'a' * 40, 'b' * 40
         record = 'src/content/docs/upi/authentication-context.md'

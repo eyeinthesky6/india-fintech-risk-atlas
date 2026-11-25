@@ -200,6 +200,23 @@ def regulatory(args):
     return {'message': '\n'.join(lines), 'links': links}
 
 
+def approval(args):
+    if not re.fullmatch(r'[1-9][0-9]*', args.run) or not re.fullmatch(r'[a-f0-9]{40}', args.revision):
+        raise ValueError('Expected a GitHub run ID and full revision')
+    repo = args.repo_url.rstrip('/')
+    change = f'Revision {args.revision[:12]}'
+    links = []
+    if re.fullmatch(r'[1-9][0-9]*', args.pr):
+        change = f'PR #{args.pr} ({change})'
+        links.append(['Open PR in GitHub', f'{repo}/pull/{args.pr}'])
+    message = (f'{change} is waiting for your approval. Open the Actions run in a browser, '
+               'then select Review deployments → atlas-content-approval → Approve and deploy.')
+    if links and args.comment_approval == 'true':
+        message += f'\n\nOr post this exact comment on the PR:\napproved {args.run} {args.revision}'
+    links.append(['Approve on GitHub (browser)', f'{repo}/actions/runs/{args.run}'])
+    return {'message': message, 'links': links}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     summaries = parser.add_subparsers(dest='mode', required=True)
@@ -211,8 +228,15 @@ def main():
     deploy.add_argument('--repo-url', required=True)
     feeds = summaries.add_parser('regulatory')
     feeds.add_argument('--report', required=True)
+    review = summaries.add_parser('approval')
+    review.add_argument('--repo-url', required=True)
+    review.add_argument('--run', required=True)
+    review.add_argument('--revision', required=True)
+    review.add_argument('--pr', default='')
+    review.add_argument('--comment-approval', default='')
     args = parser.parse_args()
-    print(json.dumps(deployment(args) if args.mode == 'deployment' else regulatory(args)))
+    render = {'deployment': deployment, 'regulatory': regulatory, 'approval': approval}[args.mode]
+    print(json.dumps(render(args)))
 
 
 if __name__ == '__main__':

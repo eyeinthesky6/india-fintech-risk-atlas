@@ -311,7 +311,7 @@ def analyze(args):
             ev_txt = ev_path.read_text(encoding='utf-8')
             ev_urls = extract_all_external_urls(ev_txt)
             for url in ref_urls:
-                if url not in ev_txt:
+                if url not in ev_urls:
                     missing_ledger_urls.append({'recordId': rid, 'file': rel, 'url': url})
 
         combined_urls = sorted(set(ref_urls) | set(ev_urls))

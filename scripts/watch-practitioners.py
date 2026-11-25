@@ -88,12 +88,14 @@ KEYWORD_REGEX = re.compile("|".join(KEYWORDS), re.IGNORECASE)
 TECHNICAL_KEYWORD_REGEX = re.compile("|".join(TECHNICAL_KEYWORDS), re.IGNORECASE)
 
 TOPIC_ROUTING = [
-    (re.compile(r"idempotenc?y|webhook|signature|duplicate|tstore", re.I), "UPI-005", "Authentication context & idempotency"),
-    (re.compile(r"reconciliation|settlement|pending|out-of-order|refund", re.I), "UPI-015", "Payment status reconciliation"),
-    (re.compile(r"dispute|chargeback|udir|urcs", re.I), "UPI-013", "Dispute routing & UDIR"),
-    (re.compile(r"mule|kyc|shell|funnel", re.I), "UPI-011", "Mule account funnel"),
+    (re.compile(r"idempotenc?y|webhook|signature|duplicate|tstore|reconciliation|pending|out-of-order", re.I), "UPI-005", "Payment status reconciliation & idempotency"),
+    (re.compile(r"settlement|urcs", re.I), "UPI-014", "Settlement exceptions & URCS"),
+    (re.compile(r"dispute|chargeback|udir", re.I), "UPI-013", "Dispute routing & UDIR"),
+    (re.compile(r"mule|funnel|dormancy", re.I), "UPI-002", "Mule-account funnel"),
+    (re.compile(r"kyc|shell|laundering", re.I), "UPI-012", "Merchant onboarding & KYC"),
     (re.compile(r"emulator|root|rasp|overlay|apk|tampering|sandboxing|isolation", re.I), "UPI-008", "Untrusted app access & RASP"),
     (re.compile(r"velocity|burst|rate limit|spike|fraud|real-time transaction", re.I), "UPI-001", "Unusual outbound velocity & fraud"),
+    (re.compile(r"refund|liability|unauthori[sz]ed", re.I), "UPI-015", "Customer liability & refunds"),
 ]
 
 EVIDENCE_FILE = "research/upi/OPERATOR_EVIDENCE.md"

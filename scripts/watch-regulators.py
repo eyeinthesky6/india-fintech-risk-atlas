@@ -62,26 +62,29 @@ KEYWORDS = [
 
 KEYWORD_REGEX = re.compile("|".join(KEYWORDS), re.IGNORECASE)
 
-REGISTER_PATH = "research/upi/PRIMARY_SOURCE_REGISTER.md"
+import glob
+
+REGISTER_GLOB = "research/*/PRIMARY_SOURCE_REGISTER.md"
+
+
+def normalize_url(url):
+    return url.strip().rstrip("/").lower()
 
 
 def load_registered_urls():
     registered = set()
-    if not os.path.exists(REGISTER_PATH):
-        return registered
+    for reg_path in sorted(glob.glob(REGISTER_GLOB)):
+        with open(reg_path, "r", encoding="utf-8") as f:
+            content = f.read()
 
-    with open(REGISTER_PATH, "r", encoding="utf-8") as f:
-        content = f.read()
+        # Match URLs inside Markdown links [text](url) or angle brackets <url>
+        urls = re.findall(r"\[.*?\]\((https?://[^\s\)]+)\)", content)
+        for u in urls:
+            registered.add(normalize_url(u))
 
-    # Match URLs inside Markdown links [text](url) or angle brackets <url>
-    urls = re.findall(r"\[.*?\]\((https?://[^\s\)]+)\)", content)
-    for u in urls:
-        # Normalize trailing slashes and query param casings
-        registered.add(u.strip().rstrip("/"))
-
-    raw_urls = re.findall(r"<(https?://[^\s>]+)>", content)
-    for u in raw_urls:
-        registered.add(u.strip().rstrip("/"))
+        raw_urls = re.findall(r"<(https?://[^\s>]+)>", content)
+        for u in raw_urls:
+            registered.add(normalize_url(u))
 
     return registered
 
@@ -130,8 +133,8 @@ def filter_relevant_items(items, registered_urls):
         text_to_search = f"{it['title']} {it['description']}"
         matched_keywords = KEYWORD_REGEX.findall(text_to_search)
         if matched_keywords:
-            clean_link = it["link"].rstrip("/")
-            is_already_registered = any(clean_link in reg or reg in clean_link for reg in registered_urls)
+            clean_link = normalize_url(it["link"])
+            is_already_registered = clean_link in registered_urls
             unique_kws = sorted(list(set(k.lower() for k in matched_keywords)))
             it["matched_keywords"] = unique_kws
             it["is_registered"] = is_already_registered

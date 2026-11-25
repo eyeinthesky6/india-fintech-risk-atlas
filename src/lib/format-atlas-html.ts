@@ -104,8 +104,7 @@ function formatH2Chunk(wrapperHtml: string, bodyHtml: string): { html: string; i
 
   const layerMatch = /^Layer\s+([1-5])\s*[—–-]\s*(.+)$/i.exec(plainTitle);
   if (layerMatch) {
-    const rawNum = layerMatch[1];
-    const layerNum = rawNum === '4' ? '5' : rawNum;
+    const layerNum = layerMatch[1];
     const meta = LAYER_META[layerNum] ?? LAYER_META['5'];
     const cleanTitle = layerMatch[2].trim();
     const cleanedWrapper = wrapperHtml.replace(

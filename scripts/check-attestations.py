@@ -108,18 +108,36 @@ def check_duplicate_ids():
             duplicates.append(f'duplicate record ID {rid}: {seen[rid]} and {path}')
         else:
             seen[rid] = path
-    return duplicates
+    return seen, duplicates
 
 
 def is_pending(val):
     return not val or val.strip().upper() == 'PENDING'
 
 
-def main():
-    failures = check_duplicate_ids()
+def same_person(a, b):
+    return bool(a and b and a.strip().lower() == b.strip().lower())
+
+
+def resolve_target_content_files(id_map):
+    selected = []
+    seen_paths = set()
     for path in target_files():
-        if path in EXEMPT or not path.startswith(CONTENT_PREFIXES) or not path.endswith(('.md', '.mdx')):
-            continue
+        candidate = None
+        if path.startswith(CONTENT_PREFIXES) and path.endswith(('.md', '.mdx')) and path not in EXEMPT:
+            candidate = path
+        elif path.startswith(('research/attestations/', 'research/evidence/')) and path.endswith('.md'):
+            rid = pathlib.Path(path).stem
+            candidate = id_map.get(rid)
+        if candidate and candidate not in seen_paths:
+            seen_paths.add(candidate)
+            selected.append(candidate)
+    return selected
+
+
+def main():
+    id_map, failures = check_duplicate_ids()
+    for path in resolve_target_content_files(id_map):
         if not (ROOT / path).exists():
             continue
 
@@ -164,7 +182,7 @@ def main():
         researcher = researcher_m.group(1).strip() if researcher_m else ''
         reviewer = reviewer_m.group(1).strip() if reviewer_m else ''
 
-        if not is_pending(reviewer) and reviewer == researcher:
+        if not is_pending(reviewer) and same_person(reviewer, researcher):
             failures.append(f'{att_rel}: independent reviewer cannot match researcher ({reviewer})')
 
         if len(boxes) == 12 and is_pending(reviewer):
@@ -188,10 +206,11 @@ def main():
             has_refs, ref_urls = extract_reference_urls(txt)
             if stage in {'source-checked', 'reviewed', 'published'} and not has_refs:
                 failures.append(f'{path}: missing ## References section required for {stage} stage')
+            ev_urls = {u.rstrip('.,;\'"`') for u in re.findall(r'https?://[^\s\)\]>"]+', ev_body)}
             for url in ref_urls:
                 if any(p.search(url) for p in DEPRECATED_REF_URL_RES):
                     failures.append(f'{path}: deprecated/retired reference URL: {url}')
-                if url not in ev_body:
+                if url not in ev_urls:
                     failures.append(f'{path}: external reference URL not recorded in {ev_rel}: {url}')
 
             if stage == 'source-checked':
@@ -202,11 +221,11 @@ def main():
             elif stage in {'reviewed', 'published'}:
                 if len(boxes) != 12 or any(x == ' ' for x in boxes):
                     failures.append(f'{att_rel}: reviewed/published needs all 12 declarations')
-                if is_pending(reviewer) or is_pending(researcher) or reviewer == researcher:
+                if is_pending(reviewer) or is_pending(researcher) or same_person(reviewer, researcher):
                     failures.append(f'{att_rel}: distinct named researcher/reviewer required')
                 ev_rev_m = re.search(r'^Independent reviewer:\s*(.*)$', ev_body, re.M)
                 ev_rev = ev_rev_m.group(1).strip() if ev_rev_m else ''
-                if is_pending(ev_rev) or ev_rev == researcher:
+                if is_pending(ev_rev) or same_person(ev_rev, researcher):
                     failures.append(f'{ev_rel}: distinct named Independent reviewer required in evidence ledger')
                 if re.search(r'\|\s*(PENDING|unverified|blocked\b[^|]*)\s*\|', ev_body, re.I):
                     failures.append(f'{ev_rel}: reviewed/published record cannot contain PENDING/unverified/blocked claims')

@@ -119,7 +119,7 @@ async function runPropertyTests() {
       throw new Error(`Self-loop detected in node ${id}`);
     }
     // 2. Union property: allNeighbors == union(sharedSources, sameTheme)
-    const union = new Set([...conn.sharedSources, ...conn.sameTheme]);
+    const union = new Set([...conn.sharedSources, ...conn.sameTheme, ...(conn.directLinks || [])]);
     if (conn.allNeighbors.length !== union.size) {
       throw new Error(`allNeighbors does not match union for node ${id}`);
     }

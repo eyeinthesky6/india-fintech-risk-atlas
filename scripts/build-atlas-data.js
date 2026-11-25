@@ -1,3 +1,5 @@
+import { buildRelationships, sourceKeys } from '../src/lib/atlas-relationships.js';
+import { renderLlmIndex } from '../mcp/src/llms-index.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -9,40 +11,9 @@ const ROOT_DIR = path.resolve(__dirname, '..');
 const TAXONOMY_PATH = path.join(ROOT_DIR, 'src', 'taxonomy.json');
 const DOCS_DIR = path.join(ROOT_DIR, 'src', 'content', 'docs');
 const EVIDENCE_DIR = path.join(ROOT_DIR, 'research', 'evidence');
-const ATTESTATIONS_DIR = path.join(ROOT_DIR, 'research', 'attestations');
 
 const taxonomy = JSON.parse(fs.readFileSync(TAXONOMY_PATH, 'utf8'));
 
-const SOURCE_MATCHERS = [
-  [/[?&]id=13642\b/i, 'RBI DPSC 2026'],
-  [/[?&]id=13624\b/i, 'RBI PB DPSC 2026'],
-  [/[?&]id=13633\b/i, 'RBI SFB DPSC 2026'],
-  [/[?&]id=13751\b/i, 'RBI Non-bank PSO 2026'],
-  [/[?&]id=13543\b/i, 'RBI RBC 2026'],
-  [/[?&]id=12898\b/i, 'RBI Auth 2025'],
-  [/[?&]id=12896\b/i, 'RBI PA MD 2025'],
-  [/[?&]id=11946\b/i, 'RBI ODR 2020'],
-  [/[?&]id=11693\b/i, 'RBI TAT 2019'],
-  [/[?&]id=13641\b/i, 'RBI FRM 2026'],
-  [/[?&]id=23810\b/i, 'RBI Fraud Discussion Paper'],
-  [/[?&]id=13089\b/i, 'RBI PB RBC 2025'],
-  [/[?&]id=11040\b/i, 'RBI Liability 2017'],
-  [/PRID=2260277\b/i, 'PIB MuleHunter MoU'],
-  [/npci\.org\.in\/fraud-awareness/i, 'NPCI Fraud Awareness'],
-  [/npci\.org\.in\/faqs\/upi/i, 'NPCI UPI FAQs'],
-  [/npci\.org\.in\/complaint-register/i, 'NPCI Complaint Register'],
-  [/npci\.org\.in\/circulars\/upi/i, 'NPCI UPI Circulars'],
-  [/npci\.org\.in\/product\/upi/i, 'NPCI UPI Overview & Roles'],
-  [/UPI_Settlement_Process/i, 'NPCI Settlement Process'],
-  [/UPI_OC_No_235/i, 'NPCI OC 235 (URCS TAT)'],
-  [/UPI_OC_No_220/i, 'NPCI OC 220 (P2P Collect)'],
-  [/UPI_OC_No_222/i, 'NPCI 222A (Settlement Cycles)'],
-  [/rscb\.bank\.in\/Content\/pdf\/npcicircular\.pdf/i, 'NPCI/2025-26/IS/003 (mirror)'],
-  [/razorpay\.com/i, 'Razorpay Docs'],
-  [/cashfree\.com/i, 'Cashfree Docs'],
-  [/stripe\.com/i, 'Stripe Radar Docs'],
-  [/arxiv\.org/i, 'arXiv Research Lead'],
-];
 
 function parseFrontmatter(raw) {
   const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
@@ -82,6 +53,16 @@ function parseFrontmatter(raw) {
   return { meta, body };
 }
 
+function normalizeBasis(raw) {
+  const text = raw.replace(/<[^>]+>/g, '').replace(/\*/g, '').replace(/\[\d+\]/g, '').trim();
+  const canonical = ['Regulatory', 'Industry practice', 'Community insight', 'Research & academic', 'Atlas guidance'];
+  const exact = canonical.find(b => b.toLowerCase() === text.toLowerCase());
+  if (exact) return exact;
+  if (/^Regulatory\s*\(consultation\)$/i.test(text)) return 'Regulatory';
+  // These are explicit regulator-labelled rows, not a finding of binding legal force.
+  if (/^RBI\b/i.test(text)) return 'Regulatory';
+  return text;
+}
 function parseTableRows(markdown) {
   const lines = markdown.split(/\r?\n/).filter((l) => l.trim().startsWith('|') && !l.includes('---'));
   if (lines.length < 2) return [];
@@ -93,8 +74,10 @@ function parseTableRows(markdown) {
       .map((c) => c.trim());
     if (cells.length >= 3) {
       rows.push({
-        basis: cells[0].replace(/\*.*?\*/g, '').trim(),
-        owner: cells[1].replace(/\*.*?\*/g, '').trim(),
+        basis: normalizeBasis(cells[0]),
+        basisRaw: cells[0],
+        regulatoryStatus: /consultation|proposal/i.test(cells[0]) ? 'proposal' : 'not-determined',
+        owner: cells[1].replace(/\*/g, '').trim(),
         action: cells[2],
       });
     }
@@ -121,19 +104,6 @@ function parseReferences(markdown) {
     }
   }
   return refs;
-}
-
-function extractSourceLabels(refs) {
-  const labels = new Set();
-  for (const ref of refs) {
-    const url = ref.url || ref.raw;
-    for (const [pattern, label] of SOURCE_MATCHERS) {
-      if (pattern.test(url)) {
-        labels.add(label);
-      }
-    }
-  }
-  return Array.from(labels);
 }
 
 function parseEvidenceLedger(recordId) {
@@ -168,7 +138,7 @@ function parseEvidenceLedger(recordId) {
 
 function buildRecord(fileRelPath) {
   const absPath = path.join(DOCS_DIR, fileRelPath);
-  const raw = fs.readFileSync(absPath, 'utf8');
+  const raw = fs.readFileSync(absPath, 'utf8').replace(/\r\n/g, '\n');
   const { meta, body } = parseFrontmatter(raw);
 
   if (!meta.recordId) {
@@ -224,7 +194,7 @@ function buildRecord(fileRelPath) {
 
   const recordId = meta.recordId;
   const evidenceLedger = parseEvidenceLedger(recordId);
-  const sourceLabels = extractSourceLabels(references);
+  const sourceLabels = sourceKeys(body);
 
   return {
     recordId,
@@ -241,7 +211,8 @@ function buildRecord(fileRelPath) {
     actors: meta.actors || [],
     evidenceLayers: meta.evidenceLayers || [],
     reviewStage: meta.reviewStage || 'draft',
-    lastSourceCheck: meta.lastSourceCheck || '2026-11-23',
+    blockerNote: meta.blockerNote || '',
+    lastSourceCheck: meta.lastSourceCheck || null,
     sourceLabels,
     sections,
     controls: whatToDoControls,
@@ -270,7 +241,7 @@ function buildGuideDocs() {
     let body = '';
     let description = '';
     if (fs.existsSync(absPath)) {
-      const raw = fs.readFileSync(absPath, 'utf8');
+      const raw = fs.readFileSync(absPath, 'utf8').replace(/\r\n/g, '\n');
       const parsed = parseFrontmatter(raw);
       body = parsed.body;
       description = parsed.meta.description || '';
@@ -286,62 +257,47 @@ function buildGuideDocs() {
 }
 
 function buildKnowledgeGraph(records) {
-  const nodes = records.map((r) => ({
-    id: r.slug,
-    recordId: r.recordId,
-    title: r.title,
-    theme: r.theme,
-    themeLabel: r.themeLabel,
-    actors: r.actors,
-    sourceLabels: r.sourceLabels,
+  const nodes = records.map(r => ({id:r.slug, slug:r.slug, recordId:r.recordId,title:r.title,theme:r.theme,themeLabel:r.themeLabel,actors:r.actors,sourceLabels:r.sourceLabels}));
+  const edges = buildRelationships(records.map(r => ({...r,body:r.fullMarkdown})), '/india-fintech-risk-atlas');
+  const ids = new Map(nodes.map(n=>[n.slug,n.recordId]));
+  const neighbors = (list, slug) => list.filter(e=>e.source===slug || e.target===slug).map(e=>ids.get(e.source===slug?e.target:e.source));
+  const connections = Object.fromEntries(nodes.map(n=>{
+    const sharedSources=neighbors(edges.sourceEdges,n.slug);
+    const sameTheme=neighbors(edges.themeEdges,n.slug);
+    const directLinks=neighbors(edges.directEdges,n.slug);
+    return [n.recordId,{sharedSources,sameTheme,directLinks,allNeighbors:[...new Set([...sharedSources,...sameTheme,...directLinks])]}];
   }));
+  return {nodes,connections,...edges};
+}
 
-  const bySource = new Map();
-  const byTheme = new Map();
-
-  for (const r of records) {
-    for (const src of r.sourceLabels) {
-      if (!bySource.has(src)) bySource.set(src, []);
-      bySource.get(src).push(r.recordId);
-    }
-    if (r.theme) {
-      if (!byTheme.has(r.theme)) byTheme.set(r.theme, []);
-      byTheme.get(r.theme).push(r.recordId);
-    }
+function reuseGenerationDate(dataset, existingPath) {
+  if (!fs.existsSync(existingPath)) return;
+  let existing;
+  try {
+    existing = JSON.parse(fs.readFileSync(existingPath, 'utf8'));
+  } catch (error) {
+    if (error instanceof SyntaxError) return;
+    throw error;
   }
+  const generatedAt = existing?.metadata?.generatedAt;
+  if (!Number.isFinite(Date.parse(generatedAt))) return;
 
-  const connections = {};
-  for (const r of records) {
-    const sharedSources = new Set();
-    const sameTheme = new Set();
-
-    for (const src of r.sourceLabels) {
-      for (const other of bySource.get(src) || []) {
-        if (other !== r.recordId) sharedSources.add(other);
-      }
-    }
-    if (r.theme) {
-      for (const other of byTheme.get(r.theme) || []) {
-        if (other !== r.recordId) sameTheme.add(other);
-      }
-    }
-
-    connections[r.recordId] = {
-      sharedSources: Array.from(sharedSources),
-      sameTheme: Array.from(sameTheme),
-      allNeighbors: Array.from(new Set([...sharedSources, ...sameTheme])),
-    };
+  // Rebuilding an unchanged corpus must preserve both its date and its bytes.
+  if (JSON.stringify({ ...dataset, metadata: { ...dataset.metadata, generatedAt } }) === JSON.stringify(existing)) {
+    dataset.metadata.generatedAt = generatedAt;
   }
-
-  return { nodes, connections };
 }
 
 export function generateAllData() {
-  const upiDir = path.join(DOCS_DIR, 'upi');
-  const files = fs
-    .readdirSync(upiDir)
-    .filter((f) => f.endsWith('.md'))
-    .map((f) => path.join('upi', f));
+  function discoverRecords(dir = DOCS_DIR) {
+    return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+      const abs = path.join(dir, entry.name);
+      if (entry.isDirectory()) return discoverRecords(abs);
+      return entry.isFile() && /\.mdx?$/.test(entry.name)
+        ? [path.relative(DOCS_DIR, abs)] : [];
+    });
+  }
+  const files = discoverRecords();
 
   const records = files.map((f) => buildRecord(f)).filter(Boolean);
 
@@ -351,6 +307,11 @@ export function generateAllData() {
     return a.recordId.localeCompare(b.recordId);
   });
 
+  const ids = new Set();
+  for (const record of records) {
+    if (ids.has(record.recordId)) throw new Error(`Duplicate record ID: ${record.recordId}`);
+    ids.add(record.recordId);
+  }
   const guideDocs = buildGuideDocs();
   const knowledgeGraph = buildKnowledgeGraph(records);
 
@@ -360,11 +321,13 @@ export function generateAllData() {
       version: '1.1.0',
       generatedAt: new Date().toISOString(),
       baseUrl: 'https://eyeinthesky6.github.io/india-fintech-risk-atlas/',
-      triageWorkerUrl: 'https://atlas-report-triage.6edroid.workers.dev',
       totalRecords: records.length,
+      coveredProducts: [...new Set(records.flatMap((r) => r.products))].sort(),
+      publicationStatus: 'research-preview',
+      verificationNotice: 'Source-checked records await independent review. Draft records may have blocked primary sources. Regulatory material can include proposals or future obligations. Verify the scope, effective date and primary text before relying on a claim.',
       totalGuideDocs: guideDocs.length,
       evidenceLayers: [
-        { id: 'official', label: 'Regulatory', authority: 'RBI / NPCI binding mandates & official directions' },
+        { id: 'official', label: 'Regulatory', authority: 'RBI / NPCI official material, including mandates and non-binding proposals' },
         { id: 'industry', label: 'Industry practice', authority: 'Company documentation & published engineering postmortems' },
         { id: 'practitioner', label: 'Community insight', authority: 'Operator firsthand observations & public case studies' },
         { id: 'research', label: 'Research & academic', authority: 'Empirical studies, academic papers, and benchmark leads' },
@@ -379,38 +342,21 @@ export function generateAllData() {
 
   const publicDir = path.join(ROOT_DIR, 'public');
   if (!fs.existsSync(publicDir)) fs.mkdirSync(publicDir, { recursive: true });
-  fs.writeFileSync(path.join(publicDir, 'atlas-records.json'), JSON.stringify(dataset, null, 2), 'utf8');
+  const publicSnapshot = path.join(publicDir, 'atlas-records.json');
+  reuseGenerationDate(dataset, publicSnapshot);
+  const snapshotJson = JSON.stringify(dataset, null, 2);
+  fs.writeFileSync(publicSnapshot, snapshotJson, 'utf8');
 
   const mcpDataDir = path.join(ROOT_DIR, 'mcp', 'data');
   if (!fs.existsSync(mcpDataDir)) fs.mkdirSync(mcpDataDir, { recursive: true });
-  fs.writeFileSync(path.join(mcpDataDir, 'atlas-records.json'), JSON.stringify(dataset, null, 2), 'utf8');
+  fs.writeFileSync(path.join(mcpDataDir, 'atlas-records.json'), snapshotJson, 'utf8');
 
-  const llmsTxt = [
-    '# India Fintech Risk Atlas',
-    '> An open, source-cited reference for Indian fintech (UPI, Cards, PA/PG, Lending) fraud patterns, controls, and operational risks.',
-    '',
-    '## About',
-    '- Source: https://github.com/eyeinthesky6/india-fintech-risk-atlas',
-    '- Live Documentation: https://eyeinthesky6.github.io/india-fintech-risk-atlas/',
-    '- API / JSON Dataset: https://eyeinthesky6.github.io/india-fintech-risk-atlas/atlas-records.json',
-    '- MCP Server: india-fintech-risk-atlas-mcp',
-    '- Evidence Layers: Regulatory (RBI/NPCI), Industry practice, Community insight, Research & academic, Atlas guidance',
-    '',
-    '## Canonical Risk Records',
-    ...records.map(
-      (r) =>
-        `- [${r.recordId}] ${r.title}: ${r.description} (${r.url}) - Layers: ${r.evidenceLayers.join(', ')} | Stage: ${r.reviewStage}`,
-    ),
-    '',
-    '## Documentation & Policies',
-    ...guideDocs.map((g) => `- [${g.title}](${g.url}): ${g.description || g.title}`),
-  ].join('\n');
-
-  fs.writeFileSync(path.join(publicDir, 'llms.txt'), llmsTxt, 'utf8');
+  fs.writeFileSync(path.join(publicDir, 'llms.txt'), renderLlmIndex(dataset), 'utf8');
 
   const fullDocs = [
     '# India Fintech Risk Atlas — Consolidated Knowledge Pack',
-    `Generated: ${new Date().toISOString()}`,
+    `Generated: ${dataset.metadata.generatedAt}`,
+    dataset.metadata.verificationNotice,
     '',
     '---',
     '',
@@ -419,6 +365,7 @@ export function generateAllData() {
       `URL: ${r.url}`,
       `Description: ${r.description}`,
       `Product: ${r.product} | Type: ${r.recordType} | Review Stage: ${r.reviewStage} | Last Source Check: ${r.lastSourceCheck}`,
+      ...(r.blockerNote ? [`Source blocker: ${r.blockerNote}`] : []),
       `Actors: ${r.actors.join(', ')} | Evidence Layers: ${r.evidenceLayers.join(', ')}`,
       '',
       r.fullMarkdown.replace(/^---\r?\n[\s\S]*?\r?\n---/, '').trim(),

@@ -8,10 +8,12 @@ import {
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { renderLlmIndex } from './llms-index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DATA_PATH = path.resolve(__dirname, '..', 'data', 'atlas-records.json');
+const TRIAGE_ENDPOINT = 'https://atlas-report-triage.6edroid.workers.dev';
 
 let cachedData = null;
 
@@ -78,7 +80,8 @@ function matchesActorRole(ownerText, queryRole) {
   });
 }
 
-export function createAtlasMcpServer() {
+export function createAtlasMcpServer(snapshot) {
+  const getData = () => snapshot || loadAtlasData();
   const server = new Server(
     {
       name: 'india-fintech-risk-atlas-mcp',
@@ -99,7 +102,7 @@ export function createAtlasMcpServer() {
         {
           name: 'search_risk_records',
           description:
-            'Search the India Fintech Risk Atlas for fraud schemes, controls, and operational risks across UPI, Cards, PA/PG, and Lending. Filter by keyword, product, actor, evidence layer, or review stage.',
+            'Search the India Fintech Risk Atlas for fraud schemes, controls, and operational risks across currently represented products in a research preview. Filter by keyword, product, actor, evidence layer, or review stage.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -120,6 +123,7 @@ export function createAtlasMcpServer() {
                 enum: ['official', 'industry', 'practitioner', 'research', 'atlas'],
                 description: 'Filter by evidence layer: "official" (Regulatory/RBI/NPCI), "industry" (Company docs), "practitioner" (Community insight), "research" (Academic/arXiv), "atlas" (Atlas guidance)',
               },
+              review_stage: { type: 'string', description: 'Exact record review stage, e.g. source-checked' },
               limit: {
                 type: 'number',
                 description: 'Maximum number of results to return (default: 10, max: 50)',
@@ -178,7 +182,7 @@ export function createAtlasMcpServer() {
         {
           name: 'explore_knowledge_graph',
           description:
-            'Explore the interconnected knowledge graph for a topic: discover connected neighbor records, shared statutory circulars, theme clusters, and outgoing/incoming relationships (exact parity with the Atlas Graph UI).',
+            'Explore the interconnected knowledge graph for a topic: discover connected neighbor records, shared statutory circulars, theme clusters, and outgoing/incoming relationships (co-citation and theme relationships are not proof of operational dependency).',
           inputSchema: {
             type: 'object',
             properties: {
@@ -188,7 +192,7 @@ export function createAtlasMcpServer() {
               },
               relation_type: {
                 type: 'string',
-                enum: ['all', 'shared-sources', 'same-theme'],
+                enum: ['all', 'shared-sources', 'same-theme', 'direct-links'],
                 description: 'Filter connection type: "all" (default), "shared-sources" (co-cited RBI/NPCI rules), or "same-theme" (lifecycle cluster)',
               },
             },
@@ -198,7 +202,7 @@ export function createAtlasMcpServer() {
         {
           name: 'get_persona_controls',
           description:
-            'Extract all statutory obligations, candidate controls, and mitigations tailored specifically to an entity role (e.g. "TPAP", "Remitter Bank", "PSP Bank", "Merchant", "Payment Aggregator") across the entire Atlas.',
+            'Extract source-attributed candidate controls and regulatory material (verify applicability and effective dates independently) tailored specifically to an entity role (e.g. "TPAP", "Remitter Bank", "PSP Bank", "Merchant", "Payment Aggregator") across the entire Atlas.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -218,7 +222,7 @@ export function createAtlasMcpServer() {
         {
           name: 'generate_gap_checklist',
           description:
-            'Generate an actionable gap-audit checklist for fintech engineering and risk teams preparing for RBI compliance or internal risk pre-audits.',
+            'Generate a preliminary, non-certified gap-audit checklist for fintech engineering and risk teams preparing for RBI compliance or internal risk pre-audits.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -295,7 +299,7 @@ export function createAtlasMcpServer() {
         {
           name: 'submit_correction',
           description:
-            'Submit a factual correction, outdated circular alert, or typo report to the Atlas maintainers triage queue. Reports are verified against primary RBI/NPCI sources before updating live documentation.',
+            'Send a factual correction to Atlas maintainers. If private triage requires browser verification, use the returned record URL to report the error on the site.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -341,7 +345,7 @@ export function createAtlasMcpServer() {
   // 2. Handle Tool Calls
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const { name, arguments: args } = request.params;
-    const data = loadAtlasData();
+    const data = getData();
 
     switch (name) {
       case 'search_risk_records': {
@@ -349,9 +353,11 @@ export function createAtlasMcpServer() {
         const product = (args?.product || '').toLowerCase().trim();
         const actor = (args?.actor || '').toLowerCase().trim();
         const layer = (args?.evidence_layer || '').toLowerCase().trim();
-        const limit = typeof args?.limit === 'number' && !isNaN(args.limit) ? Math.max(1, Math.min(args.limit, 50)) : 10;
+        const stage = String(args?.review_stage || '').toLowerCase().trim();
+        const limit = typeof args?.limit === 'number' && !isNaN(args.limit) ? Math.max(1, Math.min(Math.floor(args.limit), 50)) : 10;
 
         let results = data.records.filter((r) => {
+          if (stage && r.reviewStage !== stage) return false;
           if (product && !r.products.map((p) => p.toLowerCase()).includes(product)) return false;
           if (actor && !r.actors.map((a) => a.toLowerCase()).includes(actor)) return false;
           if (layer && !r.evidenceLayers.map((l) => l.toLowerCase()).includes(layer)) return false;
@@ -363,6 +369,7 @@ export function createAtlasMcpServer() {
               r.description,
               r.sections?.what_it_is || '',
               r.sections?.impact || '',
+              r.fullMarkdown || '',
               ...(r.controls || []).map((c) => `${c.basis} ${c.owner} ${c.action}`),
             ]
               .join(' ')
@@ -372,6 +379,7 @@ export function createAtlasMcpServer() {
           return true;
         });
 
+        const totalMatches = results.length;
         results = results.slice(0, limit);
 
         const formatted = results.map((r) => ({
@@ -383,6 +391,8 @@ export function createAtlasMcpServer() {
           actors: r.actors,
           evidence_layers: r.evidenceLayers,
           review_stage: r.reviewStage,
+          source_blocker: r.blockerNote || undefined,
+          last_source_check: r.lastSourceCheck,
           controls_count: r.controls?.length || 0,
           citations_count: r.references?.length || 0,
         }));
@@ -393,7 +403,10 @@ export function createAtlasMcpServer() {
               type: 'text',
               text: JSON.stringify(
                 {
-                  total_matches: results.length,
+                  total_matches: totalMatches,
+                  returned_matches: results.length,
+                  dataset_generated_at: data.metadata.generatedAt,
+                  verification_notice: data.metadata.verificationNotice,
                   results: formatted,
                 },
                 null,
@@ -459,6 +472,8 @@ export function createAtlasMcpServer() {
         let neighbors = [];
         if (relation === 'shared-sources') {
           neighbors = connections.sharedSources;
+        } else if (relation === 'direct-links') {
+          neighbors = connections.directLinks || [];
         } else if (relation === 'same-theme') {
           neighbors = connections.sameTheme;
         } else {
@@ -474,6 +489,7 @@ export function createAtlasMcpServer() {
             theme: nr ? nr.themeLabel : '',
             shared_sources: connections.sharedSources.includes(nid),
             same_theme: connections.sameTheme.includes(nid),
+            direct_link: (connections.directLinks || []).includes(nid),
           };
         });
 
@@ -522,7 +538,11 @@ export function createAtlasMcpServer() {
                 record_id: r.recordId,
                 topic_title: r.title,
                 url: r.url,
+                review_stage: r.reviewStage,
+                source_blocker: r.blockerNote || undefined,
                 basis: c.basis,
+                basis_raw: c.basisRaw ?? c.basis,
+                regulatory_status: c.regulatoryStatus ?? 'not-determined',
                 owner: c.owner,
                 action: c.action,
               });
@@ -564,7 +584,11 @@ export function createAtlasMcpServer() {
               id: `${r.recordId}-C${checklistItems.length + 1}`,
               record_id: r.recordId,
               topic: r.title,
+              review_stage: r.reviewStage,
+              source_blocker: r.blockerNote || undefined,
               basis: c.basis,
+              basis_raw: c.basisRaw ?? c.basis,
+              regulatory_status: c.regulatoryStatus ?? 'not-determined',
               owner: c.owner,
               requirement: c.action,
               status: 'NOT_AUDITED',
@@ -590,7 +614,7 @@ export function createAtlasMcpServer() {
           '| Check | Record | Basis | Entity Scope | Action Requirement | Implementation Status | Evidence / Notes |',
           '|---|---|---|---|---|---|---|',
           ...checklistItems.map(
-            (item) => `| [ ] | \`${item.record_id}\` | **${item.basis}** | ${item.owner} | ${item.requirement.replace(/\|/g, '\\|')} | Pending | |`,
+            (item) => `| [ ] | \`${item.record_id}\` (${item.review_stage}) | **${item.basis}** (${item.regulatory_status}) | ${item.owner} | ${item.requirement.replace(/\|/g, '\\|')} | Pending | ${item.source_blocker?.replace(/\|/g, '\\|') ?? ''} |`,
           ),
         ];
 
@@ -636,11 +660,13 @@ export function createAtlasMcpServer() {
 
         const cleanBody = record.fullMarkdown
           .replace(/^---\r?\n[\s\S]*?\r?\n---/, '')
-          .replace(/<details[\s\S]*?<\/details>/gi, '')
-          .replace(/<[a-zA-Z][^>]*>[\s\S]*?<\/[a-zA-Z]+>/g, '')
+          .replace(/<\/?details\b[^>]*>/gi, '')
+          .replace(/<\/?summary\b[^>]*>/gi, '')
+          .replace(/<a\b[^>]*>([\s\S]*?)<\/a>/gi, '$1')
           .trim();
 
-        const exportOutput = `${record.title}\n\n${record.description}\n\n${cleanBody}\n\nSource: ${record.url}`;
+        const blocker = record.blockerNote ? `\nSource blocker: ${record.blockerNote}` : '';
+        const exportOutput = `${record.title}\n\n${record.description}\n\nReview stage: ${record.reviewStage}; last source check: ${record.lastSourceCheck ?? 'unknown'}. Research preview, not certified compliance advice.${blocker}\n\n${cleanBody}\n\nSource: ${record.url}`;
 
         return {
           content: [{ type: 'text', text: exportOutput }],
@@ -698,6 +724,7 @@ export function createAtlasMcpServer() {
                   record_id: record.recordId,
                   title: record.title,
                   review_stage: record.reviewStage,
+                  source_blocker: record.blockerNote || undefined,
                   last_source_check: record.lastSourceCheck,
                   evidence_layers_present: record.evidenceLayers,
                   claims: record.evidenceLedger,
@@ -782,15 +809,16 @@ export function createAtlasMcpServer() {
           return { isError: true, content: [{ type: 'text', text: 'Missing required field: note' }] };
         }
 
-        const triageEndpoint = data.metadata.triageWorkerUrl;
+        const record = data.records.find((item) => item.recordId === recordId.toUpperCase());
+        const reportPage = record?.url ?? 'https://eyeinthesky6.github.io/india-fintech-risk-atlas/contribute/';
         let submitSuccess = false;
         let triageResponse = null;
 
         try {
           const payload = {
             recordId,
-            pagePath: `/upi/${recordId.toLowerCase()}/`,
-            pageTitle: recordId,
+            pagePath: new URL(reportPage).pathname,
+            pageTitle: record?.title ?? recordId,
             section,
             reason,
             quote,
@@ -799,8 +827,9 @@ export function createAtlasMcpServer() {
             dwellMs: 5000,
           };
 
-          const res = await fetch(triageEndpoint, {
+          const res = await fetch(TRIAGE_ENDPOINT, {
             method: 'POST',
+            redirect: 'error',
             headers: {
               'Content-Type': 'application/json',
               Origin: 'https://eyeinthesky6.github.io',
@@ -809,8 +838,8 @@ export function createAtlasMcpServer() {
           });
 
           if (res.ok) {
-            submitSuccess = true;
             triageResponse = await res.json();
+            submitSuccess = triageResponse?.ok === true && triageResponse.queued === true;
           } else {
             triageResponse = await res.text();
           }
@@ -832,8 +861,9 @@ export function createAtlasMcpServer() {
                   reason,
                   status: submitSuccess
                     ? 'Report queued in private triage queue for maintainer review.'
-                    : 'Worker submission did not complete; please file directly via GitHub Issue form.',
+                    : 'No queue receipt. Open the record page to report privately after browser verification, or use the public GitHub issue form.',
                   triage_details: triageResponse,
+                  private_report_page_url: reportPage,
                   direct_github_issue_url: fallbackIssueUrl,
                 },
                 null,
@@ -854,7 +884,7 @@ export function createAtlasMcpServer() {
 
   // 3. List Resources
   server.setRequestHandler(ListResourcesRequestSchema, async () => {
-    const data = loadAtlasData();
+    const data = getData();
     const resources = [
       {
         uri: 'atlas://taxonomy',
@@ -888,7 +918,7 @@ export function createAtlasMcpServer() {
   // 4. Read Resource
   server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
     const { uri } = request.params;
-    const data = loadAtlasData();
+    const data = getData();
 
     if (uri === 'atlas://taxonomy') {
       return {
@@ -903,14 +933,12 @@ export function createAtlasMcpServer() {
     }
 
     if (uri === 'atlas://llms-txt') {
-      const publicLlms = path.resolve(__dirname, '..', '..', 'public', 'llms.txt');
-      const text = fs.existsSync(publicLlms) ? fs.readFileSync(publicLlms, 'utf8') : 'llms.txt not generated.';
       return {
         contents: [
           {
             uri,
             mimeType: 'text/plain',
-            text,
+            text: renderLlmIndex(data),
           },
         ],
       };

@@ -1,3 +1,4 @@
+import { buildRelationships, sourceKeys } from './atlas-relationships.js';
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { getBasePath, taxonomy, taxonomyLabel } from './upi-records';
 
@@ -43,82 +44,11 @@ const HUB_SLUGS = new Set([
   'upi/operator-insights',
 ]);
 
-const SOURCE_MATCHERS: Array<[RegExp, string]> = [
-  [/[?&]id=13642\b/i, 'RBI DPSC 2026'],
-  [/[?&]id=13624\b/i, 'RBI PB DPSC 2026'],
-  [/[?&]id=13633\b/i, 'RBI SFB DPSC 2026'],
-  [/[?&]id=13751\b/i, 'RBI Non-bank PSO 2026'],
-  [/[?&]id=13543\b/i, 'RBI RBC 2026'],
-  [/[?&]id=12898\b/i, 'RBI Auth 2025'],
-  [/[?&]id=12896\b/i, 'RBI PA MD 2025'],
-  [/[?&]id=11946\b/i, 'RBI ODR 2020'],
-  [/[?&]id=11693\b/i, 'RBI TAT 2019'],
-  [/[?&]id=13641\b/i, 'RBI FRM 2026'],
-  [/[?&]id=23810\b/i, 'RBI Fraud Discussion Paper'],
-  [/[?&]id=13089\b/i, 'RBI PB RBC 2025'],
-  [/[?&]id=11040\b/i, 'RBI Liability 2017'],
-  [/[?&]id=12300\b/i, 'RBI Card MD 2022'],
-  [/[?&]id=12152\b/i, 'RBI CoFT 2021'],
-  [/PRID=2260277\b/i, 'PIB MuleHunter MoU'],
-  [/npci\.org\.in\/fraud-awareness/i, 'NPCI Fraud Awareness'],
-  [/npci\.org\.in\/faqs\/upi/i, 'NPCI UPI FAQs'],
-  [/npci\.org\.in\/complaint-register/i, 'NPCI Complaint Register'],
-  [/npci\.org\.in\/circulars\/upi/i, 'NPCI UPI Circulars'],
-  [/npci\.org\.in\/product\/upi/i, 'NPCI UPI Overview & Roles'],
-  [/UPI_Settlement_Process/i, 'NPCI Settlement Process'],
-  [/UPI_OC_No_235/i, 'NPCI OC 235 (URCS TAT)'],
-  [/UPI_OC_No_220/i, 'NPCI OC 220 (P2P Collect)'],
-  [/UPI_OC_No_222/i, 'NPCI 222A (Settlement Cycles)'],
-  [/rscb\.bank\.in\/Content\/pdf\/npcicircular\.pdf/i, 'NPCI/2025-26/IS/003 (mirror)'],
-  [/razorpay\.com/i, 'Razorpay Docs'],
-  [/cashfree\.com/i, 'Cashfree Docs'],
-  [/stripe\.com/i, 'Stripe Radar Docs'],
-  [/arxiv\.org/i, 'arXiv Research Lead'],
-];
 
 export function normalizeDocSlug(entryId: string): string {
   const clean = entryId.replace(/^\/+|\/+$/g, '');
   if (clean === 'index' || clean === '') return '';
   return clean.replace(/\/index$/, '');
-}
-
-function extractReferencesSection(body: string | undefined): string {
-  if (!body) return '';
-  const normalized = body.replace(/\r\n/g, '\n');
-  const startMatch = /^##\s+References\b[^\n]*\n/im.exec(normalized);
-  if (!startMatch) return '';
-  const rest = normalized.slice(startMatch.index + startMatch[0].length);
-  const nextHeading = rest.search(/^##\s+/m);
-  return nextHeading === -1 ? rest : rest.slice(0, nextHeading);
-}
-
-function extractSourceLabels(body: string | undefined): string[] {
-  const refs = extractReferencesSection(body);
-  if (!refs) return [];
-  const urls = refs.match(/https?:\/\/[^\s\)\]>"]+/g) ?? [];
-  const labels = new Set<string>();
-  for (const rawUrl of urls) {
-    const cleanUrl = rawUrl.replace(/[.,;'"`]+$/, '');
-    for (const [pattern, label] of SOURCE_MATCHERS) {
-      if (pattern.test(cleanUrl)) {
-        labels.add(label);
-      }
-    }
-  }
-  return Array.from(labels);
-}
-
-function extractInternalLinks(body: string | undefined, base: string): string[] {
-  if (!body) return [];
-  const escapedBase = base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const re = new RegExp(`${escapedBase}/([a-z0-9/-]*)/?`, 'gi');
-  const slugs = new Set<string>();
-  let match: RegExpExecArray | null;
-  while ((match = re.exec(body)) !== null) {
-    const candidate = normalizeDocSlug(match[1]);
-    if (candidate) slugs.add(candidate);
-  }
-  return Array.from(slugs);
 }
 
 let cachedGraph: Promise<AtlasGraphData> | null = null;
@@ -135,7 +65,6 @@ async function buildAtlasGraphData(): Promise<AtlasGraphData> {
   const entries: CollectionEntry<'docs'>[] = await getCollection('docs');
 
   const nodes: AtlasGraphNode[] = [];
-  const nodeBySlug = new Map<string, AtlasGraphNode>();
   const rawBodyBySlug = new Map<string, string | undefined>();
 
   for (const entry of entries) {
@@ -154,7 +83,7 @@ async function buildAtlasGraphData(): Promise<AtlasGraphData> {
       : 'Guides & indexes';
     const actors = entry.data.actors ?? [];
     const actorLabels = actors.map((a) => taxonomyLabel(taxonomy.actors, a));
-    const sourceLabels = isRecord ? extractSourceLabels(entry.body) : [];
+    const sourceLabels = isRecord ? sourceKeys(entry.body) : [];
 
     const href = slug === '' ? `${base}/` : `${base}/${slug}/`;
     const node: AtlasGraphNode = {
@@ -174,7 +103,6 @@ async function buildAtlasGraphData(): Promise<AtlasGraphData> {
       isHub,
     };
     nodes.push(node);
-    nodeBySlug.set(slug, node);
     rawBodyBySlug.set(slug, entry.body);
   }
 
@@ -184,89 +112,8 @@ async function buildAtlasGraphData(): Promise<AtlasGraphData> {
     return a.recordId.localeCompare(b.recordId);
   });
 
-  // 1. Direct internal links + backlinks map
-  const outlinksBySlug: Record<string, string[]> = {};
-  const backlinksBySlug: Record<string, string[]> = {};
-  const directEdgeMap = new Map<string, AtlasGraphEdge>();
-
-  for (const node of nodes) {
-    const targets = extractInternalLinks(rawBodyBySlug.get(node.slug), base).filter(
-      (targetSlug) => targetSlug !== node.slug && nodeBySlug.has(targetSlug),
-    );
-    outlinksBySlug[node.slug] = targets;
-    for (const targetSlug of targets) {
-      backlinksBySlug[targetSlug] ??= [];
-      if (!backlinksBySlug[targetSlug].includes(node.slug)) {
-        backlinksBySlug[targetSlug].push(node.slug);
-      }
-      const [a, b] = node.slug < targetSlug ? [node.slug, targetSlug] : [targetSlug, node.slug];
-      const key = `${a}::${b}`;
-      if (!directEdgeMap.has(key)) {
-        directEdgeMap.set(key, {
-          source: a,
-          target: b,
-          kind: 'direct-link',
-          labels: ['Direct cross-link'],
-        });
-      }
-    }
-  }
-
-  // 2. Shared primary-source edges between canonical records
-  const canonicalNodes = nodes.filter((n) => !n.isHub);
-  const sourceEdges: AtlasGraphEdge[] = [];
-  for (let i = 0; i < canonicalNodes.length; i++) {
-    for (let j = i + 1; j < canonicalNodes.length; j++) {
-      const a = canonicalNodes[i];
-      const b = canonicalNodes[j];
-      const shared = a.sourceLabels.filter((s) => b.sourceLabels.includes(s));
-      if (shared.length > 0) {
-        sourceEdges.push({
-          source: a.slug,
-          target: b.slug,
-          kind: 'shared-source',
-          labels: shared,
-        });
-      }
-    }
-  }
-
-  // 3. Same-theme edges (clique within each theme + connect theme anchors to `upi` hub if present)
-  const themeEdges: AtlasGraphEdge[] = [];
-  const byTheme = new Map<string, AtlasGraphNode[]>();
-  for (const node of canonicalNodes) {
-    byTheme.set(node.theme, [...(byTheme.get(node.theme) ?? []), node]);
-  }
-  for (const [themeId, group] of byTheme.entries()) {
-    const label = taxonomyLabel(taxonomy.themes, themeId) || themeId;
-    for (let i = 0; i < group.length; i++) {
-      for (let j = i + 1; j < group.length; j++) {
-        themeEdges.push({
-          source: group[i].slug,
-          target: group[j].slug,
-          kind: 'theme',
-          labels: [label],
-        });
-      }
-    }
-    if (nodeBySlug.has('upi') && group.length > 0) {
-      themeEdges.push({
-        source: 'upi',
-        target: group[0].slug,
-        kind: 'theme',
-        labels: [label],
-      });
-    }
-  }
-
-  return {
-    nodes,
-    sourceEdges,
-    themeEdges,
-    directEdges: Array.from(directEdgeMap.values()),
-    backlinksBySlug,
-    outlinksBySlug,
-  };
+  const relationships = buildRelationships(nodes.map(n => ({ ...n, body: rawBodyBySlug.get(n.slug) })), base);
+  return { nodes, ...relationships } as AtlasGraphData;
 }
 
 export interface NeighborSummary {

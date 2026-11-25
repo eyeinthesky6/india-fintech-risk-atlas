@@ -112,3 +112,7 @@ This server is packaged intentionally as a **local stdio process** rather than a
 For the full architectural decision record, security requirements, and activation triggers for when to deploy a remote Cloudflare Worker SSE endpoint, see [docs/REMOTE_MCP_EVALUATION.md](../docs/REMOTE_MCP_EVALUATION.md).
   6. *Gap Checklist Invariant:* Guarantees well-formed tables across Markdown and JSON formats.
   7. *Submission Validation Gate:* Enforces required fields before triage forwarding.
+
+## Snapshot freshness
+
+The CLI checks the fixed GitHub Pages JSON endpoint on startup (cached for six hours). It selects a validated snapshot, rejects older generation timestamps, and falls back to the newest valid cached or bundled snapshot on network failure. Use `--offline` or `ATLAS_OFFLINE=1` to disable the network check; `--refresh` bypasses the cache interval. Restart the process to refresh an existing session. Dataset generation time is not a regulatory verification date. Network access for correction submissions is separate from dataset refresh.

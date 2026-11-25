@@ -176,7 +176,7 @@ const payload = JSON.stringify({
         </svg>
         <p class="atlas-mini-caption">
           {neighbors.sharedSourceNeighbors.length > 0
-            ? `${neighbors.sharedSourceNeighbors.length} records share source labels`
+            ? `${neighbors.sharedSourceNeighbors.length} records share cited documents`
             : `${graph.nodes.length} indexed nodes`}
         </p>
       </div>
@@ -202,7 +202,7 @@ const payload = JSON.stringify({
 
           {neighbors.sharedSourceNeighbors.length > 0 && (
             <div class="atlas-links-group">
-              <h3 class="atlas-links-heading">Shares source labels</h3>
+              <h3 class="atlas-links-heading">Shares cited documents</h3>
               <ul class="atlas-links-list">
                 {neighbors.sharedSourceNeighbors.slice(0, 5).map(({ node, reasons }) => (
                   <li>
@@ -227,7 +227,7 @@ const payload = JSON.stringify({
     <div>
       <h2 class="atlas-dialog__title">India Risk Atlas — Interactive Graph</h2>
       <p class="atlas-dialog__subtitle">
-        Explore direct cross-links, topic similarity and shared source labels. Shared labels may identify a publisher rather than the same document; no edge proves operational dependency.
+        Explore direct cross-links, topic similarity and shared cited documents. Co-citation does not prove operational dependency or identical regulatory obligations.
       </p>
     </div>
     <button type="button" class="atlas-dialog__close" data-close-full-graph aria-label="Close graph modal">
@@ -238,7 +238,7 @@ const payload = JSON.stringify({
   <div class="atlas-dialog__controls">
     <div class="atlas-mode-tabs" role="tablist" aria-label="Graph relationship view">
       <button type="button" class="atlas-tab-btn is-active" data-graph-mode="shared-source" role="tab" aria-selected="true">
-        Shared Source Labels
+        Shared Documents
       </button>
       <button type="button" class="atlas-tab-btn" data-graph-mode="theme" role="tab" aria-selected="false">
         By Theme

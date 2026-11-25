@@ -36,6 +36,11 @@ const REASONS = [
 <div class="atlas-reporter-root not-content" data-pagefind-ignore>
   <div class="atlas-accuracy-strip atlas-accuracy-strip--bottom" data-atlas-accuracy-bar>
     <div class="atlas-accuracy-strip__actions">
+      {recordId && (
+        <button type="button" class="atlas-action-btn atlas-accuracy-btn" data-atlas-helpful>
+          <span aria-hidden="true">👍</span> Helpful
+        </button>
+      )}
       <button id="report-an-error" type="button" class="atlas-action-btn atlas-accuracy-btn atlas-accuracy-btn--report" data-atlas-start-report>
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -136,7 +141,7 @@ const REASONS = [
             <blockquote data-atlas-quote-text></blockquote>
           </div>
 
-          <div class="atlas-report-field">
+          <div class="atlas-report-field" data-atlas-correction-field>
             <span class="atlas-report-label">What looks wrong?</span>
             <div class="atlas-report-reasons" role="group" aria-label="Error category">
               {REASONS.map((reason, idx) => (
@@ -152,7 +157,7 @@ const REASONS = [
             </div>
           </div>
 
-          <label class="atlas-report-field">
+          <label class="atlas-report-field" data-atlas-correction-field>
             <span class="atlas-report-label">Note (optional)</span>
             <textarea
               name="note"
@@ -163,7 +168,7 @@ const REASONS = [
             ></textarea>
           </label>
 
-          <label class="atlas-report-field">
+          <label class="atlas-report-field" data-atlas-correction-field>
             <span class="atlas-report-label">Primary RBI / NPCI link (optional)</span>
             <input
               type="url"
@@ -186,7 +191,7 @@ const REASONS = [
           {turnstileSiteKey && <div class="atlas-turnstile-wrap" data-atlas-turnstile></div>}
 
           <div class="atlas-report-dialog__footer">
-            <span class="atlas-report-privacy">Reviewed manually before any live change.</span>
+            <span class="atlas-report-privacy" data-atlas-report-privacy>Reviewed manually before any live change.</span>
             <button type="submit" class="atlas-report-submit" data-atlas-submit-btn>Send report</button>
           </div>
         </form>
@@ -244,6 +249,7 @@ const REASONS = [
     const banner = overlay?.querySelector('[data-atlas-select-banner]') ?? null;
     const selectionPill = overlay?.querySelector('[data-atlas-selection-pill]') ?? null;
     const backdrop = overlay?.querySelector('[data-atlas-report-backdrop]') ?? null;
+    const dialogTitle = overlay?.querySelector('#atlas-report-dialog-title') ?? null;
     const dialogSub = overlay?.querySelector('[data-atlas-dialog-sub]') ?? null;
     const form = overlay?.querySelector('[data-atlas-report-form]') ?? null;
     const quoteBox = overlay?.querySelector('[data-atlas-quote-box]') ?? null;
@@ -254,6 +260,7 @@ const REASONS = [
     const resultStatus = overlay?.querySelector('[data-atlas-result-status]') ?? null;
     const resultPreview = overlay?.querySelector('[data-atlas-result-preview]') ?? null;
     const fallbackLink = overlay?.querySelector('[data-atlas-fallback-link]') ?? null;
+    const privacyText = overlay?.querySelector('[data-atlas-report-privacy]') ?? null;
     const turnstileMount = overlay?.querySelector('[data-atlas-turnstile]') ?? null;
 
     let isSelecting = false;
@@ -261,6 +268,7 @@ const REASONS = [
     let selectedReason = 'Outdated circular';
     let currentSection = 'Overview';
     let currentQuote = '';
+    let helpfulMode = false;
     let dialogOpenedAt = 0;
     let pendingPillContext = null;
     let turnstileToken = '';
@@ -415,6 +423,7 @@ const REASONS = [
       const cfg = getConfig();
       if (!backdrop || !form || !resultBox || !cfg) return;
 
+      helpfulMode = context.helpful === true;
       currentSection = context.section || 'Whole page';
       currentQuote = (context.quote || '').trim().slice(0, 300);
       dialogOpenedAt = Date.now();
@@ -422,8 +431,12 @@ const REASONS = [
 
       if (dialogSub) {
         const prefix = cfg.recordId || cfg.pageTitle;
-        dialogSub.textContent = `${prefix} · ${currentSection}`;
+        dialogSub.textContent = helpfulMode ? prefix : `${prefix} · ${currentSection}`;
       }
+      if (dialogTitle) dialogTitle.textContent = helpfulMode ? 'Was this page helpful?' : 'Report a factual error';
+      if (privacyText) privacyText.textContent = helpfulMode ? 'Sent privately to Atlas maintainers.' : 'Reviewed manually before any live change.';
+      if (fallbackLink) fallbackLink.hidden = helpfulMode;
+      form.querySelectorAll('[data-atlas-correction-field]').forEach((field) => { field.hidden = helpfulMode; });
 
       if (quoteBox && quoteTextEl) {
         if (currentQuote) {
@@ -444,7 +457,7 @@ const REASONS = [
       }
       if (submitBtn) {
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Send report';
+        submitBtn.textContent = helpfulMode ? 'Send thumbs-up' : 'Send report';
       }
 
       selectedReason = 'Outdated circular';
@@ -455,9 +468,9 @@ const REASONS = [
       backdrop.hidden = false;
       ensureTurnstile(cfg);
 
-      const noteInput = form.querySelector('textarea[name="note"]');
-      if (noteInput instanceof HTMLTextAreaElement) {
-        window.setTimeout(() => noteInput.focus(), 20);
+      const focusTarget = helpfulMode ? submitBtn : form.querySelector('textarea[name="note"]');
+      if (focusTarget instanceof HTMLElement) {
+        window.setTimeout(() => focusTarget.focus(), 20);
       }
     }
 
@@ -569,6 +582,12 @@ const REASONS = [
       const target = event.target;
       if (!(target instanceof Element)) return;
 
+      if (target.closest('[data-atlas-helpful]')) {
+        exitSelectionMode();
+        openReportDialog({ helpful: true });
+        return;
+      }
+
       const startBtn = target.closest('[data-atlas-start-report]');
       if (startBtn) {
         if (startBtn.tagName === 'A') {
@@ -643,24 +662,28 @@ const REASONS = [
       const sourceUrl = String(formData.get('sourceUrl') || '').trim().slice(0, 300);
       const website = String(formData.get('website') || '').trim();
       const dwellMs = Math.max(0, Date.now() - dialogOpenedAt);
+      const wasHelpful = helpfulMode;
+      const submissionOpenedAt = dialogOpenedAt;
 
-      const payload = {
+      const submission = {
         recordId: cfg.recordId,
-        pagePath: cfg.pagePath,
         pageTitle: cfg.pageTitle,
+        website,
+        dwellMs,
+        turnstileToken,
+      };
+      const payload = wasHelpful ? { ...submission, kind: 'helpful', recordPath: cfg.pagePath } : {
+        ...submission,
+        pagePath: cfg.pagePath,
         section: currentSection,
         quote: currentQuote,
         reason: selectedReason,
         note,
         sourceUrl,
-        website,
-        dwellMs,
-        turnstileToken,
       };
 
-      const prefilledUrl = buildPrefilledIssueUrl(cfg, payload);
-      if (fallbackLink instanceof HTMLAnchorElement) {
-        fallbackLink.href = prefilledUrl;
+      if (!wasHelpful && fallbackLink instanceof HTMLAnchorElement) {
+        fallbackLink.href = buildPrefilledIssueUrl(cfg, payload);
       }
 
       const reportEndpoint = getReportEndpoint(cfg);
@@ -676,10 +699,23 @@ const REASONS = [
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
           });
+          const receipt = res.ok ? await res.json().catch(() => null) : null;
+          if (submissionOpenedAt !== dialogOpenedAt) return;
           form.hidden = true;
           resultBox.hidden = false;
-
-          const receipt = res.ok ? await res.json().catch(() => null) : null;
+          if (wasHelpful) {
+            const received = receipt?.ok === true && receipt.queued === true && receipt.kind === 'helpful';
+            resultStatus.className = `atlas-report-result__status ${received ? 'is-success' : 'is-warn'}`;
+            resultStatus.textContent = received ? 'Thanks. Your thumbs-up reached Atlas maintainers.' : 'Could not record your thumbs-up. Please try again.';
+            if (received) {
+              const button = document.querySelector('[data-atlas-helpful]');
+              if (button instanceof HTMLButtonElement) {
+                button.disabled = true;
+                button.textContent = '👍 Helpful · sent';
+              }
+            }
+            return;
+          }
           if (receipt?.ok === true && receipt.queued === true) {
             resultStatus.className = 'atlas-report-result__status is-success';
             resultStatus.textContent =
@@ -694,12 +730,21 @@ const REASONS = [
               'The service did not confirm delivery. You can open a public GitHub issue below.';
           }
         } catch {
+          if (submissionOpenedAt !== dialogOpenedAt) return;
           form.hidden = true;
           resultBox.hidden = false;
           resultStatus.className = 'atlas-report-result__status is-warn';
           resultStatus.textContent =
-            'Network error while sending report. You can still submit via pre-filled GitHub Issue below.';
+            wasHelpful ? 'Could not record your thumbs-up. Please try again.' : 'Network error while sending report. You can still submit via pre-filled GitHub Issue below.';
         }
+        return;
+      }
+
+      if (wasHelpful) {
+        form.hidden = true;
+        resultBox.hidden = false;
+        resultStatus.className = 'atlas-report-result__status is-warn';
+        resultStatus.textContent = 'Thumbs-up delivery is unavailable in this preview.';
         return;
       }
 

@@ -645,6 +645,8 @@ body.atlas-report-selecting .sl-markdown-content [data-atlas-hover-target='true'
 .atlas-selection-pill[hidden],
 .atlas-report-backdrop[hidden],
 .atlas-report-form[hidden],
+.atlas-report-form [data-atlas-correction-field][hidden],
+.atlas-report-fallback-link[hidden],
 .atlas-report-quote[hidden],
 .atlas-report-result[hidden],
 .atlas-report-result__preview[hidden] {

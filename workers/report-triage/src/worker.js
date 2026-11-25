@@ -72,7 +72,7 @@ async function verifyTurnstile(token, remoteIp, secretKey, allowInsecureDev) {
   return Boolean(json && json.success);
 }
 
-async function checkAndIncrementLimits(env, clientIp) {
+async function checkAndIncrementLimits(env, clientIp, helpful) {
   if (!env.REPORT_RATE_LIMITER) {
     return { allowed: String(env.ALLOW_INSECURE_DEV || '') === 'true', misconfigured: true };
   }
@@ -84,7 +84,7 @@ async function checkAndIncrementLimits(env, clientIp) {
   const ipHash = await sha256Hex(`${salt}:${clientIp}`);
   try {
     const namespace = env.REPORT_RATE_LIMITER;
-    const limiter = namespace.get(namespace.idFromName('atlas-correction-quota'));
+    const limiter = namespace.get(namespace.idFromName(helpful ? 'atlas-helpful-quota' : 'atlas-correction-quota'));
     const decision = await limiter.fetch('https://limiter.internal/consume', {
       method: 'POST',
       body: JSON.stringify({ ipHash, hourlyCap, dailyCap }),
@@ -144,12 +144,16 @@ export default {
       return jsonResponse({ error: 'Please wait a moment before submitting' }, 400, origin);
     }
 
-    const pagePath = String(payload.pagePath || '').trim();
+    const helpful = payload.kind === 'helpful';
+    const pagePath = String((helpful ? payload.recordPath : payload.pagePath) || '').trim();
     if (!ALLOWED_PATH_RE.test(pagePath)) {
       return jsonResponse({ error: 'Unsupported page path' }, 400, origin);
     }
 
     const recordId = sanitizeText(payload.recordId, 32);
+    if (helpful && !recordId) {
+      return jsonResponse({ error: 'Helpful feedback requires a record' }, 400, origin);
+    }
     const pageTitle = sanitizeText(payload.pageTitle, 160) || pagePath;
     const section = sanitizeText(payload.section, 120) || 'Whole page';
     const quote = sanitizeText(payload.quote, 300);
@@ -182,7 +186,7 @@ export default {
       return jsonResponse({ error: 'Anti-bot verification failed' }, 403, origin);
     }
 
-    const limitResult = await checkAndIncrementLimits(env, clientIp || 'unknown');
+    const limitResult = await checkAndIncrementLimits(env, clientIp || 'unknown', helpful);
     if (!limitResult.allowed) {
       return jsonResponse(
         { error: limitResult.misconfigured ? 'Rate limiter not configured' : 'Rate limit exceeded' },
@@ -197,8 +201,13 @@ export default {
       return jsonResponse({ error: 'Triage endpoint not configured' }, 500, origin);
     }
 
-    const issueTitle = `[Flag] ${recordId || pageTitle}: ${section}`.slice(0, 200);
-    const issueBody = [
+    const issueTitle = helpful ? `[Helpful] ${recordId}` : `[Flag] ${recordId || pageTitle}: ${section}`.slice(0, 200);
+    const issueBody = helpful ? [
+      'A reader marked this page helpful.',
+      '',
+      `- **Record:** \`${recordId}\``,
+      `- **Page:** \`${pagePath}\``,
+    ].join('\n') : [
       '> **UNTRUSTED READER SUBMISSION** — Verify original RBI / NPCI / operator sources manually before modifying any live record.',
       '',
       `- **Record:** \`${recordId || 'N/A'}\``,
@@ -229,7 +238,7 @@ export default {
       body: JSON.stringify({
         title: issueTitle,
         body: issueBody,
-        labels: ['factual-correction', 'anonymous-report'],
+        labels: helpful ? ['anonymous-report'] : ['factual-correction', 'anonymous-report'],
       }),
     });
 
@@ -237,6 +246,7 @@ export default {
       return jsonResponse({ error: 'Failed to queue triage issue' }, 502, origin);
     }
 
-    return jsonResponse({ ok: true, queued: true }, 201, origin);
+    const receipt = { ok: true, queued: true };
+    return jsonResponse(helpful ? { ...receipt, kind: 'helpful' } : receipt, 201, origin);
   },
 };

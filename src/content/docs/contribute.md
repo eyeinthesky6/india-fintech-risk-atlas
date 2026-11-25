@@ -33,17 +33,19 @@ We have designed our platform so that **domain experts (bankers, compliance lead
 
 Most senior risk architects and banking compliance officers do not use GitHub. We guarantee that **you will never be asked to write code, resolve merge conflicts, or manage pull requests.**
 
+- **Advisory Panel:** Give strategic and editorial guidance through quarterly asynchronous reviews.
+- **Domain Expert or Topic Lead:** Review short updates in your area as evidence changes.
+
 ### How the Zero-GitHub Review Loop Works
 1. **Automated Monitoring:** Our automated watcher bots monitor RBI Master Directions, NPCI circulars, and engineering blogs daily.
 2. **AI & Maintainer Drafting:** When a change occurs, an AI assistant or technical maintainer drafts a **concise 3-bullet operational summary** and table update.
 3. **2-Minute Async Review:** You receive a short brief via email or WhatsApp:  
    > *"RBI has updated the timeline for customer unauthorized debit reporting under Circular X. We drafted this 1-line update to `UPI-015`. Does this reflect what your bank/PSP enforces in production?"*
-4. **Attribution:** Once you confirm or tweak the note, the record is published with your attribution:  
-   *`Topic Lead: [Your Name] — Head of Fraud Risk, [FinTech / Bank]`* (or anonymized as *`Senior Bank Risk Lead`* if required by your employer).
+4. **Attribution:** Choose whether Atlas may credit you by name, professional handle, or an anonymous role. Maintainers confirm the wording with you privately before adding public credit. You can also choose to skip credit.
 
-### How to Sign Up as a Domain Expert:
-- For private contact, email your role and domain of interest to `atlas@six.tech`.
-- For public registration, open a [Domain Expert Registration Issue](https://github.com/eyeinthesky6/india-fintech-risk-atlas/issues/new?template=domain-expert-signup.yml). Use a professional handle if preferred and share contact details over email.
+### Sign up by email
+
+[Email an advisor or domain expert signup](mailto:atlas@six.tech?subject=Atlas%20advisor%20signup&body=Role%20of%20interest%20%28Advisory%20Panel%20or%20Topic%20Lead%29%3A%0ATopic%20or%20area%20of%20expertise%3A%0APreferred%20contact%20%28email%20or%20WhatsApp%29%3A%0APublic%20credit%20%28name%2C%20handle%2C%20anonymous%20role%2C%20or%20none%29%3A). We’ll use your reply to agree on a topic, contact method, and any public credit. Your email and phone number stay private.
 
 ### Available Domain Tracks:
 - **UPI & Immediate Payments:** Real-time velocity, QR spoofing, collect requests, UDIR dispute flows.

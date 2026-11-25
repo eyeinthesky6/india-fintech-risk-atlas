@@ -2,6 +2,8 @@
 
 This standalone Cloudflare Worker lets readers on the public GitHub Pages site flag an inaccurate section without a GitHub account, while routing every unverified report into a **private triage repository** for maintainer verification. Nothing goes live on the site automatically.
 
+Reader thumbs-ups go to the same private repository as **[Helpful]** issues. They use their own rate-limit bucket and receive a success receipt after GitHub accepts the issue. Maintainers can count feedback by record from those issues.
+
 ## Built-in anti-abuse protections
 
 - **Origin allowlist (`ALLOWED_ORIGINS`):** Rejects `POST` requests from unknown origins.

@@ -1,4 +1,4 @@
-import { buildRelationships } from '../src/lib/atlas-relationships.js';
+import { buildRelationships, sourceKeys } from '../src/lib/atlas-relationships.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,40 +10,9 @@ const ROOT_DIR = path.resolve(__dirname, '..');
 const TAXONOMY_PATH = path.join(ROOT_DIR, 'src', 'taxonomy.json');
 const DOCS_DIR = path.join(ROOT_DIR, 'src', 'content', 'docs');
 const EVIDENCE_DIR = path.join(ROOT_DIR, 'research', 'evidence');
-const ATTESTATIONS_DIR = path.join(ROOT_DIR, 'research', 'attestations');
 
 const taxonomy = JSON.parse(fs.readFileSync(TAXONOMY_PATH, 'utf8'));
 
-const SOURCE_MATCHERS = [
-  [/[?&]id=13642\b/i, 'RBI DPSC 2026'],
-  [/[?&]id=13624\b/i, 'RBI PB DPSC 2026'],
-  [/[?&]id=13633\b/i, 'RBI SFB DPSC 2026'],
-  [/[?&]id=13751\b/i, 'RBI Non-bank PSO 2026'],
-  [/[?&]id=13543\b/i, 'RBI RBC 2026'],
-  [/[?&]id=12898\b/i, 'RBI Auth 2025'],
-  [/[?&]id=12896\b/i, 'RBI PA MD 2025'],
-  [/[?&]id=11946\b/i, 'RBI ODR 2020'],
-  [/[?&]id=11693\b/i, 'RBI TAT 2019'],
-  [/[?&]id=13641\b/i, 'RBI FRM 2026'],
-  [/[?&]id=23810\b/i, 'RBI Fraud Discussion Paper'],
-  [/[?&]id=13089\b/i, 'RBI PB RBC 2025'],
-  [/[?&]id=11040\b/i, 'RBI Liability 2017'],
-  [/PRID=2260277\b/i, 'PIB MuleHunter MoU'],
-  [/npci\.org\.in\/fraud-awareness/i, 'NPCI Fraud Awareness'],
-  [/npci\.org\.in\/faqs\/upi/i, 'NPCI UPI FAQs'],
-  [/npci\.org\.in\/complaint-register/i, 'NPCI Complaint Register'],
-  [/npci\.org\.in\/circulars\/upi/i, 'NPCI UPI Circulars'],
-  [/npci\.org\.in\/product\/upi/i, 'NPCI UPI Overview & Roles'],
-  [/UPI_Settlement_Process/i, 'NPCI Settlement Process'],
-  [/UPI_OC_No_235/i, 'NPCI OC 235 (URCS TAT)'],
-  [/UPI_OC_No_220/i, 'NPCI OC 220 (P2P Collect)'],
-  [/UPI_OC_No_222/i, 'NPCI 222A (Settlement Cycles)'],
-  [/rscb\.bank\.in\/Content\/pdf\/npcicircular\.pdf/i, 'NPCI/2025-26/IS/003 (mirror)'],
-  [/razorpay\.com/i, 'Razorpay Docs'],
-  [/cashfree\.com/i, 'Cashfree Docs'],
-  [/stripe\.com/i, 'Stripe Radar Docs'],
-  [/arxiv\.org/i, 'arXiv Research Lead'],
-];
 
 function parseFrontmatter(raw) {
   const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
@@ -83,6 +52,15 @@ function parseFrontmatter(raw) {
   return { meta, body };
 }
 
+function normalizeBasis(raw) {
+  const text = raw.replace(/<[^>]+>/g, '').replace(/\*/g, '').replace(/\[\d+\]/g, '').trim();
+  const canonical = ['Regulatory', 'Industry practice', 'Community insight', 'Research & academic', 'Atlas guidance'];
+  const exact = canonical.find(b => b.toLowerCase() === text.toLowerCase());
+  if (exact) return exact;
+  // These are explicit regulator-labelled rows, not a finding of binding legal force.
+  if (/^RBI\b/i.test(text)) return 'Regulatory';
+  return text;
+}
 function parseTableRows(markdown) {
   const lines = markdown.split(/\r?\n/).filter((l) => l.trim().startsWith('|') && !l.includes('---'));
   if (lines.length < 2) return [];
@@ -94,8 +72,9 @@ function parseTableRows(markdown) {
       .map((c) => c.trim());
     if (cells.length >= 3) {
       rows.push({
-        basis: cells[0].replace(/\*.*?\*/g, '').trim(),
-        owner: cells[1].replace(/\*.*?\*/g, '').trim(),
+        basis: normalizeBasis(cells[0]),
+        basisRaw: cells[0],
+        owner: cells[1].replace(/\*/g, '').trim(),
         action: cells[2],
       });
     }
@@ -122,19 +101,6 @@ function parseReferences(markdown) {
     }
   }
   return refs;
-}
-
-function extractSourceLabels(refs) {
-  const labels = new Set();
-  for (const ref of refs) {
-    const url = ref.url || ref.raw;
-    for (const [pattern, label] of SOURCE_MATCHERS) {
-      if (pattern.test(url)) {
-        labels.add(label);
-      }
-    }
-  }
-  return Array.from(labels);
 }
 
 function parseEvidenceLedger(recordId) {
@@ -225,7 +191,7 @@ function buildRecord(fileRelPath) {
 
   const recordId = meta.recordId;
   const evidenceLedger = parseEvidenceLedger(recordId);
-  const sourceLabels = extractSourceLabels(references);
+  const sourceLabels = sourceKeys(body);
 
   return {
     recordId,

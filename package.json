@@ -3,9 +3,11 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "data": "node scripts/build-atlas-data.js",
     "dev": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview"
+    "build": "node scripts/build-atlas-data.js && astro build",
+    "preview": "astro preview",
+    "mcp": "node mcp/bin/cli.js"
   },
   "dependencies": {
     "@astrojs/starlight": "^0.43.1",

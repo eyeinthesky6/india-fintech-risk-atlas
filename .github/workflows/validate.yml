@@ -26,6 +26,8 @@ jobs:
           cache: 'npm'
       - run: npm ci --no-audit --no-fund
       - run: npm run build
+      - name: Check tracked exports are current
+        run: git diff --exit-code --stat -- public/atlas-records.json public/llms.txt public/llms-full.txt mcp/data/atlas-records.json
       - run: npm ci --prefix mcp --no-audit --no-fund
       - run: npm test
       - name: Check public and bundled exports are identical

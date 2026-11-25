@@ -1,4 +1,5 @@
 import { buildRelationships, sourceKeys } from '../src/lib/atlas-relationships.js';
+import { renderLlmIndex } from '../mcp/src/llms-index.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -137,7 +138,7 @@ function parseEvidenceLedger(recordId) {
 
 function buildRecord(fileRelPath) {
   const absPath = path.join(DOCS_DIR, fileRelPath);
-  const raw = fs.readFileSync(absPath, 'utf8');
+  const raw = fs.readFileSync(absPath, 'utf8').replace(/\r\n/g, '\n');
   const { meta, body } = parseFrontmatter(raw);
 
   if (!meta.recordId) {
@@ -210,6 +211,7 @@ function buildRecord(fileRelPath) {
     actors: meta.actors || [],
     evidenceLayers: meta.evidenceLayers || [],
     reviewStage: meta.reviewStage || 'draft',
+    blockerNote: meta.blockerNote || '',
     lastSourceCheck: meta.lastSourceCheck || null,
     sourceLabels,
     sections,
@@ -239,7 +241,7 @@ function buildGuideDocs() {
     let body = '';
     let description = '';
     if (fs.existsSync(absPath)) {
-      const raw = fs.readFileSync(absPath, 'utf8');
+      const raw = fs.readFileSync(absPath, 'utf8').replace(/\r\n/g, '\n');
       const parsed = parseFrontmatter(raw);
       body = parsed.body;
       description = parsed.meta.description || '';
@@ -266,6 +268,24 @@ function buildKnowledgeGraph(records) {
     return [n.recordId,{sharedSources,sameTheme,directLinks,allNeighbors:[...new Set([...sharedSources,...sameTheme,...directLinks])]}];
   }));
   return {nodes,connections,...edges};
+}
+
+function reuseGenerationDate(dataset, existingPath) {
+  if (!fs.existsSync(existingPath)) return;
+  let existing;
+  try {
+    existing = JSON.parse(fs.readFileSync(existingPath, 'utf8'));
+  } catch (error) {
+    if (error instanceof SyntaxError) return;
+    throw error;
+  }
+  const generatedAt = existing?.metadata?.generatedAt;
+  if (!Number.isFinite(Date.parse(generatedAt))) return;
+
+  // Rebuilding an unchanged corpus must preserve both its date and its bytes.
+  if (JSON.stringify({ ...dataset, metadata: { ...dataset.metadata, generatedAt } }) === JSON.stringify(existing)) {
+    dataset.metadata.generatedAt = generatedAt;
+  }
 }
 
 export function generateAllData() {
@@ -301,11 +321,10 @@ export function generateAllData() {
       version: '1.1.0',
       generatedAt: new Date().toISOString(),
       baseUrl: 'https://eyeinthesky6.github.io/india-fintech-risk-atlas/',
-      triageWorkerUrl: 'https://atlas-report-triage.6edroid.workers.dev',
       totalRecords: records.length,
       coveredProducts: [...new Set(records.flatMap((r) => r.products))].sort(),
       publicationStatus: 'research-preview',
-      verificationNotice: 'Source-checked is not independent review. Regulatory sources may include proposals, future obligations, or indirect corroboration. Verify exact scope, effective date and primary text before relying on any claim.',
+      verificationNotice: 'Source-checked records await independent review. Draft records may have blocked primary sources. Regulatory material can include proposals or future obligations. Verify the scope, effective date and primary text before relying on a claim.',
       totalGuideDocs: guideDocs.length,
       evidenceLayers: [
         { id: 'official', label: 'Regulatory', authority: 'RBI / NPCI official material, including mandates and non-binding proposals' },
@@ -323,37 +342,16 @@ export function generateAllData() {
 
   const publicDir = path.join(ROOT_DIR, 'public');
   if (!fs.existsSync(publicDir)) fs.mkdirSync(publicDir, { recursive: true });
-  fs.writeFileSync(path.join(publicDir, 'atlas-records.json'), JSON.stringify(dataset, null, 2), 'utf8');
+  const publicSnapshot = path.join(publicDir, 'atlas-records.json');
+  reuseGenerationDate(dataset, publicSnapshot);
+  const snapshotJson = JSON.stringify(dataset, null, 2);
+  fs.writeFileSync(publicSnapshot, snapshotJson, 'utf8');
 
   const mcpDataDir = path.join(ROOT_DIR, 'mcp', 'data');
   if (!fs.existsSync(mcpDataDir)) fs.mkdirSync(mcpDataDir, { recursive: true });
-  fs.writeFileSync(path.join(mcpDataDir, 'atlas-records.json'), JSON.stringify(dataset, null, 2), 'utf8');
+  fs.writeFileSync(path.join(mcpDataDir, 'atlas-records.json'), snapshotJson, 'utf8');
 
-  const llmsTxt = [
-    '# India Fintech Risk Atlas',
-    '> An open research preview of Indian fintech fraud patterns, controls, and operational risks. Not legal advice or an independently certified compliance checklist.',
-    '',
-    '## About',
-    '- Source: https://github.com/eyeinthesky6/india-fintech-risk-atlas',
-    '- Live Documentation: https://eyeinthesky6.github.io/india-fintech-risk-atlas/',
-    '- [Structured JSON dataset](https://eyeinthesky6.github.io/india-fintech-risk-atlas/atlas-records.json): records, claims, sources and graph.',
-    '- [Full knowledge pack](https://eyeinthesky6.github.io/india-fintech-risk-atlas/llms-full.txt): consolidated record text.',
-    '- [Local MCP setup](https://github.com/eyeinthesky6/india-fintech-risk-atlas/tree/main/mcp): local stdio only.',
-    `- Products currently represented: ${dataset.metadata.coveredProducts.join(', ')}. Coverage is not exhaustive.`,
-    `- ${dataset.metadata.verificationNotice}`,
-    '- Evidence Layers: Regulatory (RBI/NPCI), Industry practice, Community insight, Research & academic, Atlas guidance',
-    '',
-    '## Canonical Risk Records',
-    ...records.map(
-      (r) =>
-        `- [${r.recordId}: ${r.title}](${r.url}): ${r.description} | Layers: ${r.evidenceLayers.join(', ')} | Stage: ${r.reviewStage} | Last source check: ${r.lastSourceCheck ?? 'unknown'}`,
-    ),
-    '',
-    '## Documentation & Policies',
-    ...guideDocs.map((g) => `- [${g.title}](${g.url}): ${g.description || g.title}`),
-  ].join('\n');
-
-  fs.writeFileSync(path.join(publicDir, 'llms.txt'), llmsTxt, 'utf8');
+  fs.writeFileSync(path.join(publicDir, 'llms.txt'), renderLlmIndex(dataset), 'utf8');
 
   const fullDocs = [
     '# India Fintech Risk Atlas — Consolidated Knowledge Pack',
@@ -367,6 +365,7 @@ export function generateAllData() {
       `URL: ${r.url}`,
       `Description: ${r.description}`,
       `Product: ${r.product} | Type: ${r.recordType} | Review Stage: ${r.reviewStage} | Last Source Check: ${r.lastSourceCheck}`,
+      ...(r.blockerNote ? [`Source blocker: ${r.blockerNote}`] : []),
       `Actors: ${r.actors.join(', ')} | Evidence Layers: ${r.evidenceLayers.join(', ')}`,
       '',
       r.fullMarkdown.replace(/^---\r?\n[\s\S]*?\r?\n---/, '').trim(),

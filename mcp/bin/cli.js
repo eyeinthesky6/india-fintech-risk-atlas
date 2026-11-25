@@ -4,7 +4,10 @@ import { selectSnapshot } from '../src/snapshot.js';
 import { createAtlasMcpServer } from '../src/server.js';
 
 async function main() {
-  const snapshot = await selectSnapshot({offline: process.argv.includes('--offline') || process.env.ATLAS_OFFLINE === '1', force: process.argv.includes('--refresh')});
+  const snapshot = await selectSnapshot({
+    offline: process.argv.includes('--offline') || process.env.ATLAS_OFFLINE === '1',
+    force: process.argv.includes('--refresh'),
+  });
   const server = createAtlasMcpServer(snapshot);
   const transport = new StdioServerTransport();
   await server.connect(transport);

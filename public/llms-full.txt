@@ -1,5 +1,6 @@
 # India Fintech Risk Atlas — Consolidated Knowledge Pack
-Generated: 2026-11-25T10:04:27.802Z
+Generated: 2026-11-25T11:16:11.434Z
+Source-checked records await independent review. Draft records may have blocked primary sources. Regulatory material can include proposals or future obligations. Verify the scope, effective date and primary text before relying on a claim.
 
 ---
 
@@ -49,6 +50,84 @@ Unified Payments Interface (UPI) runs across separate banks, TPAP apps, Payment 
 10. NPCI, [UPI FAQs](https://www.npci.org.in/faqs/upi) (`upihelp.npci.org.in` grievance guidance across participants), browser-checked Nov 23, 2026.
 
 **Review status:** RBI entity boundaries and browser-accessible NPCI scheme sources checked 2026-11-23; independent reviewer: `PENDING`.
+
+---
+
+# CARD-OVERVIEW: Card Ecosystem & Clearing Architecture
+URL: https://eyeinthesky6.github.io/india-fintech-risk-atlas/cards/card-ecosystem/
+Description: Overview of the 4-party card payment model in India, dual-message clearing flows, CoFT tokenization rails, and interchange risk boundaries.
+Product: cards | Type: explainer | Review Stage: source-checked | Last Source Check: 2026-11-25
+Actors: cardholder, merchant, acquirer-bank, issuer-bank, card-network, payment-aggregator | Evidence Layers: official, industry, atlas
+
+## What it is
+
+The Indian card payment ecosystem operates predominantly on the international **4-Party Model** (Cardholder, Merchant, Acquirer Bank, and Issuer Bank) facilitated by authorised Card Networks (RuPay, Visa, Mastercard, American Express). Transactions route through two distinct operational messages: **Dual-Message System (DMS)**, separating real-time authorization holds from batch settlement, or **Single-Message System (SMS)**, common in ATM cash withdrawals and PIN-based debit POS.
+
+Under Reserve Bank of India (RBI) mandates, all domestic Card-Not-Present (CNP) e-commerce transactions require **Card-on-File Tokenisation (CoFT)**, barring merchants and payment aggregators from storing 16-digit Primary Account Numbers (PAN), and **Additional Factor of Authentication (AFA)** with at least one dynamic authentication factor.
+
+```
+┌────────────┐               ┌────────────────────┐               ┌─────────────┐
+│ Cardholder │──(Presents)──►│ Merchant / Web / PA│──(Auth Req)──►│Acquirer Bank│
+└────────────┘               └────────────────────┘               └──────┬──────┘
+                                                                         │
+                                                                         ▼
+┌────────────┐               ┌────────────────────┐               ┌─────────────┐
+│Issuer Bank │◄──(Auth Req)──│    Card Network    │◄──(Routes)────│Payment Switch
+└─────┬──────┘               │(RuPay/Visa/MC/Amex)│               └─────────────┘
+      │                      └────────────────────┘
+      ▼
+(Verifies Balance, Limit, AFA & Token Cryptogram)
+```
+
+---
+
+## Impact
+
+- **Cardholders:** Subject to unauthorized billing, card-not-present fraud, hidden subscription recurring debits, and ATM cloning if chip-and-PIN fallbacks are misconfigured.
+- **Issuers & Acquirers:** Exposure to chargeback dispute liability, cross-border fraud losses, interchange settlement risk, and regulatory compensation penalties (₹100/day under RBI Harmonisation of TAT) for delayed dispute credits.
+- **Ecosystem:** Settlement gridlock when merchant acquirers or payment aggregators suffer escrow reconciliation breaks between batch clearing files and network net settlement statements.
+
+---
+
+## Common patterns
+
+### Pattern 1: Dual-Message Authorization vs. Presentment Discrepancy
+In e-commerce and hotel/fuel pre-authorizations, the issuer places a temporary hold on the cardholder's credit limit or available balance during authorization (`Auth`). If the merchant does not capture or submit the clearing presentment file within the validity window (typically 5 to 7 days), the hold expires, yet delayed presentment files may force settlement debits unexpectedly, triggering customer disputes.
+
+### Pattern 2: Card-on-File Tokenization (CoFT) De-tokenization Mismatch
+Merchants invoke tokenized checkouts where a cryptographic token replaces the PAN. The payment aggregator routes the token to the Card Network Token Service Provider (TSP). If the TSP cryptogram fails validation (e.g. timestamp skew, domain restriction mismatch), the transaction is rejected without exposing cardholder PANs.
+
+### Pattern 3: International Card-Not-Present (CNP) 2FA Bypass
+Domestic transactions strictly enforce RBI AFA (2FA OTP/biometrics). However, foreign merchants routing through offshore acquirers outside India may initiate transactions via 1-factor paths (card number + expiry + CVV), bypassing OTP and creating cross-border chargeback exposure unless international limits are disabled by default.
+
+---
+
+## What to do
+
+| Basis | Owner | Action |
+|---|---|---|
+| **RBI Master Direction (2022)** <a href="#ref-1">[1]</a> | **Issuer bank** | Implement mandate controls allowing cardholders to dynamically toggle and set custom limits for domestic/international, online (CNP), POS (CP), and contactless ATM transactions via mobile banking. |
+| **RBI CoFT Mandate** <a href="#ref-2">[2]</a> | **Payment aggregator & Merchant** | Purge stored plain PAN/CVV records from merchant databases; use network-issued tokens for recurring and express checkout flows with explicit cardholder consent. |
+| **RBI AFA Directions (2025)** <a href="#ref-3">[3]</a> | **Issuer bank** | Enforce a minimum of two distinct authentication factors for all domestic digital payment transactions, with at least one factor being dynamically generated. |
+| **RBI TAT & Compensation** <a href="#ref-4">[4]</a> | **Acquirer & Issuer bank** | Auto-reverse failed POS/e-commerce transactions within `T+5` days; pay proactive compensation of ₹100/day for each day of delay beyond `T+5`. |
+| **Atlas Guidance** | **Risk ops & Fraud engines** | Monitor card velocity bursts (e.g. 5 transactions within 60 seconds across distinct merchant categories) to flag automated BIN brute-force probing. |
+
+---
+
+## Watch-outs and validation
+
+- **Legitimate Pre-auth Holds vs. Unauthorized Debits:** Car rentals and hotels place large pre-authorizations. Customer service teams must verify whether a pending debit is an authorization hold or a settled presentment before filing unauthorized electronic transaction claims under RBI rules.
+- **Contactless Tap-and-Pay Limits:** Under RBI directions, offline contactless transactions up to ₹5,000 are exempt from AFA PIN entry, requiring issuers to maintain aggressive aggregate daily velocity thresholds to limit physical card theft exposure.
+- **Testing Method:** Validate CoFT failure handling in staging by injecting expired cryptograms, invalid token domain restrictions, and simulated issuer timeouts to verify that payment gateways fail closed without falling back to plain-text PAN storage.
+
+---
+
+## References and review history
+
+1. <a id="ref-1"></a>**RBI Master Direction – Credit Card and Debit Card – Issuance and Conduct Directions, 2022** (`RBI/DoS/2022-23/92`, updated 2024/2026). [https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=12300](https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=12300).
+2. <a id="ref-2"></a>**Tokenisation – Card Transactions – Extending Scope of Permitted Devices** (`RBI/DPSS/2021-22/96`, Sep 7, 2021). [https://www.rbi.org.in/Scripts/NotificationUser.aspx?Id=12152&Mode=0](https://www.rbi.org.in/Scripts/NotificationUser.aspx?Id=12152&Mode=0).
+3. <a id="ref-3"></a>**RBI Authentication mechanisms for digital payment transactions Directions, 2025** (`RBI/2025-26/79`, Sep 25, 2025). [https://rbi.org.in/Scripts/NotificationUser.aspx?Id=12898&Mode=0](https://rbi.org.in/Scripts/NotificationUser.aspx?Id=12898&Mode=0).
+4. <a id="ref-4"></a>**RBI Harmonisation of Turn Around Time (TAT) and customer compensation for failed transactions** (`RBI/2019-20/67`, Sep 20, 2019). [https://www.rbi.org.in/Scripts/NotificationUser.aspx?Id=11693&Mode=0](https://www.rbi.org.in/Scripts/NotificationUser.aspx?Id=11693&Mode=0).
 
 ---
 
@@ -377,7 +456,8 @@ The root failure mode is **unclear in-app resolution status**, pushing anxious c
 # UPI-008: Untrusted app and remote-access risk
 URL: https://eyeinthesky6.github.io/india-fintech-risk-atlas/upi/untrusted-app-access/
 Description: UPI-008 — sideloaded APKs, screen mirroring, remote-access coercion, and mobile RASP controls.
-Product: upi | Type: preventive-control | Review Stage: source-checked | Last Source Check: 2026-11-23
+Product: upi | Type: preventive-control | Review Stage: draft | Last Source Check: 2026-11-23
+Source blocker: NPCI/2025-26/IS/003 is corroborated by a member-bank mirror. The issuer original remains unverified.
 Actors: payer, tpap, psp-bank, remitter-bank | Evidence Layers: official, atlas
 
 ## What it solves
@@ -398,7 +478,7 @@ Prevents attackers from spying on UPI PIN entry, intercepting OTPs, hijacking ta
 |---|---|---|
 | Regulatory | Commercial, Payments & Small Finance banks | Detect remote-access apps and block login access; verify secure download/install integrity, publish official app checksums, explore root/jailbreak install blocks, and consider anti-malware defenses. |
 | Regulatory | Non-bank PSOs | Block mobile payment access whenever a remote-access session is live, and subscribe to anti-phishing and rogue-app takedown monitoring services. |
-| Regulatory | NPCI ecosystem guidance | Public NPCI guidance warns users against downloading unknown APKs, screen-sharing tools, or SMS-forwarding apps, and advises not transacting during active calls. *(A separate NPCI 2025 mobile app security circular cited via bank mirror—specifying store install checks, screen-mirroring/USB-debug blocks, OTP auto-read, and runtime alerts—awaits public NPCI circular listing.)* |
+| Regulatory | Payers | NPCI's public fraud-awareness guidance advises against installing unknown APKs, screen-sharing tools or SMS-forwarding apps, and against transacting during active calls. <a href="#ref-4">[4]</a> |
 | Atlas guidance | TPAPs, PSPs | Terminate or block UPI payment initiation whenever live screen mirroring, active casting, or remote control is detected, showing plain-language instructions on why access paused. |
 | Atlas guidance | Mobile security & engineering | Enforce app-store signature verification, root/emulator/debugger detection, and overlay defense (`FLAG_SECURE` / non-obscured touch checks) without breaking OS accessibility tools. |
 
@@ -410,8 +490,8 @@ Prevents attackers from spying on UPI PIN entry, intercepting OTPs, hijacking ta
 ## References and review history
 1. RBI, [Commercial Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/scripts/BS_ViewMasDirections.aspx?id=13642), `RBI/DoS/2026-27/411` (updated Oct 1, 2026) — secure install/checksums/remote-access login blocks (`§68(2)(ii),(iv), §68(4)–(5), §68(12)`), accessed Nov 23, 2026 (parallel `id=13624` PBs, `id=13633` SFBs).
 2. RBI, [Master Directions on Cyber Resilience and Digital Payment Security Controls for non-bank PSOs](https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=13751&Mode=0), `RBI/DPSS/2026-27/475` (Nov 5, 2026; Large/Medium immediate, Small Apr 1, 2028) — rogue-app takedown (`§27(h)`) and blocking payments during live remote access (`§31(f)`), accessed Nov 23, 2026.
-3. NPCI circular `NPCI/2025-26/IS/003` (May 19, 2025), *Comprehensive Mobile Application Security Framework for UPI - 2025* — [provisional third-party bank mirror](https://rscb.bank.in/Content/pdf/npcicircular.pdf) (inspected pp. 1–8 covering Mandatory store/root/screen-mirror/USB-debug/OTP controls `A.1–2, B.12/14/15/23, C.1, D.1` and Recommended harmful-app/emulator/Frida/keylogger/overlay controls `A.3–4, B.19–21`; **remains provisional draft pending public `npci.org.in` listing**).
-4. NPCI, [Fraud Awareness](https://www.npci.org.in/fraud-awareness) (*Downloading of unknown apps*), browser-checked Nov 23, 2026.
+3. NPCI circular `NPCI/2025-26/IS/003` (May 19, 2025), *Comprehensive Mobile Application Security Framework for UPI - 2025* — [provisional third-party bank mirror](https://rscb.bank.in/Content/pdf/npcicircular.pdf), pp. 1–8. The issuer original and exact operative scope remain unverified.
+4. <a id="ref-4"></a> NPCI, [Fraud Awareness](https://www.npci.org.in/fraud-awareness) (*Downloading of unknown apps*), browser-checked Nov 23, 2026.
 5. NPCI, [UPI Circulars index](https://www.npci.org.in/circulars/upi), browser-checked Nov 23, 2026 (confirmed `NPCI/2025-26/IS/003` is not listed on public `/circulars/upi` or `/circulars/others`).
 
 **Review status:** RBI sources and `npci.org.in/fraud-awareness` checked 2026-11-23; `NPCI/2025-26/IS/003` absent from public `npci.org.in` circular indexes (provisional bank mirror used; stays `draft`); independent reviewer: `PENDING`.
@@ -443,19 +523,24 @@ Ensures payment approvals genuinely come from the authorized customer and bound 
 | Regulatory | Payment System Providers & Participants | Require at least two distinct authentication factors per transaction, including at least one dynamically generated/proven factor for non-card-present payments; recognize active exemptions (e.g., subsequent recurring e-mandates and NFC Tap-and-Pay UPI on POS). Issuers bear responsibility for compliance and may apply risk-based checks. |
 | Regulatory | Commercial, Payments & Small Finance banks | Implement phishing/keylogger-resistant MFA, optional risk-based adaptive auth, SMS/email alerts for transactions and new linkages showing the actual merchant name (not only the PA), and MITM controls terminating interfered sessions. |
 | Regulatory | Non-bank PSOs | Place OTP codes (where used) at the end of messages alongside the specific transaction reference, and preserve intact session security and encryption across mobile channels. |
+| Regulatory | UPI apps and PSP banks offering additional authentication | NPCI OC-226 allows customers to opt into Aadhaar face authentication for PIN setup or reset, and on-device biometrics as an alternative to the PIN for payments. Check device compatibility and security, obtain explicit consent with an opt-out, and renew consent after device binding before allowing further biometric payments. <a href="#ref-4">[4]</a> |
+| Regulatory | Issuer banks offering additional authentication | Verify customer eligibility and credentials before enabling biometrics or authorizing PIN setup or reset. If a UPI PIN changes or is reset, disable the biometric payment method for that account across UPI apps until fresh consent. <a href="#ref-4">[4]</a> |
 | Atlas guidance | TPAPs, Remitter banks, PSPs | Cryptographically bind UPI PIN and device factor proofs to the exact amount, payee VPA/MID, and session integrity; terminate transactions immediately on TLS pinning or runtime tamper failures. |
 
 ## Watch-outs and validation
 - **Legitimate lookalikes:** Exempted low-value NFC Tap-and-Pay UPI transactions, subsequent recurring e-mandate debits, and adaptive step-ups during genuine cross-city travel. Avoid dropping valid sessions solely on transient weak cellular handoffs.
 - **Signals needed:** Auth factors verified (`PIN`, biometric, device token, exempt mandate/NFC), session TLS/pinning telemetry, merchant descriptor fields, and risk-based step-up audit logs.
 - **How to validate:** Audit `Annexure-1` exemption flags against live product behavior, verify TLS error termination, and inspect live SMS/OTP alert templates for merchant-name display and end-placed OTP format.
+- **Biometric rollout scope:** OC-226 initially capped on-device biometric payments at ₹5,000 per transaction. Check the current NPCI implementation documents and any later circulars before using that amount as a production limit. <a href="#ref-4">[4]</a>
 
 ## References and review history
 1. RBI, [Authentication Mechanisms for Digital Payment Transactions Directions, 2025](https://rbi.org.in/Scripts/NotificationUser.aspx?Id=12898&Mode=0), `RBI/2025-26/79` (Sep 25, 2025; compliance by Apr 1, 2026) — scope (`§4`), 2FA + dynamic factor (`§6`), risk-based & issuer responsibility (`§§8–9`), and exemptions including recurring e-mandates and Tap-and-Pay UPI (`Annexure-1`, citing Sep 2, 2026 letter `CO.DPSS.POLC.No. S-550/02-23-001/2026-27`), accessed Nov 23, 2026.
 2. RBI, [Commercial Banks – Digital Payment Security Controls Directions, 2026](https://www.rbi.org.in/scripts/BS_ViewMasDirections.aspx?id=13642), `RBI/DoS/2026-27/411` (updated Oct 1, 2026) — MFA, adaptive auth, merchant-name alerts, MITM termination (`§§42–49, 68(13)`), accessed Nov 23, 2026 (parallel `id=13624` PBs, `id=13633` SFBs).
 3. RBI, [Master Directions on Cyber Resilience and Digital Payment Security Controls for non-bank PSOs](https://www.rbi.org.in/scripts/NotificationUser.aspx?Id=13751&Mode=0), `RBI/DPSS/2026-27/475` (Nov 5, 2026; Large/Medium immediate, Small Apr 1, 2028) — OTP formatting (`§29(c)`) and mobile session/encryption protection (`§31(b)`), accessed Nov 23, 2026.
 
-**Review status:** RBI primary sources checked 2026-11-23; independent reviewer: `PENDING`.
+4. <a id="ref-4"></a> NPCI, [Introduction of Additional Authentication methods in UPI](https://www.npci.org.in/uploads/UPI_OC_No_226_FY_2025_26_Introduction_of_Additional_Authentication_methods_in_UPI_42c3693399.pdf), OC-226/2025-26 (7 October 2025), pp. 1–2, §§1–2 and guidelines 1–5 and 7. Issuer PDF inspected November 25, 2026. Current rollout limits and later member-only changes still need confirmation.
+
+**Review status:** RBI baseline checked 2026-11-23. NPCI OC-226 checked separately on 2026-11-25. Independent review remains pending.
 
 ---
 

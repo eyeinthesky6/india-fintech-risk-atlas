@@ -10,14 +10,14 @@ import UpiCoverageSummary from '../../../components/UpiCoverageSummary.astro';
 - **Canonical UPI topic entries** spanning scheme architecture, social engineering (collect, QR/cashback, fake support), identity/access/authentication (ATO/device binding, untrusted apps/remote access, MFA, failed auth), monitoring/mules/merchants (outbound velocity, EFRM governance, mule-account funnels, merchant/PA onboarding), reconciliation/disputes/protection (order status & webhooks, interbank settlement exceptions, ODR/disputes, customer liability & protection), and policy consultation (RBI April 2026 Discussion Paper).
 - **Engineering & reference pages:** [Risk-stack playbook](/india-fintech-risk-atlas/upi/risk-stack-playbook/), [Operator practices & empirical research](/india-fintech-risk-atlas/upi/operator-insights/), [UPI source register](/india-fintech-risk-atlas/upi/sources/), and [UPI glossary](/india-fintech-risk-atlas/upi/glossary/).
 
-## Current verification status (audited 2026-11-24)
+## Current verification status
 
 <UpiCoverageSummary />
 
 ## Remaining verification work & publication milestones
 
 - **Independent second-reviewer verification** for all canonical records (`Independent reviewer: PENDING`). Designated human Domain Stewards certify baseline records under the [Delta-Review Model](https://github.com/eyeinthesky6/india-fintech-risk-atlas/blob/main/docs/TOPIC_STEWARDSHIP_AND_DELTA_REVIEW.md).
-- **Member circular (`UPI-008`):** Indirectly corroborated on 2026-11-24 through auditor advisories and member bank circular mirrors. Original NPCI member circular inspection remains outstanding; do not treat its exact wording, applicability or effective date as directly verified. The existing `source-checked` label is not independent certification.
+- **Member circular (`UPI-008`):** The record remains a research draft. A member-bank mirror and auditor advisories corroborate the circular. Its exact requirements, applicability and effective dates still need verification against the issuer original.
 - **Company-reported engineering practices (Layer 2):** Expanded on 2026-11-24. Named firsthand practitioner evidence (Layer 3) remains a separate research need. Automated engineering feed watcher (`scripts/watch-practitioners.py`) active; verified production architectures from PhonePe (TStore transaction persistence, real-time fraud models, module sandboxing, Clockwork reconciliation) and Cashfree ingested under Layer 2.
 - **Overlapping draft PR hygiene:** **RESOLVED (2026-11-24).** Obsolete PRs #1, #2, #4, #5 closed on GitHub.
 - **Public deployment:** The site is available as a research preview. Branch-protection configuration is not verified here. Independent review remains outstanding.

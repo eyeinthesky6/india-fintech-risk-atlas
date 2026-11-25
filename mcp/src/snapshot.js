@@ -3,9 +3,9 @@ import path from 'node:path';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 
-const bundled = fileURLToPath(new URL('../data/atlas-records.json', import.meta.url));
-const cache = path.join(os.homedir(), '.cache', 'india-fintech-risk-atlas', 'atlas-records.json');
-const URL_STRING = 'https://eyeinthesky6.github.io/india-fintech-risk-atlas/atlas-records.json';
+const BUNDLED_PATH = fileURLToPath(new URL('../data/atlas-records.json', import.meta.url));
+const CACHE_PATH = path.join(os.homedir(), '.cache', 'india-fintech-risk-atlas', 'atlas-records.json');
+const SNAPSHOT_URL = 'https://eyeinthesky6.github.io/india-fintech-risk-atlas/atlas-records.json';
 const MAX_BYTES = 32 * 1024 * 1024;
 const TTL = 6 * 60 * 60 * 1000;
 
@@ -14,24 +14,41 @@ export function validateSnapshot(data) {
   if (!m || m.title !== 'India Fintech Risk Atlas' ||
       !Number.isFinite(Date.parse(m.generatedAt)) ||
       Date.parse(m.generatedAt) > Date.now() + 300000 ||
-      !/^1\./.test(m.version || '') ||
+      !/^1\.[1-9]\d*\.\d+$/.test(m.version || '') ||
+      !Array.isArray(m.coveredProducts) || typeof m.verificationNotice !== 'string' ||
       !Array.isArray(data.records) || !data.records.length ||
       m.totalRecords !== data.records.length ||
-      !Array.isArray(data.guideDocs) || !data.knowledgeGraph?.connections || !m.taxonomy) {
+      !Array.isArray(data.guideDocs) ||
+      !data.guideDocs.every((guide) => typeof guide?.slug === 'string') ||
+      !data.knowledgeGraph?.connections || !m.taxonomy) {
     throw new Error('Invalid or incompatible Atlas snapshot');
   }
   const ids = new Set();
   for (const r of data.records) {
-    if (typeof r.recordId !== 'string' || !r.recordId || ids.has(r.recordId) ||
-        !Array.isArray(r.products) || !Array.isArray(r.actors) ||
-        !Array.isArray(r.evidenceLayers) || !Array.isArray(r.controls) ||
+    if (typeof r?.recordId !== 'string' || !r.recordId || ids.has(r.recordId) ||
+        !isStringArray(r.products) || !isStringArray(r.actors) ||
+        !isStringArray(r.evidenceLayers) || !Array.isArray(r.controls) ||
+        !r.controls.every((control) => typeof control?.basis === 'string' &&
+          typeof control.owner === 'string' && typeof control.action === 'string') ||
         !Array.isArray(r.references) || typeof r.fullMarkdown !== 'string' ||
-        !r.url?.startsWith('https://eyeinthesky6.github.io/india-fintech-risk-atlas/')) {
+        typeof r.reviewStage !== 'string' ||
+        (r.blockerNote != null && typeof r.blockerNote !== 'string') ||
+        typeof r.url !== 'string' ||
+        !r.url.startsWith('https://eyeinthesky6.github.io/india-fintech-risk-atlas/')) {
       throw new Error('Malformed Atlas record');
     }
     ids.add(r.recordId);
+    const node = data.knowledgeGraph.connections[r.recordId];
+    if (!node || !isStringArray(node.sharedSources) || !isStringArray(node.sameTheme) ||
+        !isStringArray(node.directLinks) || !isStringArray(node.allNeighbors)) {
+      throw new Error('Malformed Atlas graph');
+    }
   }
   return data;
+}
+
+function isStringArray(value) {
+  return Array.isArray(value) && value.every((item) => typeof item === 'string');
 }
 
 async function readSnapshot(file) {
@@ -39,48 +56,72 @@ async function readSnapshot(file) {
   catch { return null; }
 }
 
-export async function selectSnapshot({offline = false, force = false} = {}) {
-  const local = await readSnapshot(bundled);
-  const saved = await readSnapshot(cache);
-  const newer = saved && (!local || Date.parse(saved.metadata.generatedAt) >= Date.parse(local.metadata.generatedAt));
-  let selected = newer ? cache : bundled;
-  let baseline = newer ? saved : local;
+async function fetchSnapshot() {
+  const response = await fetch(SNAPSHOT_URL, {
+    signal: AbortSignal.timeout(5000),
+    redirect: 'error',
+    cache: 'no-store',
+  });
+  if (!response.ok || !response.body) throw new Error(`HTTP ${response.status}`);
+
+  const reader = response.body.getReader();
+  const chunks = [];
+  let size = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      size += value.byteLength;
+      if (size > MAX_BYTES) throw new Error('Snapshot exceeds size limit');
+      chunks.push(value);
+    }
+  } finally {
+    await reader.cancel().catch(() => {});
+  }
+  const bytes = Buffer.concat(chunks);
+  return { bytes, snapshot: validateSnapshot(JSON.parse(bytes.toString('utf8'))) };
+}
+
+async function cacheSnapshot(cachePath, bytes) {
+  const cacheDir = path.dirname(cachePath);
+  await fs.mkdir(cacheDir, { recursive: true });
+  const staging = await fs.mkdtemp(path.join(cacheDir, '.atlas-'));
+  const tempPath = path.join(staging, 'snapshot.json');
+  try {
+    await fs.writeFile(tempPath, bytes, { mode: 0o600 });
+    await fs.rename(tempPath, cachePath);
+  } finally {
+    await fs.rm(tempPath, { force: true });
+    await fs.rmdir(staging);
+  }
+}
+
+export async function selectSnapshot({
+  offline = false,
+  force = false,
+  bundledPath = BUNDLED_PATH,
+  cachePath = CACHE_PATH,
+} = {}) {
+  const [local, saved] = await Promise.all([readSnapshot(bundledPath), readSnapshot(cachePath)]);
+  // The published feed owns online content. A local build date cannot order GitHub Pages releases.
+  let selected = saved ?? local;
+  if (offline && local && (!saved || Date.parse(local.metadata.generatedAt) > Date.parse(saved.metadata.generatedAt))) {
+    selected = local;
+  }
   if (!offline) {
-    let fresh = false;
-    try { fresh = !!saved && Date.now() - (await fs.stat(cache)).mtimeMs < TTL; } catch {}
-    if (force || !fresh) {
-      let temp;
+    const cacheStat = saved && !force ? await fs.stat(cachePath).catch(() => null) : null;
+    if (!cacheStat || Date.now() - cacheStat.mtimeMs >= TTL) {
       try {
-        const res = await fetch(URL_STRING, {signal: AbortSignal.timeout(5000), redirect:'error'});
-        if (!res.ok || !res.body) throw new Error('HTTP ' + res.status);
-        const reader = res.body.getReader();
-        let size = 0;
-        const chunks = [];
-        try {
-          while (true) {
-            const {done,value} = await reader.read();
-            if (done) break;
-            size += value.byteLength;
-            if (size > MAX_BYTES) throw new Error('Snapshot exceeds size limit');
-            chunks.push(value);
-          }
-        } finally { await reader.cancel().catch(()=>{}); }
-        const bytes = Buffer.concat(chunks);
-        const incoming = validateSnapshot(JSON.parse(bytes.toString('utf8')));
-        if (!baseline || Date.parse(incoming.metadata.generatedAt) >= Date.parse(baseline.metadata.generatedAt)) {
-          await fs.mkdir(path.dirname(cache), {recursive:true});
-          temp = cache + '.' + process.pid + '.tmp';
-          await fs.writeFile(temp, bytes, {mode:0o600});
-          await fs.rename(temp, cache);
-          selected = cache;
-          baseline = incoming;
-        }
-      } catch (e) {
-        console.error('Atlas refresh unavailable; retaining last valid snapshot:', e.message);
-      } finally { if (temp) await fs.rm(temp, {force:true}).catch(()=>{}); }
+        const { bytes, snapshot } = await fetchSnapshot();
+        selected = snapshot;
+        await cacheSnapshot(cachePath, bytes)
+          .catch((error) => console.error('Atlas snapshot could not be cached:', error.message));
+      } catch (error) {
+        console.error('Atlas refresh unavailable; retaining last valid snapshot:', error.message);
+      }
     }
   }
-  if (!baseline) throw new Error('No valid Atlas snapshot; rebuild local data or reconnect.');
-  console.error('Atlas snapshot generated:', baseline.metadata.generatedAt);
+  if (!selected) throw new Error('No valid Atlas snapshot; regenerate local data or reconnect.');
+  console.error('Atlas snapshot generated:', selected.metadata.generatedAt);
   return selected;
 }

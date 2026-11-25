@@ -1,6 +1,7 @@
 # India Fintech Risk Atlas — UPI v1 release status & audit
 
-**Historical release branch & PR:** `release/upi-v1-freeze` (PR `#6`).  
+**Historical release branch & PR:** `release/upi-v1-freeze` (PR `#6`).
+
 **Publication verdict:** Public [research preview](https://eyeinthesky6.github.io/india-fintech-risk-atlas/) — **NOT independently second-reviewer certified**. Technical results below are historical audit results, not a fresh CI run.
 
 ---
@@ -9,12 +10,12 @@
 
 - **17 canonical UPI topic records** (`UPI-OVERVIEW` explainer and `UPI-001` through `UPI-016`) under `src/content/docs/upi/`, using typed YAML frontmatter driven by [src/taxonomy.json](../src/taxonomy.json) and `src/content.config.ts`, paired 1:1 with `research/evidence/<ID>.md` and `research/attestations/<ID>.md`.
 - **6 product-level engineering & reference pages:** [upi/index.mdx](../src/content/docs/upi/index.mdx) (auto-generated catalogue), [upi/coverage.mdx](../src/content/docs/upi/coverage.mdx) (live verification table), [risk-stack-playbook.md](../src/content/docs/upi/risk-stack-playbook.md), [operator-insights.md](../src/content/docs/upi/operator-insights.md), [sources.md](../src/content/docs/upi/sources.md), and [glossary.md](../src/content/docs/upi/glossary.md).
-- **Internal research ledgers:** `research/upi/PRIMARY_SOURCE_REGISTER.md` (14 RBI/GoI documents + 10 browser-verified NPCI pages/circulars/PDFs + 1 provisional NPCI mirror `NPCI/2025-26/IS/003` absent from public circular indexes) and `research/upi/OPERATOR_EVIDENCE.md` (5 company docs `OP-001`–`OP-005` under `Industry practice` + 3 `arXiv` preprints `RES-001`–`RES-003` separated under `Research & academic`).
+- **Internal research ledgers:** `research/upi/PRIMARY_SOURCE_REGISTER.md` records inspected primary sources and the provisional NPCI member-bank mirror. `research/upi/OPERATOR_EVIDENCE.md` records company engineering material and separately lists academic research.
 
-## Evidence verification & source retrieval (2026-11-23 audit)
+## Evidence verification & source retrieval
 
-- **`17` `source-checked` drafts (`Independent reviewer: PENDING`):** `UPI-OVERVIEW`, `UPI-001`–`UPI-016`. The historical audit recorded direct retrieval for sources across 13 RBI directions/circulars/discussion paper (`id=13642`, `13624`, `13633`, `Id=13751`, `Id=12898`, `Id=13543`, `id=13089`, `id=11040`, `id=13641`, `id=12896`, `Id=11693`, `Id=11946`, `id=23810`), PIB release (`PRID=2260277`), browser-verified canonical `npci.org.in` pages and PDFs (`/product/upi`, `/about-upi`, `/roles-responsibilities`, `/faqs/upi`, `/complaint-register`, `/fraud-awareness`, `UPI_Settlement_Process_256f73e1df.pdf`, `OC 220`, `222A`, `OC 235`), member circular `NPCI/2025-26/IS/003` (indirect exception: original not inspected; corroborated across member bank circular mirrors and CERT-In empaneled auditor advisories), Razorpay/Cashfree/Stripe docs, and 3 `arXiv` preprints (`2610.21314v1`, `2410.19845v1`, `2607.17586v1`).
-- **`0` `draft` records remaining:** `UPI-008` promoted to `source-checked` following multi-channel member-circular confirmation.
+- **16 `source-checked` UPI records:** `UPI-OVERVIEW`, `UPI-001`–`UPI-007` and `UPI-009`–`UPI-016`. The [primary source register](../research/upi/PRIMARY_SOURCE_REGISTER.md) preserves the November 23 audit and the November 25 inspection of OC-226.
+- **1 research draft:** `UPI-008` awaits direct inspection of the original NPCI member circular.
 - **`0` `reviewed` / `published` records:** Independent second-reviewer verification has not yet occurred on any record.
 
 ## Technical, schema & CI validation status
@@ -29,7 +30,7 @@
 ## Ordered release blockers & no-go rules
 
 1. **Independent second-reviewer verification (Domain Steward Model):** Transitioning from blank-slate monolithic re-auditing to designated human **Domain Stewards & Section Supporters** ([docs/TOPIC_STEWARDSHIP_AND_DELTA_REVIEW.md](TOPIC_STEWARDSHIP_AND_DELTA_REVIEW.md)). Stewards certify baseline records, while subsequent regulatory updates only require delta-verification of the specific diff rather than resetting the entire page.
-2. **Original-source verification of `NPCI/2025-26/IS/003` (`UPI-008`):** **OPEN — indirectly corroborated (2026-11-24).** Reported as an official Information Security (IS) series member circular distributed to PSPs, ASPs, and TPAPs under the UPI IS Compliance Framework; corroborated across CERT-In empaneled auditor advisories (Certcube Labs, Baker Tilly), mobile security vendor documentation (Zimperium, DoveRunner), and member bank circular mirrors (RSCB). `UPI-008` was promoted to `source-checked`; original inspection and exact claim-level verification remain outstanding.
+2. **Original-source verification of `NPCI/2025-26/IS/003` (`UPI-008`):** Open. A member-bank mirror and CERT-In empaneled auditor advisories corroborate the circular. The issuer original, exact operative scope and later changes remain unverified. The [evidence ledger](../research/evidence/UPI-008.md) retains the provisional claim and locator.
 3. **Company-reported Indian engineering practices:** Expanded (2026-11-24); separate named practitioner evidence remains open. Automated engineering feed watcher (`scripts/watch-practitioners.py`) and scheduled GitHub Action (`.github/workflows/practitioner-watcher.yml`) implemented. Discovered and auto-ingested verified engineering publications from PhonePe (TStore transaction persistence & idempotency `OP-007`/`OP-008`, Real-time fraud detection `OP-013`, Module sandboxing & security isolation `OP-009`/`OP-011`/`OP-012`, Clockwork reconciliation `OP-010`) and Cashfree (UPI International checkout, refunds & settlements `OP-014`/`OP-015`) into `research/upi/OPERATOR_EVIDENCE.md` under Layer 2.
 4. **Repository visibility, Pages activation & branch protection:** Public research preview is available. Verify branch protection requiring `Content attestation` and `Site build & link check` on `main`; do not infer protection from deployment.
 5. **Overlapping draft PR hygiene:** **RESOLVED (2026-11-24).** Superseded draft PRs `#1`, `#2`, `#4`, and `#5` closed on GitHub with comment pointers to consolidation PR `#6`. Clean PR queue maintained.

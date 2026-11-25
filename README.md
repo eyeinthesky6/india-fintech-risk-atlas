@@ -31,7 +31,7 @@ Every material claim traces to an opened primary source or is explicitly labeled
 ## Current state
 UPI v1 public research preview ([live site](https://eyeinthesky6.github.io/india-fintech-risk-atlas/)):
 - **Website & search:** Astro 7 / Starlight 0.43 static build validated across 29 pages with zero broken internal links (`starlight-links-validator`) and Pagefind indexing across 6 metadata filters (`record_type`, `stage`, `product`, `lifecycle`, `actor`, `evidence_layer`).
-- **Evidence coverage:** All 17 UPI entries (`UPI-OVERVIEW` and `UPI-001`–`UPI-016`) are **`source-checked`** against directly opened RBI, PIB, browser-verified NPCI pages, operating circulars, and indirectly corroborated member circulars (including `NPCI/2025-26/IS/003`, whose original remains to be inspected). All 17 entries currently have baseline research verified with **`Independent reviewer: PENDING`** across designated Domain Steward areas, and the research preview is deployed to GitHub Pages.
+- **Evidence coverage:** The public research preview contains 17 UPI entries. Sixteen are `source-checked` and await independent review. UPI-008 remains a research draft pending direct verification of NPCI member circular `NPCI/2025-26/IS/003`.
 
 ## Local development & verification
 Run once per fresh clone so local commits trigger the same attestation gate as CI (`.githooks/pre-commit` automatically selects `python3` or `python` >= 3.8 on Windows/POSIX):

@@ -7,7 +7,7 @@ Official Model Context Protocol (MCP) server for **India Fintech Risk Atlas**. P
 ## 🚀 Quick Setup
 
 ### 1. Claude Desktop (`claude_desktop_config.json`)
-First clone the repository, install dependencies with `cd mcp && npm ci`, then run `npm run data` from the repository root. This is a research preview; neither source-checking nor user feedback is independent certification.
+Clone the repository and run `npm ci --prefix mcp` from the repository root. The checkout includes the offline dataset. If you edit source records locally, run `npm run data` to regenerate the checked-in exports.
 
 Add to `%APPDATA%\Claude\claude_desktop_config.json` (Windows) or `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS):
 
@@ -69,7 +69,7 @@ Add to `%APPDATA%\Claude\claude_desktop_config.json` (Windows) or `~/Library/App
 | **Primary Sources** | `list_sources` | `record_id`, `product` | Collapsible `Sources, legal scope & review history` drawer & `sources.md` register |
 | **Policies & Guides** | `get_guide_doc` | `doc_id` | Top navigation tabs: `evidence-policy`, `methodology`, `risk-stack-playbook`, `glossary`, `sources`, etc. |
 | **Taxonomy** | `list_taxonomy` | *(none)* | 5 evidence layers, themes, actors, products, and review stages |
-| **Feedback & Triage** | `submit_correction` | `record_id`, `section`, `reason`, `quote`, `note`, `source_url` | Guided Selection & `[Report an error]` dialog -> routes to Cloudflare Worker & private triage queue |
+| **Feedback & Triage** | `submit_correction` | `record_id`, `section`, `reason`, `quote`, `note`, `source_url` | Checks for a private queue receipt. If browser verification is required, open the returned record URL and use **Report an error**. |
 
 ---
 
@@ -109,7 +109,7 @@ npm test
 
 This server is packaged intentionally as a **local stdio process** rather than a publicly exposed remote HTTP/SSE endpoint.
 * **Web & Chat Users (ChatGPT, Gemini Web, Perplexity):** Can attempt to retrieve public data via the static CDN index (client-dependent; not automatic discovery or an MCP connection) at [`/llms.txt`](https://eyeinthesky6.github.io/india-fintech-risk-atlas/llms.txt) and [`/atlas-records.json`](https://eyeinthesky6.github.io/india-fintech-risk-atlas/atlas-records.json).
-* **Developer & IDE Users (Cursor, Claude Desktop, Antigravity, VS Code):** Supported via local stdio and a bundled offline dataset. Refresh by pulling the latest repository and running `npm run data` from the repository root. Restart the MCP process to reload the snapshot.
+* **Developer & IDE Users (Cursor, Claude Desktop, Antigravity, VS Code):** Local stdio starts with the bundled dataset when the published snapshot and its cache are unavailable. Restart the MCP process to check for updates.
 
 For the full architectural decision record, security requirements, and activation triggers for when to deploy a remote Cloudflare Worker SSE endpoint, see [docs/REMOTE_MCP_EVALUATION.md](../docs/REMOTE_MCP_EVALUATION.md).
   6. *Gap Checklist Invariant:* Guarantees well-formed tables across Markdown and JSON formats.
@@ -117,4 +117,4 @@ For the full architectural decision record, security requirements, and activatio
 
 ## Snapshot freshness
 
-The CLI checks the fixed GitHub Pages JSON endpoint on startup (cached for six hours). It selects a validated snapshot, rejects older generation timestamps, and falls back to the newest valid cached or bundled snapshot on network failure. Use `--offline` or `ATLAS_OFFLINE=1` to disable the network check; `--refresh` bypasses the cache interval. Restart the process to refresh an existing session. Dataset generation time is not a regulatory verification date. Network access for correction submissions is separate from dataset refresh.
+Online startup uses the fixed GitHub Pages feed or its six-hour cache. `--refresh` checks the feed immediately. If the feed fails or returns an incompatible snapshot, the CLI uses the last valid cached release, then the bundle. `--offline` or `ATLAS_OFFLINE=1` disables the dataset request and selects the most recently generated valid local copy. Rebuilding identical content preserves its generation date. Each session uses one snapshot for tools and the LLM index. Correction submissions have their own fixed endpoint.

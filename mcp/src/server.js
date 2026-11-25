@@ -8,10 +8,12 @@ import {
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { renderLlmIndex } from './llms-index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DATA_PATH = path.resolve(__dirname, '..', 'data', 'atlas-records.json');
+const TRIAGE_ENDPOINT = 'https://atlas-report-triage.6edroid.workers.dev';
 
 let cachedData = null;
 
@@ -78,8 +80,7 @@ function matchesActorRole(ownerText, queryRole) {
   });
 }
 
-export function createAtlasMcpServer(snapshotPath) {
-  const snapshot = snapshotPath ? JSON.parse(fs.readFileSync(snapshotPath, 'utf8')) : null;
+export function createAtlasMcpServer(snapshot) {
   const getData = () => snapshot || loadAtlasData();
   const server = new Server(
     {
@@ -298,7 +299,7 @@ export function createAtlasMcpServer(snapshotPath) {
         {
           name: 'submit_correction',
           description:
-            'Submit a factual correction, outdated circular alert, or typo report to the Atlas maintainers triage queue. Reports are verified against primary RBI/NPCI sources before updating live documentation.',
+            'Send a factual correction to Atlas maintainers. If private triage requires browser verification, use the returned record URL to report the error on the site.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -390,6 +391,7 @@ export function createAtlasMcpServer(snapshotPath) {
           actors: r.actors,
           evidence_layers: r.evidenceLayers,
           review_stage: r.reviewStage,
+          source_blocker: r.blockerNote || undefined,
           last_source_check: r.lastSourceCheck,
           controls_count: r.controls?.length || 0,
           citations_count: r.references?.length || 0,
@@ -536,6 +538,8 @@ export function createAtlasMcpServer(snapshotPath) {
                 record_id: r.recordId,
                 topic_title: r.title,
                 url: r.url,
+                review_stage: r.reviewStage,
+                source_blocker: r.blockerNote || undefined,
                 basis: c.basis,
                 basis_raw: c.basisRaw ?? c.basis,
                 regulatory_status: c.regulatoryStatus ?? 'not-determined',
@@ -580,9 +584,11 @@ export function createAtlasMcpServer(snapshotPath) {
               id: `${r.recordId}-C${checklistItems.length + 1}`,
               record_id: r.recordId,
               topic: r.title,
+              review_stage: r.reviewStage,
+              source_blocker: r.blockerNote || undefined,
               basis: c.basis,
-                basis_raw: c.basisRaw ?? c.basis,
-                regulatory_status: c.regulatoryStatus ?? 'not-determined',
+              basis_raw: c.basisRaw ?? c.basis,
+              regulatory_status: c.regulatoryStatus ?? 'not-determined',
               owner: c.owner,
               requirement: c.action,
               status: 'NOT_AUDITED',
@@ -608,7 +614,7 @@ export function createAtlasMcpServer(snapshotPath) {
           '| Check | Record | Basis | Entity Scope | Action Requirement | Implementation Status | Evidence / Notes |',
           '|---|---|---|---|---|---|---|',
           ...checklistItems.map(
-            (item) => `| [ ] | \`${item.record_id}\` | **${item.basis}** (${item.regulatory_status}) | ${item.owner} | ${item.requirement.replace(/\|/g, '\\|')} | Pending | |`,
+            (item) => `| [ ] | \`${item.record_id}\` (${item.review_stage}) | **${item.basis}** (${item.regulatory_status}) | ${item.owner} | ${item.requirement.replace(/\|/g, '\\|')} | Pending | ${item.source_blocker?.replace(/\|/g, '\\|') ?? ''} |`,
           ),
         ];
 
@@ -659,7 +665,8 @@ export function createAtlasMcpServer(snapshotPath) {
           .replace(/<a\b[^>]*>([\s\S]*?)<\/a>/gi, '$1')
           .trim();
 
-        const exportOutput = `${record.title}\n\n${record.description}\n\nReview stage: ${record.reviewStage}; last source check: ${record.lastSourceCheck ?? 'unknown'}. Research preview, not certified compliance advice.\n\n${cleanBody}\n\nSource: ${record.url}`;
+        const blocker = record.blockerNote ? `\nSource blocker: ${record.blockerNote}` : '';
+        const exportOutput = `${record.title}\n\n${record.description}\n\nReview stage: ${record.reviewStage}; last source check: ${record.lastSourceCheck ?? 'unknown'}. Research preview, not certified compliance advice.${blocker}\n\n${cleanBody}\n\nSource: ${record.url}`;
 
         return {
           content: [{ type: 'text', text: exportOutput }],
@@ -717,6 +724,7 @@ export function createAtlasMcpServer(snapshotPath) {
                   record_id: record.recordId,
                   title: record.title,
                   review_stage: record.reviewStage,
+                  source_blocker: record.blockerNote || undefined,
                   last_source_check: record.lastSourceCheck,
                   evidence_layers_present: record.evidenceLayers,
                   claims: record.evidenceLedger,
@@ -801,15 +809,16 @@ export function createAtlasMcpServer(snapshotPath) {
           return { isError: true, content: [{ type: 'text', text: 'Missing required field: note' }] };
         }
 
-        const triageEndpoint = data.metadata.triageWorkerUrl;
+        const record = data.records.find((item) => item.recordId === recordId.toUpperCase());
+        const reportPage = record?.url ?? 'https://eyeinthesky6.github.io/india-fintech-risk-atlas/contribute/';
         let submitSuccess = false;
         let triageResponse = null;
 
         try {
           const payload = {
             recordId,
-            pagePath: `/upi/${recordId.toLowerCase()}/`,
-            pageTitle: recordId,
+            pagePath: new URL(reportPage).pathname,
+            pageTitle: record?.title ?? recordId,
             section,
             reason,
             quote,
@@ -818,8 +827,9 @@ export function createAtlasMcpServer(snapshotPath) {
             dwellMs: 5000,
           };
 
-          const res = await fetch(triageEndpoint, {
+          const res = await fetch(TRIAGE_ENDPOINT, {
             method: 'POST',
+            redirect: 'error',
             headers: {
               'Content-Type': 'application/json',
               Origin: 'https://eyeinthesky6.github.io',
@@ -828,8 +838,8 @@ export function createAtlasMcpServer(snapshotPath) {
           });
 
           if (res.ok) {
-            submitSuccess = true;
             triageResponse = await res.json();
+            submitSuccess = triageResponse?.ok === true && triageResponse.queued === true;
           } else {
             triageResponse = await res.text();
           }
@@ -851,8 +861,9 @@ export function createAtlasMcpServer(snapshotPath) {
                   reason,
                   status: submitSuccess
                     ? 'Report queued in private triage queue for maintainer review.'
-                    : 'Worker submission did not complete; please file directly via GitHub Issue form.',
+                    : 'No queue receipt. Open the record page to report privately after browser verification, or use the public GitHub issue form.',
                   triage_details: triageResponse,
+                  private_report_page_url: reportPage,
                   direct_github_issue_url: fallbackIssueUrl,
                 },
                 null,
@@ -922,14 +933,12 @@ export function createAtlasMcpServer(snapshotPath) {
     }
 
     if (uri === 'atlas://llms-txt') {
-      const publicLlms = path.resolve(__dirname, '..', '..', 'public', 'llms.txt');
-      const text = fs.existsSync(publicLlms) ? fs.readFileSync(publicLlms, 'utf8') : 'llms.txt not generated.';
       return {
         contents: [
           {
             uri,
             mimeType: 'text/plain',
-            text,
+            text: renderLlmIndex(data),
           },
         ],
       };

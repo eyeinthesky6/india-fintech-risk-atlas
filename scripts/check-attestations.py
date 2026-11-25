@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """Lightweight content attestation check. Standard library only; not a truth verifier."""
+import argparse
+from hashlib import sha256
 import json
 from datetime import date
 import pathlib
@@ -112,8 +114,14 @@ def same_person(a, b):
     return bool(a and b and a.strip().lower() == b.strip().lower())
 
 
-def resolve_target_content_files(view, paths, id_map):
-    if '--all' in sys.argv:
+def review_fingerprint(article, ledger):
+    parts = [sha256(text.replace('\r\n', '\n').encode('utf-8')).digest()
+             for text in (article, ledger)]
+    return sha256(b''.join(parts)).hexdigest()
+
+
+def resolve_target_content_files(view, paths, id_map, all_records):
+    if all_records:
         return paths
 
     changed = view.changes()
@@ -133,13 +141,30 @@ def resolve_target_content_files(view, paths, id_map):
 
 
 def main():
-    view = ContentView('--staged' in sys.argv)
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--staged', action='store_true', help='Read the Git index')
+    parser.add_argument('--all', action='store_true', help='Validate every canonical record')
+    parser.add_argument('--review-fingerprint', metavar='RECORD_ID',
+                        help='Print the fingerprint of the article and its evidence ledger')
+    args = parser.parse_args()
+    view = ContentView(args.staged)
     taxonomy = json.loads(view.read('src/taxonomy.json'))
     valid_stages = set(taxonomy['reviewStages'])
     record_id_re = re.compile(taxonomy['recordIdPattern'])
     paths = view.records()
     id_map, failures = check_duplicate_ids(view, paths)
-    for path in resolve_target_content_files(view, paths, id_map):
+    if args.review_fingerprint:
+        record_id = args.review_fingerprint
+        path = id_map.get(record_id)
+        if failures or not path or not record_id_re.fullmatch(record_id):
+            parser.error('expected a unique canonical record ID')
+        ledger = view.read(f'research/evidence/{record_id}.md')
+        if ledger is None:
+            parser.error('record has no evidence ledger')
+        print(review_fingerprint(view.read(path), ledger))
+        return 0
+
+    for path in resolve_target_content_files(view, paths, id_map, args.all):
         txt = view.read(path)
         fm = parse_frontmatter(txt)
         rid = record_id_from_frontmatter(fm)
@@ -220,6 +245,9 @@ def main():
             elif stage in {'reviewed', 'published'}:
                 if len(boxes) != 12 or any(x == ' ' for x in boxes):
                     failures.append(f'{att_rel}: reviewed/published needs all 12 declarations')
+                fingerprints = re.findall(r'^Reviewed content SHA-256:[ \t]*([^\r\n]+)', body, re.M)
+                if [value.strip() for value in fingerprints] != [review_fingerprint(txt, ev_body)]:
+                    failures.append(f'{att_rel}: independent review must cover this version of the article and evidence ledger')
                 if is_pending(reviewer) or is_pending(researcher) or same_person(reviewer, researcher):
                     failures.append(f'{att_rel}: distinct researcher and reviewer identifiers required')
                 ev_rev_m = re.search(r'^Independent reviewer:\s*(.*)$', ev_body, re.M)

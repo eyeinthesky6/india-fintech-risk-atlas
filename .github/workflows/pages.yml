@@ -5,14 +5,12 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
-  actions: read
-  pages: write
-  id-token: write
 concurrency:
   group: pages
   cancel-in-progress: true
 jobs:
   build:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -23,10 +21,14 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - name: Check attestations and record integrity
         run: python3 scripts/check-attestations.py --all
+      - name: Check citation parity and deprecated URLs
+        run: python3 scripts/verify-citations.py --offline --all
       - run: npm run build
         env:
           PUBLIC_REPORT_ENDPOINT: ${{ vars.PUBLIC_REPORT_ENDPOINT }}
           PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.PUBLIC_TURNSTILE_SITE_KEY }}
+      - name: Require committed exports to match the regenerated site data
+        run: git diff --exit-code --stat -- public/atlas-records.json public/llms.txt public/llms-full.txt mcp/data/atlas-records.json
       - uses: actions/upload-pages-artifact@v5
         with:
           path: dist
@@ -36,6 +38,11 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
+    permissions:
+      contents: read
+      actions: read
+      pages: write
+      id-token: write
     steps:
       - uses: actions/checkout@v7
         with:
@@ -51,7 +58,7 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          PREVIOUS=$(gh run list --workflow pages.yml --status success --limit 1 --json headSha --jq '.[0].headSha // ""') || PREVIOUS=""
+          PREVIOUS=$(gh run list --workflow pages.yml --branch main --status success --limit 1 --json headSha --jq '.[0].headSha // ""') || PREVIOUS=""
           SUMMARY="$RUNNER_TEMP/atlas-pages-telegram.json"
           python3 scripts/telegram-update.py deployment \
             --head "$GITHUB_SHA" --previous "$PREVIOUS" --push-before "$PUSH_BEFORE" \

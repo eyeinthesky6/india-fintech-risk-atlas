@@ -33,7 +33,9 @@ class NotificationTests(unittest.TestCase):
                 return command[-1].split('^')[0]
             if command[0] == 'diff':
                 self.assertEqual(command[-3:-1], (before, after))
-                return f'M\0{record}\0M\0public/atlas-records.json\0'
+                return (f'M\0{record}\0M\0public/atlas-records.json\0'
+                        'M\0research/evidence/UPI-009.md\0M\0research/attestations/UPI-009.md\0'
+                        'M\0mcp/src/server.js\0M\0docs/SECTION_WORKFLOW.md\0')
             if command[0] == 'show':
                 return template + (
                     'New consent is required after a device change.' if command[1].startswith(after)
@@ -43,11 +45,33 @@ class NotificationTests(unittest.TestCase):
 
         with patch.object(update, 'git', side_effect=repository):
             summary = update.deployment(args)
+        content, code = summary['message'].split('\nCode changes\n')
+        self.assertIn('Content changes', content)
+        self.assertIn('Research evidence and review records — UPI-009', content)
+        self.assertNotIn('MCP tools', content)
+        self.assertIn('MCP tools and export code', code)
+        self.assertNotIn('UPI-009', code)
+        self.assertIn('Project documentation', code)
         self.assertIn('Updated UPI-009 Authentication — What to do', summary['message'])
         self.assertIn('New consent is required', summary['message'])
         self.assertNotIn('atlas-records.json', summary['message'])
         self.assertIn(['UPI-009 Authentication', 'https://example.org/atlas/upi/authentication-context/'], summary['links'])
         self.assertIn(['View change diff', f'https://github.com/owner/atlas/compare/{before}..{after}'], summary['links'])
+
+    def test_code_and_generated_outputs_do_not_announce_content_changes(self):
+        head, base = 'a' * 40, 'b' * 40
+        args = argparse.Namespace(
+            head=head, previous=base, push_before='',
+            repo_url='https://github.com/owner/atlas', site_url='https://example.org/atlas/',
+        )
+        with patch.object(update, 'git', side_effect=[head, base, 'M\0workers/report-triage/src/worker.js\0M\0public/llms.txt\0']):
+            message = update.deployment(args)['message']
+        self.assertIn('Code changes\n• Correction reporting code', message)
+        self.assertNotIn('Content changes', message)
+        with patch.object(update, 'git', side_effect=[head, base, 'M\0public/llms.txt\0']):
+            message = update.deployment(args)['message']
+        self.assertIn('Regenerated the public data exports', message)
+        self.assertNotIn('Code changes', message)
 
     def test_redeploy_does_not_invent_changes(self):
         head = 'a' * 40

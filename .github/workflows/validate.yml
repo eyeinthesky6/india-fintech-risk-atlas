@@ -2,14 +2,65 @@ name: Validate site
 on:
   pull_request:
     branches: [main]
-  workflow_dispatch:
+    types: [opened, reopened, synchronize, ready_for_review, converted_to_draft]
 permissions:
   contents: read
+concurrency:
+  group: validate-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 jobs:
+  review-scope:
+    name: Identify content and publication changes
+    runs-on: ubuntu-latest
+    outputs:
+      approval: ${{ steps.scope.outputs.approval }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Compare the proposed merge with the base
+        id: scope
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          CHANGED=$(git diff --name-only --no-renames "$BASE_SHA" HEAD -- \
+            src/content/ research/ public/ mcp/data/ src/taxonomy.json src/content.config.ts \
+            src/components/ src/lib/ src/styles/ src/site-config.js astro.config.mjs \
+            scripts/ .github/workflows/ .github/CODEOWNERS .githooks/ \
+            docs/SECTION_WORKFLOW.md docs/RESEARCH_PROTOCOL.md docs/ATTESTATION_TEMPLATE.md \
+            package.json package-lock.json)
+          if [ -n "$CHANGED" ]; then
+            echo 'approval=required' >> "$GITHUB_OUTPUT"
+          else
+            echo 'approval=unneeded' >> "$GITHUB_OUTPUT"
+          fi
+  content-approval:
+    name: Maintainer approval for content and publication changes
+    needs: review-scope
+    if: needs.review-scope.outputs.approval == 'required' && !github.event.pull_request.draft
+    runs-on: ubuntu-latest
+    environment: atlas-content-approval
+    permissions: {}
+    steps:
+      - run: echo 'Maintainer approved this pull request revision.'
   attestations:
     name: Content attestation
+    needs: [review-scope, content-approval]
+    if: always()
     runs-on: ubuntu-latest
     steps:
+      - name: Require the applicable maintainer approval
+        env:
+          SCOPE_RESULT: ${{ needs.review-scope.result }}
+          APPROVAL_SCOPE: ${{ needs.review-scope.outputs.approval }}
+          APPROVAL_RESULT: ${{ needs.content-approval.result }}
+        run: |
+          test "$SCOPE_RESULT" = success
+          case "$APPROVAL_SCOPE:$APPROVAL_RESULT" in
+            required:success|unneeded:skipped) ;;
+            *) echo 'Content and publication changes require maintainer approval for this PR revision.'; exit 1 ;;
+          esac
       - uses: actions/checkout@v7
       - name: Check declarations, frontmatter parity, and evidence ledgers
         run: python3 scripts/check-attestations.py --all

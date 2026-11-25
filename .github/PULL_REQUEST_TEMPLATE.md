@@ -17,7 +17,7 @@ Unresolved issues:
 
 ## Agent review
 
-Follow the [review procedure](../docs/SECTION_WORKFLOW.md#agent-review-before-requesting-approval) for the final diff.
+Follow the [review procedure](https://github.com/eyeinthesky6/india-fintech-risk-atlas/blob/main/docs/SECTION_WORKFLOW.md#agent-review-before-requesting-approval) for the final diff.
 
 - Reviewed head SHA:
 - Verdict and findings (with file or source locators):

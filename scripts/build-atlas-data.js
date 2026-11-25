@@ -1,3 +1,4 @@
+import { buildRelationships } from '../src/lib/atlas-relationships.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -241,7 +242,7 @@ function buildRecord(fileRelPath) {
     actors: meta.actors || [],
     evidenceLayers: meta.evidenceLayers || [],
     reviewStage: meta.reviewStage || 'draft',
-    lastSourceCheck: meta.lastSourceCheck || '2026-11-23',
+    lastSourceCheck: meta.lastSourceCheck || null,
     sourceLabels,
     sections,
     controls: whatToDoControls,
@@ -286,62 +287,29 @@ function buildGuideDocs() {
 }
 
 function buildKnowledgeGraph(records) {
-  const nodes = records.map((r) => ({
-    id: r.slug,
-    recordId: r.recordId,
-    title: r.title,
-    theme: r.theme,
-    themeLabel: r.themeLabel,
-    actors: r.actors,
-    sourceLabels: r.sourceLabels,
+  const nodes = records.map(r => ({id:r.slug, slug:r.slug, recordId:r.recordId,title:r.title,theme:r.theme,themeLabel:r.themeLabel,actors:r.actors,sourceLabels:r.sourceLabels}));
+  const edges = buildRelationships(records.map(r => ({...r,body:r.fullMarkdown})), '/india-fintech-risk-atlas');
+  const ids = new Map(nodes.map(n=>[n.slug,n.recordId]));
+  const neighbors = (list, slug) => list.filter(e=>e.source===slug || e.target===slug).map(e=>ids.get(e.source===slug?e.target:e.source));
+  const connections = Object.fromEntries(nodes.map(n=>{
+    const sharedSources=neighbors(edges.sourceEdges,n.slug);
+    const sameTheme=neighbors(edges.themeEdges,n.slug);
+    const directLinks=neighbors(edges.directEdges,n.slug);
+    return [n.recordId,{sharedSources,sameTheme,directLinks,allNeighbors:[...new Set([...sharedSources,...sameTheme,...directLinks])]}];
   }));
-
-  const bySource = new Map();
-  const byTheme = new Map();
-
-  for (const r of records) {
-    for (const src of r.sourceLabels) {
-      if (!bySource.has(src)) bySource.set(src, []);
-      bySource.get(src).push(r.recordId);
-    }
-    if (r.theme) {
-      if (!byTheme.has(r.theme)) byTheme.set(r.theme, []);
-      byTheme.get(r.theme).push(r.recordId);
-    }
-  }
-
-  const connections = {};
-  for (const r of records) {
-    const sharedSources = new Set();
-    const sameTheme = new Set();
-
-    for (const src of r.sourceLabels) {
-      for (const other of bySource.get(src) || []) {
-        if (other !== r.recordId) sharedSources.add(other);
-      }
-    }
-    if (r.theme) {
-      for (const other of byTheme.get(r.theme) || []) {
-        if (other !== r.recordId) sameTheme.add(other);
-      }
-    }
-
-    connections[r.recordId] = {
-      sharedSources: Array.from(sharedSources),
-      sameTheme: Array.from(sameTheme),
-      allNeighbors: Array.from(new Set([...sharedSources, ...sameTheme])),
-    };
-  }
-
-  return { nodes, connections };
+  return {nodes,connections,...edges};
 }
 
 export function generateAllData() {
-  const upiDir = path.join(DOCS_DIR, 'upi');
-  const files = fs
-    .readdirSync(upiDir)
-    .filter((f) => f.endsWith('.md'))
-    .map((f) => path.join('upi', f));
+  function discoverRecords(dir = DOCS_DIR) {
+    return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+      const abs = path.join(dir, entry.name);
+      if (entry.isDirectory()) return discoverRecords(abs);
+      return entry.isFile() && /\.mdx?$/.test(entry.name)
+        ? [path.relative(DOCS_DIR, abs)] : [];
+    });
+  }
+  const files = discoverRecords();
 
   const records = files.map((f) => buildRecord(f)).filter(Boolean);
 
@@ -351,6 +319,11 @@ export function generateAllData() {
     return a.recordId.localeCompare(b.recordId);
   });
 
+  const ids = new Set();
+  for (const record of records) {
+    if (ids.has(record.recordId)) throw new Error(`Duplicate record ID: ${record.recordId}`);
+    ids.add(record.recordId);
+  }
   const guideDocs = buildGuideDocs();
   const knowledgeGraph = buildKnowledgeGraph(records);
 
@@ -362,9 +335,12 @@ export function generateAllData() {
       baseUrl: 'https://eyeinthesky6.github.io/india-fintech-risk-atlas/',
       triageWorkerUrl: 'https://atlas-report-triage.6edroid.workers.dev',
       totalRecords: records.length,
+      coveredProducts: [...new Set(records.flatMap((r) => r.products))].sort(),
+      publicationStatus: 'research-preview',
+      verificationNotice: 'Source-checked is not independent review. Regulatory sources may include proposals, future obligations, or indirect corroboration. Verify exact scope, effective date and primary text before relying on any claim.',
       totalGuideDocs: guideDocs.length,
       evidenceLayers: [
-        { id: 'official', label: 'Regulatory', authority: 'RBI / NPCI binding mandates & official directions' },
+        { id: 'official', label: 'Regulatory', authority: 'RBI / NPCI official material, including mandates and non-binding proposals' },
         { id: 'industry', label: 'Industry practice', authority: 'Company documentation & published engineering postmortems' },
         { id: 'practitioner', label: 'Community insight', authority: 'Operator firsthand observations & public case studies' },
         { id: 'research', label: 'Research & academic', authority: 'Empirical studies, academic papers, and benchmark leads' },
@@ -387,19 +363,22 @@ export function generateAllData() {
 
   const llmsTxt = [
     '# India Fintech Risk Atlas',
-    '> An open, source-cited reference for Indian fintech (UPI, Cards, PA/PG, Lending) fraud patterns, controls, and operational risks.',
+    '> An open research preview of Indian fintech fraud patterns, controls, and operational risks. Not legal advice or an independently certified compliance checklist.',
     '',
     '## About',
     '- Source: https://github.com/eyeinthesky6/india-fintech-risk-atlas',
     '- Live Documentation: https://eyeinthesky6.github.io/india-fintech-risk-atlas/',
-    '- API / JSON Dataset: https://eyeinthesky6.github.io/india-fintech-risk-atlas/atlas-records.json',
-    '- MCP Server: india-fintech-risk-atlas-mcp',
+    '- [Structured JSON dataset](https://eyeinthesky6.github.io/india-fintech-risk-atlas/atlas-records.json): records, claims, sources and graph.',
+    '- [Full knowledge pack](https://eyeinthesky6.github.io/india-fintech-risk-atlas/llms-full.txt): consolidated record text.',
+    '- [Local MCP setup](https://github.com/eyeinthesky6/india-fintech-risk-atlas/tree/main/mcp): local stdio only.',
+    `- Products currently represented: ${dataset.metadata.coveredProducts.join(', ')}. Coverage is not exhaustive.`,
+    `- ${dataset.metadata.verificationNotice}`,
     '- Evidence Layers: Regulatory (RBI/NPCI), Industry practice, Community insight, Research & academic, Atlas guidance',
     '',
     '## Canonical Risk Records',
     ...records.map(
       (r) =>
-        `- [${r.recordId}] ${r.title}: ${r.description} (${r.url}) - Layers: ${r.evidenceLayers.join(', ')} | Stage: ${r.reviewStage}`,
+        `- [${r.recordId}: ${r.title}](${r.url}): ${r.description} | Layers: ${r.evidenceLayers.join(', ')} | Stage: ${r.reviewStage} | Last source check: ${r.lastSourceCheck ?? 'unknown'}`,
     ),
     '',
     '## Documentation & Policies',
@@ -410,7 +389,8 @@ export function generateAllData() {
 
   const fullDocs = [
     '# India Fintech Risk Atlas — Consolidated Knowledge Pack',
-    `Generated: ${new Date().toISOString()}`,
+    `Generated: ${dataset.metadata.generatedAt}`,
+    dataset.metadata.verificationNotice,
     '',
     '---',
     '',

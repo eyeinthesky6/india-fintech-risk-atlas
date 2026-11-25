@@ -21,23 +21,64 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 
+def linked_label(label, url):
+    if not url:
+        return None
+    try:
+        parts = urlsplit(url)
+    except ValueError:
+        return None
+    if parts.scheme in {'http', 'https'} and parts.hostname and parts.username is None:
+        return f'<a href="{html.escape(url, quote=True)}">{html.escape(label)}</a>'
+    return None
+
+
 def format_notification(title, message, links):
     safe_title = html.escape(title)
     safe_message = html.escape(message)
     formatted_text = f"<b>🏛️ India Fintech Risk Atlas</b>\n\n<b>{safe_title}</b>\n\n{safe_message}"
-    visible_links = []
-    for label, url in links:
-        if not url:
-            continue
-        try:
-            parts = urlsplit(url)
-        except ValueError:
-            continue
-        if parts.scheme in {'http', 'https'} and parts.hostname and parts.username is None:
-            visible_links.append(f'<a href="{html.escape(url, quote=True)}">{html.escape(label)}</a>')
+    visible_links = [link for label, url in links if (link := linked_label(label, url))]
     if visible_links:
         formatted_text += '\n\n' + ' · '.join(visible_links)
     return formatted_text
+
+
+def telegram_length(visible_text):
+    return len(visible_text.encode('utf-16-le')) // 2
+
+
+def format_notifications(title, summary, links):
+    sections = summary.get('sections')
+    if not sections:
+        return [format_notification(title, summary['message'], links)]
+    header = format_notification(title, summary['message'], [])
+    footer = format_notification(title, summary['message'], links)[len(header):]
+    limit = 4096 - telegram_length(f'🏛️ India Fintech Risk Atlas\n\n{title}\n\n{summary["message"]}')
+    if footer:
+        limit -= telegram_length('\n\n' + ' · '.join(label for label, url in links if linked_label(label, url)))
+    parts = []
+    body = ''
+    length = 0
+    for section in sections:
+        heading = section['heading']
+        heading_size = telegram_length(f'\n\n{heading}')
+        heading_html = f'\n\n<b>{html.escape(heading)}</b>'
+        next_heading = heading_html
+        for item in section['items']:
+            label, detail = item['label'], item.get('detail', '')
+            row_size = telegram_length(f'\n• {label}{detail}')
+            if length + row_size + (heading_size if next_heading else 0) > limit and body:
+                parts.append(header + body + footer)
+                body, length, next_heading = '', 0, heading_html
+            if next_heading:
+                body += next_heading
+                length += heading_size
+                next_heading = ''
+            link = linked_label(label, item.get('url')) or html.escape(label)
+            body += f'\n• {link}{html.escape(detail)}'
+            length += row_size
+    parts.append(header + body + footer)
+    return parts
 
 
 def send_telegram_notification(token: str, chat_id: str, text: str) -> bool:
@@ -89,9 +130,9 @@ def main():
     links = list(summary["links"])
     if args.url:
         links.append((args.url_label, args.url))
-    text = format_notification(args.title, summary["message"], links)
+    parts = format_notifications(args.title, summary, links)
     if args.preview:
-        print(text)
+        print('\n\n'.join(parts))
         return
 
     token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
@@ -99,10 +140,14 @@ def main():
 
     if not token or not chat_id:
         status = "Skipped because Telegram credentials are missing."
-    elif send_telegram_notification(token, chat_id, text):
-        status = "Telegram accepted the notification."
     else:
-        status = "Telegram did not confirm delivery."
+        sent = sum(send_telegram_notification(token, chat_id, part) for part in parts)
+        if sent == len(parts):
+            status = 'Telegram accepted the notification.'
+        elif sent:
+            status = f'Telegram accepted {sent} of {len(parts)} notification parts.'
+        else:
+            status = 'Telegram did not confirm delivery.'
 
     print(status)
     if summary := os.environ.get("GITHUB_STEP_SUMMARY"):

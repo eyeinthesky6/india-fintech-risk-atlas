@@ -1,6 +1,9 @@
-name: PR Approval Notification
+name: PR Review Notifications
 
 on:
+  pull_request_target:
+    types: [review_requested]
+    branches: [main]
   pull_request_review:
     types: [submitted]
 
@@ -8,11 +11,33 @@ permissions:
   contents: read
 
 jobs:
+  notify-review-request:
+    name: Notify the Atlas owner of a review request
+    if: >-
+      github.event_name == 'pull_request_target' && !github.event.pull_request.draft &&
+      github.event.requested_reviewer.id == github.event.repository.owner.id
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Send the PR review link to Telegram
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python3 scripts/notify-telegram.py \
+            --title "Atlas PR #$PR_NUMBER requests your review" \
+            --message="$PR_TITLE" --url "$PR_URL" --url-label 'Open PR in GitHub'
   notify-approval:
     name: Notify maintainers of a PR approval
     runs-on: ubuntu-latest
     # Only trigger when the review is an explicit approval and the PR is not a draft
-    if: github.event.review.state == 'approved' && !github.event.pull_request.draft && github.event.pull_request.head.repo.full_name == github.repository
+    if: github.event_name == 'pull_request_review' && github.event.review.state == 'approved' && !github.event.pull_request.draft && github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7

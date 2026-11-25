@@ -1,0 +1,28 @@
+name: Atlas approval from PR comment
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+
+jobs:
+  approve:
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      vars.ATLAS_COMMENT_APPROVAL_ENABLED == 'true' &&
+      github.event.issue.pull_request && github.event.issue.state == 'open' &&
+      github.event.comment.user.id == github.event.repository.owner.id &&
+      startsWith(github.event.comment.body, 'approved')
+    runs-on: ubuntu-latest
+    environment: atlas-comment-approval
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Record the maintainer's decision with GitHub
+        env:
+          GH_TOKEN: ${{ secrets.ATLAS_APPROVAL_TOKEN }}
+        run: python3 scripts/approve-atlas-pr.py

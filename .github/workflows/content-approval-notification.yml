@@ -4,30 +4,43 @@ on:
   workflow_run:
     workflows: [Validate site]
     types: [requested]
+  workflow_dispatch:
+    inputs:
+      validation_run_id:
+        description: ID of the Validate site run awaiting approval
+        type: string
+        required: true
 
 permissions:
   actions: read
   contents: read
 
 concurrency:
-  group: atlas-approval-notice-${{ github.event.workflow_run.head_repository.id }}-${{ github.event.workflow_run.head_branch }}
+  group: atlas-approval-notice-${{ github.event.workflow_run.head_repository.id || inputs.validation_run_id }}-${{ github.event.workflow_run.head_branch }}
   cancel-in-progress: true
 
 jobs:
   notify:
-    if: github.event.workflow_run.event == 'pull_request'
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || github.event.workflow_run.event == 'pull_request')
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    env:
+      VALIDATION_RUN_ID: ${{ github.event.workflow_run.id || inputs.validation_run_id }}
     steps:
       - name: Check for a pending maintainer decision
         id: approval
         env:
           GH_TOKEN: ${{ github.token }}
-          VALIDATION_RUN_ID: ${{ github.event.workflow_run.id }}
         run: |
+          [[ "$VALIDATION_RUN_ID" =~ ^[0-9]+$ ]]
           RUN="repos/$GITHUB_REPOSITORY/actions/runs/$VALIDATION_RUN_ID"
           for attempt in {1..30}; do
-            STATUS=$(gh api "$RUN" --jq '.status')
+            RUN_DATA=$(gh api "$RUN" --jq '[.status, .event, .path, .head_sha, (.pull_requests[0].number // "")] | @tsv')
+            IFS=$'\t' read -r STATUS EVENT WORKFLOW REVISION PR_NUMBER <<< "$RUN_DATA"
+            if [ "$EVENT" != pull_request ] || [ "$WORKFLOW" != .github/workflows/validate.yml ]; then
+              echo 'Expected an Atlas PR validation run.' >&2
+              exit 1
+            fi
             if [ "$STATUS" = completed ]; then
               exit 0
             fi
@@ -35,6 +48,8 @@ jobs:
               PENDING=$(gh api "$RUN/pending_deployments" --jq 'any(.[]; .environment.name == "atlas-content-approval")')
               if [ "$PENDING" = true ]; then
                 echo 'pending=true' >> "$GITHUB_OUTPUT"
+                echo "revision=$REVISION" >> "$GITHUB_OUTPUT"
+                echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
                 exit 0
               fi
             fi
@@ -52,18 +67,17 @@ jobs:
       - name: Send the GitHub approval link to Telegram
         if: steps.approval.outputs.pending == 'true'
         env:
-          VALIDATION_RUN_ID: ${{ github.event.workflow_run.id }}
-          REVISION: ${{ github.event.workflow_run.head_sha }}
-          PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
+          REVISION: ${{ steps.approval.outputs.revision }}
+          PR_NUMBER: ${{ steps.approval.outputs.pr_number }}
+          COMMENT_APPROVAL_ENABLED: ${{ vars.ATLAS_COMMENT_APPROVAL_ENABLED }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          CHANGE="Revision ${REVISION:0:12}"
-          if [ -n "$PR_NUMBER" ]; then
-            CHANGE="PR #$PR_NUMBER ($CHANGE)"
-          fi
+          SUMMARY="$RUNNER_TEMP/atlas-approval-telegram.json"
+          python3 scripts/telegram-update.py approval \
+            --repo-url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" \
+            --run "$VALIDATION_RUN_ID" --revision "$REVISION" --pr "${PR_NUMBER:-}" \
+            --comment-approval "${COMMENT_APPROVAL_ENABLED:-}" > "$SUMMARY"
           python3 scripts/notify-telegram.py \
             --title 'Atlas content is waiting for approval' \
-            --message "$CHANGE is waiting for the maintainer. Open GitHub and select Review deployments, then atlas-content-approval." \
-            --url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$VALIDATION_RUN_ID" \
-            --url-label 'Review this revision on GitHub'
+            --summary-file "$SUMMARY"

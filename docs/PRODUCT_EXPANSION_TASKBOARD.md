@@ -46,7 +46,7 @@ This task board is designed for **turnkey agent execution**. Any agent opening t
 
 | Topic ID | Topic Title & Operational Signal | Target File Path | Primary Statutory Basis | Status |
 |---|---|---|---|---|
-| `CARD-OVERVIEW` | Card Ecosystem, Clearing & Interchange Architecture | `src/content/docs/cards/card-ecosystem.md` | RBI Card Master Directions `Ch. II` | 📋 Ready to Pick |
+| `CARD-OVERVIEW` | Card Ecosystem, Clearing & Interchange Architecture | `src/content/docs/cards/card-ecosystem.md` | RBI Card Master Directions `Ch. II` | 🔄 PR In-Flight (Baseline populated) |
 | `CARD-001` | Card-on-File Tokenization (CoFT) & Cryptogram Validation Failures | `src/content/docs/cards/coft-tokenization.md` | RBI CoFT Directions / EMVCo specs | 📋 Ready to Pick |
 | `CARD-002` | Card-Not-Present (CNP) International 2FA/AFA Bypass | `src/content/docs/cards/cnp-international-bypass.md` | RBI AFA Directions `RBI/2025-26/79` | 📋 Ready to Pick |
 | `CARD-003` | Automated BIN Attacks, Card Number Guessing & Velocity Bursts | `src/content/docs/cards/bin-attack-velocity.md` | RBI Cyber Resilience / Network Rules | 📋 Ready to Pick |

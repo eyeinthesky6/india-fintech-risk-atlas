@@ -1,7 +1,8 @@
 {
   "recordIdPattern": "^[A-Z]+-(?:OVERVIEW|\\d{3})$",
   "products": {
-    "upi": "UPI"
+    "upi": "UPI",
+    "cards": "Cards"
   },
   "recordTypes": {
     "explainer": "System explainer",
@@ -36,11 +37,15 @@
   },
   "actors": {
     "payer": "Payer",
+    "cardholder": "Cardholder",
     "merchant": "Merchant",
     "tpap": "TPAP",
     "psp-bank": "PSP bank",
     "remitter-bank": "Remitter bank",
     "beneficiary-bank": "Beneficiary bank",
+    "issuer-bank": "Issuer bank",
+    "acquirer-bank": "Acquirer bank",
+    "card-network": "Card network",
     "payment-aggregator": "Payment aggregator",
     "npci": "NPCI"
   },

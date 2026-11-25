@@ -103,6 +103,12 @@ export default defineConfig({
           },
         ],
       },
+      {
+        label: 'Cards',
+        items: [
+          { label: 'Card ecosystem', slug: 'cards/card-ecosystem' },
+        ],
+      },
     ],
   })],
   vite: {

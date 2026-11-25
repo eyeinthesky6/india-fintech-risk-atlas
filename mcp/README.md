@@ -100,3 +100,15 @@ npm test
   5. *Fuzzing & Injection Robustness:* Verifies stability under arbitrary strings, Unicode, and SQL/XSS payloads.
   6. *Gap Checklist Invariant:* Guarantees well-formed tables across Markdown and JSON formats.
   7. *Submission Validation Gate:* Enforces required fields before triage forwarding.
+
+---
+
+## 🌐 Remote MCP vs. Local stdio Evaluation
+
+This server is packaged intentionally as a **local stdio process** rather than a publicly exposed remote HTTP/SSE endpoint.
+* **Web & Chat Users (ChatGPT, Gemini Web, Perplexity):** Covered with zero friction and zero compute cost via our static CDN index at [`/llms.txt`](https://eyeinthesky6.github.io/india-fintech-risk-atlas/llms.txt) and [`/atlas-records.json`](https://eyeinthesky6.github.io/india-fintech-risk-atlas/atlas-records.json).
+* **Developer & IDE Users (Cursor, Claude Desktop, Antigravity, VS Code):** Covered via local stdio with sub-2ms response times and offline capability.
+
+For the full architectural decision record, security requirements, and activation triggers for when to deploy a remote Cloudflare Worker SSE endpoint, see [docs/REMOTE_MCP_EVALUATION.md](../docs/REMOTE_MCP_EVALUATION.md).
+  6. *Gap Checklist Invariant:* Guarantees well-formed tables across Markdown and JSON formats.
+  7. *Submission Validation Gate:* Enforces required fields before triage forwarding.

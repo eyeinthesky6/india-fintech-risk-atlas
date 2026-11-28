@@ -17,6 +17,7 @@
 - **16 `source-checked` UPI records:** `UPI-OVERVIEW`, `UPI-001`–`UPI-007` and `UPI-009`–`UPI-016`. The [primary source register](../research/upi/PRIMARY_SOURCE_REGISTER.md) preserves the November 23 audit and the November 25 inspection of OC-226.
 - **1 research draft:** `UPI-008` awaits direct inspection of the original NPCI member circular.
 - **`0` `reviewed` / `published` records:** Independent second-reviewer verification has not yet occurred on any record.
+- **UPI-016 source refresh (Nov 27, 2026):** The [record](../src/content/docs/upi/risk-discussion.md) now covers RBI’s November follow-up drafts on electronic banking safeguards. The drafts are open for public comment through December 14, 2026. The [evidence ledger](../research/evidence/UPI-016.md) records the proposed commercial-bank controls and the UPI scope.
 
 ## Technical, schema & CI validation status
 

@@ -12,6 +12,7 @@ const atlasComponents = {
       updateConfig({
         components: {
           ...config.components,
+          Banner: './src/components/AtlasSearchPanel.astro',
           MarkdownContent: './src/components/AtlasMarkdownContent.astro',
           PageSidebar: './src/components/AtlasPageSidebar.astro',
           PageTitle: './src/components/AtlasPageTitle.astro',
@@ -132,6 +133,10 @@ export default defineConfig({
         enforce: 'pre',
         resolveId(source, importer) {
           if (importer && importer.includes('starlight-theme-six')) {
+            // Theme Six imports its Search directly instead of using the Starlight override.
+            if (source === './Search.astro' && /[\\/]overrides[\\/]Header\.astro$/.test(importer)) {
+              return fileURLToPath(new URL('./src/components/AtlasSearchButton.astro', import.meta.url));
+            }
             if (
               source === './ThemeSelect.astro' ||
               source.endsWith('/ThemeSelect.astro') ||

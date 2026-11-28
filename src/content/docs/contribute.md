@@ -43,9 +43,9 @@ Most senior risk architects and banking compliance officers do not use GitHub. W
    > *"RBI has updated the timeline for customer unauthorized debit reporting under Circular X. We drafted this 1-line update to `UPI-015`. Does this reflect what your bank/PSP enforces in production?"*
 4. **Attribution:** Choose whether Atlas may credit you by name, professional handle, or an anonymous role. Maintainers confirm the wording with you privately before adding public credit. You can also choose to skip credit.
 
-### Sign up by email
+### Sign up as an advisor or domain expert
 
-[Email an advisor or domain expert signup](mailto:atlas@six.tech?subject=Atlas%20advisor%20signup&body=Role%20of%20interest%20%28Advisory%20Panel%20or%20Topic%20Lead%29%3A%0ATopic%20or%20area%20of%20expertise%3A%0APreferred%20contact%20%28email%20or%20WhatsApp%29%3A%0APublic%20credit%20%28name%2C%20handle%2C%20anonymous%20role%2C%20or%20none%29%3A). We’ll use your reply to agree on a topic, contact method, and any public credit. Your email and phone number stay private.
+[Fill out the advisor signup form](https://docs.google.com/forms/d/e/1FAIpQLSew7FPSHJL3KyBL2u8wONFEDP3JiWzf--Yz3rEN2Bt6aj44bQ/viewform?usp=publish-editor). You can respond without signing in. The Atlas maintainers will use your response to follow up about your role, topics, and any public credit. Your contact details stay private.
 
 ### Available Domain Tracks:
 - **UPI & Immediate Payments:** Real-time velocity, QR spoofing, collect requests, UDIR dispute flows.
